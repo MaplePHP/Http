@@ -3,6 +3,7 @@
 namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\ServerRequestInterface;
+use PHPFuse\Http\Interfaces\UriInterface;
 
 
 class ServerRequest extends Request implements ServerRequestInterface
@@ -18,12 +19,12 @@ class ServerRequest extends Request implements ServerRequestInterface
     protected $headers;
 
     function __construct(
+        UriInterface $uriInst,
         ?array $cookies = NULL, 
         ?array $queryParams = NULL, 
         ?array $files = NULL, 
         ?array $parsedBody = NULL, 
-        array $attr = [], 
-        ?UriInterface $uriInst = NULL
+        array $attr = []
     ) {
         
         if(is_null($this->headers)) $this->headers = self::requestHeaders();

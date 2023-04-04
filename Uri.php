@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\UriInterface;
+use PHPFuse\Output\Format;
 
 class Uri implements UriInterface
 {
@@ -34,16 +35,18 @@ class Uri implements UriInterface
     private $fragment; // Anchor/after hash
     private $userInfo;
     private $authority;
+    private $dir;
     private $encoded;
     private $build;
 
-    function __construct(?string $uri = NULL)
+    function __construct($uri)
     {
-        $this->uri = $uri;
-        if(!is_null($this->uri)) {
+        if(is_array($uri)) {
+            $this->parts = $uri;
+        } else {
             $this->parts = parse_url($this->uri);
-            $this->fillParts();   
         }
+        $this->fillParts();
     }
 
     public static function withUriParts(array $parts) {
@@ -60,9 +63,21 @@ class Uri implements UriInterface
     public function getScheme(): string
     {
         if($val = $this->hasPart("scheme")) {
-            $this->encoded['scheme'] = \Response\Format\Str::value($val)->tolower()->get();
+            $this->encoded['scheme'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['scheme'];
+    }
+
+    /**
+     * Get dir 
+     * @return string (ex: http/https)
+     */
+    public function getDir(): string
+    {
+        if($val = $this->hasPart("dir")) {
+            $this->encoded['dir'] = $val;
+        }
+        return (string)$this->encoded['dir'];
     }
 
     /**
@@ -110,7 +125,7 @@ class Uri implements UriInterface
     public function getHost(): string
     {
         if($val = $this->hasPart("host")) {
-            $this->encoded['host'] = \Response\Format\Str::value($val)->tolower()->get();
+            $this->encoded['host'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['host'];
     }
@@ -134,7 +149,7 @@ class Uri implements UriInterface
     public function getPath(): string
     {
         if($val = $this->hasPart("path")) {
-            $this->encoded['path'] = \Response\Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
+            $this->encoded['path'] = Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
         }
         return (string)$this->encoded['path'];
     }
@@ -146,7 +161,7 @@ class Uri implements UriInterface
     public function getQuery(): string
     {
         if($val = $this->hasPart("query")) {
-            $this->encoded['query'] = \Response\Format\Str::value($val)->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])->get();
+            $this->encoded['query'] = Format\Str::value($val)->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])->get();
         }
         return (string)$this->encoded['query'];
     }
@@ -158,7 +173,7 @@ class Uri implements UriInterface
     public function getFragment(): string
     {
         if($val = $this->hasPart("fragment")) {
-            $this->encoded['fragment'] = \Response\Format\Str::value($val)->toggleUrlencode()->get();
+            $this->encoded['fragment'] = Format\Str::value($val)->toggleUrlencode()->get();
         }
         return (string)$this->encoded['fragment'];
     }

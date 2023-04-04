@@ -4,6 +4,7 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\MessageInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
+use PHPFuse\Output\Format;
 
 abstract class Message implements MessageInterface
 {
@@ -13,11 +14,14 @@ abstract class Message implements MessageInterface
     protected $version;
     protected $headers = array();
     protected $body;
+    protected $uriParts;
+    protected $env;
+    protected $path;
 
     function __construct(?StreamInterface $body = NULL) 
     {
-        $this->server = $_SERVER;
-        $this->serverProtocol = ($this->server['SERVER_PROTOCOL'] ?? "HTTP/1.1");
+        $this->env = $_SERVER;
+        $this->serverProtocol = ($this->env['SERVER_PROTOCOL'] ?? "HTTP/1.1");
         $this->body = $body;
     }
 
@@ -87,6 +91,77 @@ abstract class Message implements MessageInterface
         $inst = clone $this;
         $inst->body = $body;
         return $inst->body;
+    }
+
+    /**
+     * Get URI enviment Part data that will be passed to UriInterface and match to public object if exists.
+     * @return array
+     */
+    function getUriEnv(array $add): array
+    {
+        if(is_null($this->uriParts)) {
+            $this->uriParts['scheme'] = ($this->getEnv("HTTPS") === 'on') ? 'https' : 'http';
+            $this->uriParts['user'] = $this->getEnv("PHP_AUTH_USER");
+            $this->uriParts['pass'] = $this->getEnv("PHP_AUTH_PW");
+            $this->uriParts['host'] = ($host = $this->getEnv("HTTP_HOST")) ? $host : $this->getEnv("SERVER_NAME");
+            $this->uriParts['port'] = $this->getEnv("SERVER_PORT", NULL);
+            $this->uriParts['path'] = $this->getEnvPath();
+            $this->uriParts['query'] = $this->getEnv("QUERY_STRING");
+            $this->uriParts['fragment'] = $this->getEnv("QUERY_STRING");
+            if(!is_null($this->uriParts['port'])) $this->uriParts['port'] = (int)$this->uriParts['port']; 
+            $this->uriParts = array_merge($this->uriParts, $add);
+        }
+        return $this->uriParts;
+    }
+
+    function setUriEnv($key, $value): void 
+    {
+        $this->uriParts[$key] = $value;
+    }
+
+
+    /**
+     * Get request/server environment data
+     * @param  string $key     Server key
+     * @param  string $default Default value, returned if Env data is empty
+     * @return string|null
+     */
+    function getEnv(string $key, ?string $default = ""): ?string 
+    {
+        return ($this->env[$key] ?? $default);
+    }
+
+    /**
+     * Check if environment data exists
+     * @param  string  $key Server key
+     * @return boolean
+     */
+    function hasEnv($key): bool 
+    {
+        return (bool)($this->getEnv($key, NULL));
+    }
+
+    /**
+     * Build and return URI Path from environment
+     * @return string
+     */
+    function getEnvPath(): string 
+    {
+        if(is_null($this->path)) {
+            $basePath = '';
+            $requestName = Format\Uri::value($this->getEnv("SCRIPT_NAME"))->extractPath()->get();
+            $requestDir = dirname($requestName);
+            $requestUri = Format\Uri::value($this->getEnv("REQUEST_URI"))->extractPath()->get();
+
+            $this->path = $requestUri;
+            if (stripos($requestUri, $requestName) === 0) {
+                $basePath = $requestName;
+            } elseif ($requestDir !== '/' && stripos($requestUri, $requestDir) === 0) {
+                $basePath = $requestDir;
+            }
+            if($basePath) $this->path = ltrim(substr($requestUri, strlen($basePath)), '/');
+        }
+        return $this->path;
     }
 
 }

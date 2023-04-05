@@ -90,7 +90,7 @@ abstract class Message implements MessageInterface
     {
         $inst = clone $this;
         $inst->body = $body;
-        return $inst->body;
+        return $inst;
     }
 
     /**

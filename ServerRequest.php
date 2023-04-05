@@ -17,6 +17,8 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     protected $env;
     protected $headers;
+    protected $cliKeywords;
+    protected $cliArgs;
 
     function __construct(
         UriInterface $uriInst,
@@ -292,6 +294,48 @@ class ServerRequest extends Request implements ServerRequestInterface
         $inst = clone $this;
         unset($inst->attr[$name]);
         return $inst;
+    }
+
+
+    /**
+     * Get Cli keyword
+     * @return string|null
+     */
+    public function getCliKeyword(): ?string 
+    {
+        if(is_null($this->cliKeywords)) {
+            $new = array();
+            $arg = $this->getUri()->getArgv();
+            foreach($arg as $k => $v) {
+                if((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
+                    break;
+                } else {
+                    $new[] = $v;
+                }
+            }
+            array_shift($new);
+            $this->cliKeywords = implode("/", $new);
+        }
+
+        return $this->cliKeywords;
+    }
+
+    /**
+     * Get Cli arguments
+     * @return array
+     */
+    public function getCliArgs(): array {
+        if(is_null($this->cliArgs)) {
+            $arg = $this->getUri()->getArgv();
+            $this->cliArgs = array();
+            foreach($arg as $k => $v) {
+                if((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
+                    parse_str(substr($v, ($p1 !== false ? 2 : 1)), $result);
+                    $this->cliArgs = array_merge($this->cliArgs, $result);
+                }
+            }
+        }
+        return $this->cliArgs;
     }
 
 

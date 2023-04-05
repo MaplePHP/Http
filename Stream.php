@@ -51,9 +51,7 @@ class Stream implements StreamInterface
             $this->permission = $permission;
             $this->resource = fopen($this->stream, $this->permission);
             $this->meta = $this->getMetadata();
-        }
-
-       
+        }       
     }
 
     function withContext(array $opts): StreamInterface
@@ -169,6 +167,11 @@ class Stream implements StreamInterface
     public function tell(): int 
     {
         return (int)ftell($this->resource);
+    }
+
+    function getLine() {
+        $line = fgets($this->resource);
+        return trim($line);
     }
 
     /**

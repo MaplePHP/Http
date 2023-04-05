@@ -36,6 +36,7 @@ class Uri implements UriInterface
     private $userInfo;
     private $authority;
     private $dir;
+    private $argv;
     private $encoded;
     private $build;
 
@@ -194,6 +195,10 @@ class Uri implements UriInterface
             if($fragment = $this->getFragment()) $this->build .= "#{$fragment}";
         }
         return $this->build;
+    }
+
+    public function getArgv() {
+        return $this->argv;
     }
 
     /**

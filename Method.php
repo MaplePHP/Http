@@ -8,6 +8,7 @@ class Method
 {
 
     private $request;
+    private $arrToJson = false;
 
     /**
      * Start instance 
@@ -21,13 +22,13 @@ class Method
     {
         $inst = new static();
         switch($k) {
-            case '_get':
+            case 'get': case '_get':
                 $inst->request = $inst->getRawGet($a[0]);
             break;
-            case '_post':
+            case 'post': case '_post':
                 $inst->request = $inst->getRawPost($a[0]);
             break;
-            case '_value': 
+            case 'value':  case '_value': 
                 $inst->request = $a[0];
             break;
             default:
@@ -36,6 +37,17 @@ class Method
         }
 
         return $inst;
+    }
+
+    /**
+     * If Request[key] is array then auto convert it to json to make it database ready
+     * @param  bool $yes = true
+     * @return self
+     */
+    function arrToJson(bool $yes = true) 
+    {
+        $this->arrToJson = $yes;
+        return $this;
     }
 
     /**
@@ -50,6 +62,8 @@ class Method
                 if($encode) $uri->rawurlencode();
                 return $uri->get();
             })->get();
+
+            if($this->arrToJson) foreach($this->request as $k => &$v) if(is_array($v)) $v = json_encode($v);
 
         } else {
             $this->request = Format\Uri::value($this->request)->xxs()->get();

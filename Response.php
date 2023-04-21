@@ -73,7 +73,6 @@ class Response extends Message implements ResponseInterface
         511 => 'Network Authentication Required', 
     );
 
-
     private $statusCode = 200;
     private $phrase;
 
@@ -85,9 +84,9 @@ class Response extends Message implements ResponseInterface
 
     function __construct(StreamInterface $body, array $headers = array(), int $status = 200, ?string $phrase = NULL, ?string $version = NULL) 
     {
-        parent::__construct($body, $headers);
+        parent::__construct($body);
         $this->statusCode = $status;
-        $this->headers = $headers;
+        $this->headers = $this->setHeaders($headers);
         $this->body = $body;
         if(!is_null($version)) $this->version = $version;
         if(!is_null($phrase)) $this->phrase = $phrase;
@@ -112,6 +111,28 @@ class Response extends Message implements ResponseInterface
             $this->phrase = $this::PHRASE[$this->statusCode];
         }
         return $this->phrase;
+    }
+    
+    public function createHeaders() 
+    {
+        foreach($this->getHeaders() as $key => $val) {
+            $value = $this->getHeaderLine($key);
+            header("{$key}: {$value}");
+        }
+    }
+    
+    public function location(string $url, int $statusCode = 302): void {
+        if($statusCode !== 301 && $statusCode !== 302) throw new \Exception("The second argumnet (statusCode) is expecting 301 or 302", 1);
+
+        $this->withStatus($statusCode)
+        ->withHeader("Location", $url)
+        ->createHeaders();
+        
+        die("Redirecting...");
+    }
+
+    public function redirect(string $url, int $statusCode = 302): void {
+        $this->location($url, $statusCode);
     }
 
 }

@@ -329,12 +329,15 @@ class ServerRequest extends Request implements ServerRequestInterface
             $arg = $this->getUri()->getArgv();
             $this->cliArgs = array();
             foreach($arg as $k => $v) {
+                $v = str_replace("&", "#", $v);
                 if((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
                     parse_str(substr($v, ($p1 !== false ? 2 : 1)), $result);
+                    foreach($result as &$val) $val = str_replace("#", "&", $val);
                     $this->cliArgs = array_merge($this->cliArgs, $result);
                 }
             }
         }
+
         return $this->cliArgs;
     }
 

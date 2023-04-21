@@ -17,6 +17,7 @@ abstract class Message implements MessageInterface
     protected $uriParts;
     protected $env;
     protected $path;
+    protected $headerLine;
 
     function __construct(?StreamInterface $body = NULL) 
     {
@@ -25,9 +26,12 @@ abstract class Message implements MessageInterface
         $this->body = $body;
     }
 
+    /**
+     * Get server HTTP protocol version number 
+     * @return string
+     */
     public function getProtocolVersion() 
     {
-
         if(is_null($this->version)) {
             $prot = explode("/", $this->serverProtocol);
             $this->version = end($prot);
@@ -36,56 +40,177 @@ abstract class Message implements MessageInterface
         return $this->version;
     }
 
+    /**
+     * Set new server HTTP protocol version number 
+     * @param  string $version
+     * @return static
+     */
     public function withProtocolVersion($version) 
     {
         $inst = clone $this;
         $inst->version = $version;
         return $inst;
-
     }
 
+    /**
+     * Get all current headers
+     * @return array
+     */
     public function getHeaders() 
     {
         return $this->headers;
     }
 
+    /**
+     * Check is a header exists 
+     * @param  string  $name Header name/key (case insensitive)
+     * @return boolean
+     */
     public function hasHeader($name) 
     {
+        $name = $this->headerKey($name);
         return (bool)($this->headers[$name] ?? NULL);
     }
 
+    /**
+     * Get header from name/key
+     * @param  string $name name/key (case insensitive)
+     * @return array
+     */
     public function getHeader($name) 
     {
-        return ($this->headers[$name] ?? NULL);
+        $name = $this->headerKey($name);
+        return ($this->headers[$name] ?? []);
     }
 
+    /**
+     * Get header value line
+     * @param  string $name name/key (case insensitive)
+     * @return string
+     */
     public function getHeaderLine($name) 
     {
-
+        $data = $this->getHeaderLineData($name);
+        return (count($data) > 0) ? implode("; ", $data) : ($data[0] ?? []);
     }
 
-    public function withHeader($name, $value) 
+    /**
+     * Get header value data items
+     * @param  string $name name/key (case insensitive)
+     * @return null||array
+     */
+    public function getHeaderLineData(string $name): ?array 
     {
-        $inst = clone $this;
-        $inst->headers[$name] = $value;
+        if(is_null($this->headerLine)) {
+            $this->headerLine = array();
+            $headerArr = $this->getHeader($name);
+            foreach($headerArr as $key => $val) {
+                if(is_numeric($key)) {
+                    $this->headerLine[] = $val;
+                } else {
+                    $this->headerLine[] = "{$key} {$val}";
+                }
+            }
+        }
+
+        return $this->headerLine;
+    }
+
+    /**
+     * Set multiple headers
+     * @param  array  $arr
+     * @return static
+     */
+    public function withHeaders(array $arr) 
+    {
+        $inst = $this;
+        foreach($arr as $key => $val) $inst = $inst->withHeader($key, $val);
         return $inst;
     }
 
+    /**
+     * Set new header
+     * @param  string $name 
+     * @param  string/array $value
+     * @return static
+     */
+    public function withHeader($name, $value) 
+    {
+        $inst = clone $this;
+        $inst->setHeader($name, $value);
+        $inst->resetHeaderLine();
+        return $inst;
+    }
+
+    /**
+     * Set new header
+     * @param  string $name 
+     * @param  string/array $value
+     * @return static
+     */
+    public function setHeader($name, $value) 
+    {
+        $name = $this->headerKey($name);
+        $this->headers[$name] = is_array($value) ? $value : array_map('trim', explode(';', $value));
+        return $this->headers;
+    }
+
+    /**
+     * Set new headers
+     * @param  string $name 
+     * @param  string/array $value
+     * @return static
+     */
+    public function setHeaders(array $arr): array 
+    {
+        foreach($arr as $key => $val) $this->setHeader($key, $val);
+        return $this->headers;
+    }
+
+    /**
+     * Add header line
+     * @param  string $name  name/key (case insensitive)
+     * @param  string $value
+     * @return static
+     */
     public function withAddedHeader($name, $value) 
     {
-
+        $inst = clone $this;
+        if($inst->hasHeader($name)) $inst->headers[$name][] = $value;
+        $inst->setHeader($name, $inst->headers[$name]);
+        $inst->resetHeaderLine();
+        return $inst;
     }
 
+    /**
+     * Unset/remove header
+     * @param  string $name name/key (case insensitive)
+     * @return static
+     */
     public function withoutHeader($name) 
     {
+        $inst = clone $this;
+        $name = $this->headerKey($name);
+        if(isset($inst->headers[$name])) unset($inst->headers[$name]);
+        $inst->resetHeaderLine();
+        return $inst;
 
     }
 
-    public function getBody() 
+    /**
+     * Get stream body
+     * @return StreamInterface
+     */
+    public function getBody(): StreamInterface
     {
         return $this->body;
     }
 
+    /**
+     * Set new stream body
+     * @param  StreamInterface $body
+     * @return static
+     */
     public function withBody(StreamInterface $body) 
     {
         $inst = clone $this;
@@ -162,6 +287,21 @@ abstract class Message implements MessageInterface
             if($basePath) $this->path = ltrim(substr($requestUri, strlen($basePath)), '/');
         }
         return $this->path;
+    }
+
+    /**
+     * Used to make header keys consistent 
+     * @param  string $key
+     * @return string
+     */
+    protected function headerKey(string $key): string 
+    {
+        return strtolower($key);
+    }
+
+    protected function resetHeaderLine(): void 
+    {
+        $this->headerLine = NULL;
     }
 
 }

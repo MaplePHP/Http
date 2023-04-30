@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace PHPFuse\Http;
 
-class Cookies
+use PHPFuse\Http\Interfaces\CookiesInterface;
+
+class Cookies implements CookiesInterface
 {
 
     private $name;
@@ -96,14 +98,14 @@ class Cookies
      * @param mixed $value
      * @param int   $expires
      */
-    function set(string $name, $value, int $expires): void
+    function set(string $name, string $value, int $expires, bool $force = false): void
     {
-        if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
+        if(version_compare(PHP_VERSION, '7.3.0') >= 0) {
             setcookie($name, $value, $this->cookieOpt($expires));
-
         } else {
             setcookie($name, $value, $expires, $this->path, $this->domain, $this->secure, $this->httponly);
         }
+        if($force) $_COOKIE[$name] = $value;
     }
     
     /**
@@ -125,6 +127,17 @@ class Cookies
     function get(string $name, ?string $default = NULL): ?string 
     {
         return ($_COOKIE[$name] ?? $default);
+    }
+
+    /**
+     * Delete Cookie
+     * @param  string $name
+     * @return void
+     */
+    function delete(string $name): void
+    {
+        $this->set($name, "", time());
+        if($this->has($name)) unset($_COOKIE[$name]);
     }
 
     /**

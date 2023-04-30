@@ -50,11 +50,22 @@ class Method
         return $this;
     }
 
+    function __call($m, $a) {
+
+        if($m === "get") {
+            return call_user_func_array([$this, "param"], $a);
+        } else {
+            throw new \Exception("The Method \"{$m}\" does not exist in the class \"".get_class($this)."\".", 1);
+            
+        }
+
+    }
+
     /**
      * Get XXS "Protected" result
      * @return string|array|null
      */
-    function get(bool $encode = false) 
+    function param(bool $encode = false) 
     {
         if(is_array($this->request)) {
             $this->request = Format\Arr::value($this->request)->walk(function($value) use($encode) {

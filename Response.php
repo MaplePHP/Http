@@ -101,7 +101,7 @@ class Response extends Message implements ResponseInterface
     {
         $clone = clone $this;
         $clone->statusCode = $code;
-        $clone->phrase = $reasonPhrase;
+        $clone->phrase = ($reasonPhrase ? $reasonPhrase : $clone->getReasonPhrase());
         return $clone;
     }
 

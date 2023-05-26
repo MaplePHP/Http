@@ -115,6 +115,10 @@ class Response extends Message implements ResponseInterface
     
     public function createHeaders() 
     {
+        /*
+        print_r($this->getHeaders());
+        die();
+         */
         foreach($this->getHeaders() as $key => $val) {
             $value = $this->getHeaderLine($key);
             header("{$key}: {$value}");

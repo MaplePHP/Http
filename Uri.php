@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\UriInterface;
-use PHPFuse\Output\Format;
+use PHPFuse\DTO\Format;
 
 class Uri implements UriInterface
 {

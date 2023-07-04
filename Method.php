@@ -2,7 +2,7 @@
 
 namespace PHPFuse\Http;
 
-use PHPFuse\Output\Format;
+use PHPFuse\DTO\Format;
 
 class Method
 {
@@ -54,11 +54,10 @@ class Method
 
         if($m === "get") {
             return call_user_func_array([$this, "param"], $a);
-        } else {
-            throw new \Exception("The Method \"{$m}\" does not exist in the class \"".get_class($this)."\".", 1);
             
+        } else {
+            throw new \Exception("The Method \"{$m}\" does not exist in the class \"".get_class($this)."\".", 1);   
         }
-
     }
 
     /**

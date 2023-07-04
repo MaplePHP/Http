@@ -75,6 +75,7 @@ class Response extends Message implements ResponseInterface
 
     private $statusCode = 200;
     private $phrase;
+    private $description; // Can be used to describe status code
 
     private $contentType = "text/html";
     private $charset = "UTF-8";
@@ -112,31 +113,78 @@ class Response extends Message implements ResponseInterface
         }
         return $this->phrase;
     }
+
+    public function setDescription(string $description): self 
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    public function getDescription(): ?string 
+    {
+        return $this->description;
+    }
+
+
+    /**
+     * Set cache
+     * @param int $time expect timestamp
+     * @param int $ttl  ttl in seconds
+     * @return static
+     */
+    public function setCache(int $time, int $ttl): ResponseInterface
+    {
+        return $this->withHeaders([
+            "Cache-Control" => "max-age={$ttl}, must-revalidate, private",
+            "Expires" => date("D, d M Y H:i:s", $time+$ttl)." GMT"
+        ]);
+    }
+
+    /**
+     * Clear cache
+     * @return static
+     */
+    public function clearCache(): ResponseInterface
+    {
+        return $this->withHeaders([
+            "Cache-Control" => "no-store, no-cache, must-revalidate, private",
+            "Expires" => "Sat, 26 Jul 1997 05:00:00 GMT"
+        ]);
+    }
+
+    public function clearCacheAt(int $timestamp): ResponseInterface
+    {
+        return $this->withHeader("Expires", date("D, d M Y H:i:s", $timestamp)." GMT");
+    }
     
+    /**
+     * Redirect to new location
+     * @param  string      $url        URL
+     * @param  int|integer $statusCode 301 or 302
+     * @return void
+     */
+    public function location(string $url, int $statusCode = 302): void
+    {
+        if($statusCode !== 301 && $statusCode !== 302) throw new \Exception("The second argumnet (statusCode) is expecting 301 or 302", 1);
+        $this->withStatus($statusCode)
+        ->withHeader("Location", $url)
+        ->createHeaders();
+        die();
+    }
+
+    // Same as @location 
+    public function redirect(string $url, int $statusCode = 302): void {
+        $this->location($url, $statusCode);
+    }
+
     public function createHeaders() 
     {
-        /*
-        print_r($this->getHeaders());
-        die();
-         */
         foreach($this->getHeaders() as $key => $val) {
             $value = $this->getHeaderLine($key);
             header("{$key}: {$value}");
         }
     }
     
-    public function location(string $url, int $statusCode = 302): void {
-        if($statusCode !== 301 && $statusCode !== 302) throw new \Exception("The second argumnet (statusCode) is expecting 301 or 302", 1);
-
-        $this->withStatus($statusCode)
-        ->withHeader("Location", $url)
-        ->createHeaders();
-        
-        die("Redirecting...");
-    }
-
-    public function redirect(string $url, int $statusCode = 302): void {
-        $this->location($url, $statusCode);
-    }
+    
 
 }

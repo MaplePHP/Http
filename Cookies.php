@@ -136,8 +136,10 @@ class Cookies implements CookiesInterface
      */
     function delete(string $name): void
     {
-        $this->set($name, "", time());
-        if($this->has($name)) unset($_COOKIE[$name]);
+        if($this->has($name)) {
+            $this->set($name, "", time());
+            unset($_COOKIE[$name]);
+        }
     }
 
     /**

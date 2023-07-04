@@ -4,7 +4,7 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\MessageInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
-use PHPFuse\Output\Format;
+use PHPFuse\DTO\Format;
 
 abstract class Message implements MessageInterface
 {

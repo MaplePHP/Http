@@ -59,7 +59,7 @@ $emitter->getTemplate()
 ->setPartialDir(dirname(__FILE__)."/resources/partials/")
 ->bindToBody(
     "httpStatus",
-    PHPFuse\Output\Format\Arr::value(PHPFuse\Http\Response::PHRASE)->unset(200, 201, 202)->arrayKeys()->get()
+    PHPFuse\DTO\Format\Arr::value(PHPFuse\Http\Response::PHRASE)->unset(200, 201, 202)->arrayKeys()->get()
 )
 ->setIndex("index")
 ->setView("main");

@@ -4,7 +4,7 @@ namespace Http\tests\Controllers;
 
 use PHPFuse\Http\Interfaces\ResponseInterface;
 use PHPFuse\Http\Interfaces\RequestInterface;
-use PHPFuse\Helpers\Interfaces\UrlInterface;
+use PHPFuse\Http\Interfaces\UrlInterface;
 
 use PHPFuse\Container\Interfaces\ContainerInterface;
 

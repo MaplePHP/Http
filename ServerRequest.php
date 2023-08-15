@@ -4,6 +4,7 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\ServerRequestInterface;
 use PHPFuse\Http\Interfaces\UriInterface;
+use PHPFuse\Http\Interfaces\StreamInterface;
 
 
 class ServerRequest extends Request implements ServerRequestInterface
@@ -22,6 +23,7 @@ class ServerRequest extends Request implements ServerRequestInterface
 
     function __construct(
         UriInterface $uriInst,
+        ?StreamInterface $stream = NULL,
         ?array $cookies = NULL, 
         ?array $queryParams = NULL, 
         ?array $files = NULL, 
@@ -30,7 +32,9 @@ class ServerRequest extends Request implements ServerRequestInterface
     ) {
         
         if(is_null($this->headers)) $this->headers = self::requestHeaders();
-        parent::__construct($uriInst);
+        if(is_null($stream)) $stream = new Stream(Stream::INPUT);
+
+        parent::__construct($uriInst, $stream);
 
         $this->cookies = (is_null($cookies)) ? $_COOKIE : $cookie;
         $this->queryParams = (is_null($queryParams)) ? $_GET : $queryParams;
@@ -183,8 +187,27 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return null|array|object The deserialized body parameters, if any.
      *     These will typically be an array or object.
      */
-    public function getParsedBody() {
-        return $this->parsedBody;
+    public function getParsedBody()
+    {
+        if($this->getMethod() === "POST") {
+
+            $contents = $this->getBody()->getContents();
+            switch($this->getHeaderLine('Content-Type')) {
+                case "application/x-www-form-urlencoded":
+                    parse_str($contents, $this->parsedBody);
+                break;
+                case "application/json":
+                    $this->parsedBody = json_decode($contents, true);
+                break;
+                case "application/json":
+                    $this->parsedBody = simplexml_load_string($contents);
+                break;                
+            }
+
+            return $this->parsedBody;
+        }
+
+        return NULL;
     }
 
     /**

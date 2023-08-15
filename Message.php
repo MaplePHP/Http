@@ -91,7 +91,7 @@ abstract class Message implements MessageInterface
     public function getHeaderLine($name) 
     {
         $data = $this->getHeaderLineData($name);
-        return (count($data) > 0) ? implode("; ", $data) : ($data[0] ?? []);
+        return (count($data) > 0) ? implode("; ", $data) : ($data[0] ?? "");
     }
 
     /**
@@ -101,17 +101,21 @@ abstract class Message implements MessageInterface
      */
     public function getHeaderLineData(string $name): ?array 
     {
-      
         $this->headerLine = array();
         $headerArr = $this->getHeader($name);
-        foreach($headerArr as $key => $val) {
-            if(is_numeric($key)) {
-                $this->headerLine[] = $val;
-            } else {
-                $this->headerLine[] = "{$key} {$val}";
+        if(is_array($headerArr)) {
+            foreach($headerArr as $key => $val) {
+                if(is_numeric($key)) {
+                    $this->headerLine[] = $val;
+                } else {
+                    $this->headerLine[] = "{$key} {$val}";
+                }
             }
+
+        } else {
+            $this->headerLine[] = $headerArr;
         }
-  
+        
         return $this->headerLine;
     }
 

@@ -3,7 +3,6 @@ ini_set('display_errors', "1");
 ini_set('error_reporting', (string)E_ALL);
 use PHPFuse\Http;
 use PHPFuse\Container\Container;
-use PHPFuse\Helpers;
 
 
 $prefix = "PHPFuse";
@@ -43,8 +42,8 @@ $response = new Http\Response($stream, [
 
 $request = new Http\ServerRequest();
 $container = new Container();
-$routes = new Helpers\RouterDispatcher($request);
-$emitter = new Helpers\Emitter($container);
+$routes = new Http\RouterDispatcher($request);
+$emitter = new Http\Emitter($container);
 
 
 // bool $displayError, bool $niceError, bool $logError, string $logErrorFile
@@ -105,13 +104,13 @@ $routes->get("/test2", \Http\tests\Controllers\Pages::class);
 $routes->dispatch($response, function($dispatchStatus, $response, $url) use($container, $request) {
 
     switch($dispatchStatus) {
-        case Helpers\RouterDispatcher::NOT_FOUND:
+        case Http\RouterDispatcher::NOT_FOUND:
             return $response->withStatus(404);
         break;
-        case Helpers\RouterDispatcher::METHOD_NOT_ALLOWED:
+        case Http\RouterDispatcher::METHOD_NOT_ALLOWED:
             return $response->withStatus(403);
         break;
-        case Helpers\RouterDispatcher::FOUND:
+        case Http\RouterDispatcher::FOUND:
         
             // Add a class that will where it's instance will be remembered through the app and its controllers
             // To do this, you must first create an interface of the class, which will become its uniqe identifier. 

@@ -4,6 +4,7 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\RequestInterface;
 use PHPFuse\Http\Interfaces\UriInterface;
+use PHPFuse\Http\Interfaces\StreamInterface;
 use PHPFuse\Http\Uri;
 
 
@@ -15,11 +16,10 @@ class Request extends Message implements RequestInterface
     private static $requestHeaders;
     protected $headers;
     
-    function __construct(UriInterface $uriInst) 
+    function __construct(UriInterface $uriInst, ?StreamInterface $stream = NULL) 
     {
         $this->headers = static::requestHeaders();
-        
-        parent::__construct();
+        parent::__construct($stream);
         $this->uriInst = $uriInst;
     }
 
@@ -113,6 +113,7 @@ class Request extends Message implements RequestInterface
                 }
             }
         }
+        static::$requestHeaders = array_change_key_case(static::$requestHeaders);
         return static::$requestHeaders;
     }
 

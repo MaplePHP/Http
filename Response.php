@@ -81,6 +81,9 @@ class Response extends Message implements ResponseInterface
     private $charset = "UTF-8";
     
     private $headerLines = array();
+    
+    private $modDate;
+    private $hasHeadersInit;
     private $location;
 
     function __construct(StreamInterface $body, array $headers = array(), int $status = 200, ?string $phrase = NULL, ?string $version = NULL) 
@@ -126,6 +129,40 @@ class Response extends Message implements ResponseInterface
     }
 
 
+    // Move to an diffrent filler file (Better to keep PS6 Clean from custom methods)
+
+
+    /**
+     * Get modified date
+     * @return int|null
+     */
+    function getModDate(): ?int 
+    {
+        return $this->modDate;
+    }
+
+    /**
+     * Clear cache on modified date (E.g. can be used with uodate date on post in DB)
+     * @param  string $date
+     * @return ResponseInterface
+     */
+    function withLastModified(string $date): ResponseInterface
+    {
+        $clone = clone $this;
+        $clone->modDate = strtotime($date);
+        return $clone->withHeader('Last-Modified', gmdate('D, d M Y H:i:s', $clone->modDate).' GMT');
+    }
+
+    /**
+     * Clear cache at given date (E.g. can be used if you set a publish date on a post in DB)
+     * @param  string   $date
+     * @return ResponseInterface
+     */
+    public function withExpires(string $date): ResponseInterface
+    {
+        return $this->withHeader("Expires", gmdate('D, d M Y H:i:s', strtotime($date)).' GMT');
+    }
+
     /**
      * Set cache
      * @param int $time expect timestamp
@@ -136,12 +173,13 @@ class Response extends Message implements ResponseInterface
     {
         return $this->withHeaders([
             "Cache-Control" => "max-age={$ttl}, must-revalidate, private",
-            "Expires" => date("D, d M Y H:i:s", $time+$ttl)." GMT"
+            "Expires" => date("D, d M Y H:i:s", $time+$ttl)." GMT",
+            "Pragma" => "public"
         ]);
     }
 
     /**
-     * Clear cache
+     * Clear cache. No exceptions!
      * @return static
      */
     public function clearCache(): ResponseInterface
@@ -152,10 +190,7 @@ class Response extends Message implements ResponseInterface
         ]);
     }
 
-    public function clearCacheAt(int $timestamp): ResponseInterface
-    {
-        return $this->withHeader("Expires", date("D, d M Y H:i:s", $timestamp)." GMT");
-    }
+    
     
     /**
      * Redirect to new location
@@ -177,12 +212,23 @@ class Response extends Message implements ResponseInterface
         $this->location($url, $statusCode);
     }
 
-    public function createHeaders() 
+    public function createHeaders(): void
     {
-        foreach($this->getHeaders() as $key => $val) {
-            $value = $this->getHeaderLine($key);
-            header("{$key}: {$value}");
+        if(is_null($this->hasHeadersInit)) {
+            $this->hasHeadersInit = true;
+            foreach($this->getHeaders() as $key => $val) {
+                $value = $this->getHeaderLine($key);
+                header("{$key}: {$value}");
+            }
         }
+    }
+
+
+    function executeHeaders(): void 
+    {
+        $this->createHeaders();
+        $statusLine = sprintf('HTTP/%s %s %s', $this->getProtocolVersion(), $this->getStatusCode(), $this->getReasonPhrase());
+        header($statusLine, true, $this->getStatusCode());
     }
     
     

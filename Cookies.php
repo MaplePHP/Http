@@ -31,8 +31,12 @@ class Cookies implements CookiesInterface
     ): bool
      * @param [type] $uri [description]
      */
-    function __construct(string $path = "/", string $domain = "", bool $secure = true, bool $httponly = true)
-    {
+    public function __construct(
+        string $path = "/", 
+        string $domain = "", 
+        bool $secure = true, 
+        bool $httponly = true
+    ) {
         $this->path = $path;
         $this->domain = $domain;
         $this->secure = $secure;
@@ -43,7 +47,7 @@ class Cookies implements CookiesInterface
      * Set cookie allowed path
      * @param string $path URI Path
      */
-    function setPath(string $path) {
+    public function setPath(string $path) {
         $this->path = $path;
         return $this;
     }
@@ -52,7 +56,7 @@ class Cookies implements CookiesInterface
      * Set cookie allowed domain
      * @param string $path URI Path
      */
-    function setDomain(string $domain) {
+    public function setDomain(string $domain) {
         $this->domain = $domain;
         return $this;
     }
@@ -61,7 +65,7 @@ class Cookies implements CookiesInterface
      * Set cookie secure flag (HTTPS only: true)
      * @param string $path URI Path
      */
-    function setSecure(bool $secure) {
+    public function setSecure(bool $secure) {
         $this->secure = $secure;
         return $this;
     }
@@ -71,7 +75,7 @@ class Cookies implements CookiesInterface
      * Can effectively help to reduce identity theft through XSS attacks, Not supported in all browsers tho
      * @param string $path URI Path
      */
-    function setHttpOnly(bool $httponly) {
+    public function setHttpOnly(bool $httponly) {
         $this->httponly = $httponly;
         return $this;
     }
@@ -82,7 +86,7 @@ class Cookies implements CookiesInterface
      * (Requires PHP version >= 7.3.0)
      * @param string $sameSite [description]
      */
-    function setSameSite(string $samesite) 
+    public function setSameSite(string $samesite) 
     {
         $samesite = ucfirst(strtolower($samesite));
         if($samesite !== "None" && $samesite !== "Lax" && $samesite !== "Strict") {
@@ -98,7 +102,7 @@ class Cookies implements CookiesInterface
      * @param mixed $value
      * @param int   $expires
      */
-    function set(string $name, string $value, int $expires, bool $force = false): void
+    public function set(string $name, string $value, int $expires, bool $force = false): void
     {
         if(version_compare(PHP_VERSION, '7.3.0') >= 0) {
             setcookie($name, $value, $this->cookieOpt($expires));
@@ -113,7 +117,7 @@ class Cookies implements CookiesInterface
      * @param  string  $name
      * @return boolean
      */
-    function has(string $name): bool 
+    public function has(string $name): bool 
     {
         return (bool)(isset($_COOKIE[$name]));
     }
@@ -124,7 +128,7 @@ class Cookies implements CookiesInterface
      * @param  string|null $default
      * @return string|null
      */
-    function get(string $name, ?string $default = NULL): ?string 
+    public function get(string $name, ?string $default = NULL): ?string 
     {
         return ($_COOKIE[$name] ?? $default);
     }
@@ -134,12 +138,22 @@ class Cookies implements CookiesInterface
      * @param  string $name
      * @return void
      */
-    function delete(string $name): void
+    public function delete(string $name): void
     {
         if($this->has($name)) {
             $this->set($name, "", time());
             unset($_COOKIE[$name]);
         }
+    }
+
+    /**
+     * Check if cookies settings in this instance has great enough security to save e.g. CSRF token.
+     * Can not be read or set in: frontend, cross domain or in http (only https)
+     * @return boolean
+     */
+    public function isSecure(): bool
+    {
+        return (bool)($this->samesite === "Strict" && $this->secure && $this->httponly);
     }
 
     /**

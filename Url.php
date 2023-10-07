@@ -66,9 +66,11 @@ class Url implements UrlInterface
             }
         }
 
-        $inst->vars = $vars;
+
+        //$inst->vars = $vars;
         $inst->parts = $parts;
-        $inst->realPath = implode("/", $inst->vars);    
+        $inst->realPath = implode("/", $vars);
+        $inst->vars = explode("/", $inst->realPath);
         return $inst;
     }
 

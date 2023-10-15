@@ -172,7 +172,7 @@ class Response extends Message implements ResponseInterface
     public function setCache(int $time, int $ttl): ResponseInterface
     {
         return $this->withHeaders([
-            "Cache-Control" => "max-age={$ttl}, must-revalidate, private",
+            "Cache-Control" => "max-age={$ttl}, immutable, public",
             "Expires" => date("D, d M Y H:i:s", $time+$ttl)." GMT",
             "Pragma" => "public"
         ]);

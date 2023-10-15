@@ -117,4 +117,24 @@ class Request extends Message implements RequestInterface
         return static::$requestHeaders;
     }
 
+    /**
+     * Chech if is request is SSL
+     * @return boolean [description]
+     */
+    function isSSL(): bool 
+    {
+        $https = strtolower($this->getEnv("HTTPS"));
+        return (bool)($https === "on" || $https === "1" || $this->getPort() === 443);
+    }
+
+    /**
+     * Get Server request port
+     * @return int
+     */
+    function getPort(): int 
+    {
+        $port = (int)(($p = $this->getEnv("SERVER_PORT")) ? $p : $this->uriInst->getPort());
+        return (int)$port;
+    }
+
 }

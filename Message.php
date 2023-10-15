@@ -235,7 +235,7 @@ abstract class Message implements MessageInterface
             $this->uriParts['port'] = $this->getEnv("SERVER_PORT", NULL);
             $this->uriParts['path'] = $this->getEnvPath();
             $this->uriParts['query'] = $this->getEnv("QUERY_STRING");
-            $this->uriParts['fragment'] = $this->getEnv("QUERY_STRING");
+            $this->uriParts['fragment'] = NULL;
             if(!is_null($this->uriParts['port'])) $this->uriParts['port'] = (int)$this->uriParts['port']; 
             $this->uriParts = array_merge($this->uriParts, $add);
         }

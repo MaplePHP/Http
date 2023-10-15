@@ -40,21 +40,28 @@ class Uri implements UriInterface
     private $encoded;
     private $build;
 
-    function __construct($uri)
+
+    /**
+     * URI in parts
+     * @param array|string $uri
+     */
+    function __construct(array|string $uri)
     {
         if(is_array($uri)) {
             $this->parts = $uri;
         } else {
-            $this->parts = parse_url($this->uri);
+            $this->parts = parse_url($uri);
         }
         $this->fillParts();
     }
 
-    public static function withUriParts(array $parts) {
-        $inst = new self();
-        $inst->parts = $parts;
-        $inst->fillParts();
-        return $inst;
+    /**
+     * Get formated URI
+     * @return string
+     */
+    public function __toString() 
+    {
+        return $this->getUri();
     }
 
     /**
@@ -63,7 +70,7 @@ class Uri implements UriInterface
      */
     public function getScheme(): string
     {
-        if($val = $this->hasPart("scheme")) {
+        if($val = $this->getPart("scheme")) {
             $this->encoded['scheme'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['scheme'];
@@ -75,7 +82,7 @@ class Uri implements UriInterface
      */
     public function getDir(): string
     {
-        if($val = $this->hasPart("dir")) {
+        if($val = $this->getPart("dir")) {
             $this->encoded['dir'] = $val;
         }
         return (string)$this->encoded['dir'];
@@ -109,8 +116,8 @@ class Uri implements UriInterface
         if(is_null($this->userInfo)) {
             $this->userInfo = "";
             $user = $pass = NULL;
-            if($user = $this->hasPart("user")) $this->encoded['user'] = $user;
-            if($pass = $this->hasPart("pass")) $this->encoded['pass'] = $pass;
+            if($user = $this->getPart("user")) $this->encoded['user'] = $user;
+            if($pass = $this->getPart("pass")) $this->encoded['pass'] = $pass;
             if(!is_null($user)) {
                 $this->userInfo .= "{$user}";
                 if(!is_null($pass))  $this->userInfo .= ":{$pass}";
@@ -125,7 +132,7 @@ class Uri implements UriInterface
      */
     public function getHost(): string
     {
-        if($val = $this->hasPart("host")) {
+        if($val = $this->getPart("host")) {
             $this->encoded['host'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['host'];
@@ -139,7 +146,7 @@ class Uri implements UriInterface
     public function getPort(): ?int
     {
         if(is_null($this->port) && !is_null($this->scheme)) $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? NULL);
-        if($val = $this->hasPart("port")) $this->encoded['port'] = (int)$val;
+        if($val = $this->getPart("port")) $this->encoded['port'] = (int)$val;
         return $this->port;
     }
 
@@ -149,7 +156,7 @@ class Uri implements UriInterface
      */
     public function getPath(): string
     {
-        if($val = $this->hasPart("path")) {
+        if($val = $this->getPart("path")) {
             $this->encoded['path'] = Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
         }
         return (string)$this->encoded['path'];
@@ -161,7 +168,7 @@ class Uri implements UriInterface
      */
     public function getQuery(): string
     {
-        if($val = $this->hasPart("query")) {
+        if($val = $this->getPart("query")) {
             $this->encoded['query'] = Format\Str::value($val)->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])->get();
         }
         return (string)$this->encoded['query'];
@@ -173,12 +180,11 @@ class Uri implements UriInterface
      */
     public function getFragment(): string
     {
-        if($val = $this->hasPart("fragment")) {
+        if($val = $this->getPart("fragment")) {
             $this->encoded['fragment'] = Format\Str::value($val)->toggleUrlencode()->get();
         }
         return (string)$this->encoded['fragment'];
     }
-
 
     /**
      * Get formated URI
@@ -197,17 +203,14 @@ class Uri implements UriInterface
         return $this->build;
     }
 
-    public function getArgv() {
-        return $this->argv;
-    }
-
     /**
-     * Get formated URI
-     * @return string
+     * Argv can be used with CLI command
+     * E.g.: new Http\Uri($response->getUriEnv(["argv" => $argv]));
+     * @return array
      */
-    public function __toString() 
+    public function getArgv(): array 
     {
-        return $this->getUri();
+        return $this->argv;
     }
 
     /**
@@ -218,7 +221,7 @@ class Uri implements UriInterface
     public function withScheme(string $scheme): UriInterface 
     {
         $inst = clone $this;
-        $inst->scheme = $scheme;
+        $inst->setPart("scheme", $scheme);
         return $inst;
     }
 
@@ -231,8 +234,7 @@ class Uri implements UriInterface
     public function withUserInfo(string $user, ?string $password = NULL) 
     {
         $inst = clone $this;
-        $inst->user = $user;
-        if(!is_null($password)) $inst->pass = $password;
+        $inst->setPart("user", $user)->setPart("pass", $password);
         return $inst;
     }
 
@@ -244,7 +246,7 @@ class Uri implements UriInterface
     public function withHost(string $host): UriInterface
     {
         $inst = clone $this;
-        $inst->host = $host;
+        $inst->setPart("host", $host);
         return $inst;
     }
 
@@ -253,10 +255,11 @@ class Uri implements UriInterface
      * @param  int $post
      * @return UriInterface
      */
-    public function withPort(int $port): UriInterface
+    public function withPort(?int $port): UriInterface
     {
         $inst = clone $this;
-        $inst->port = $port;
+
+        $inst->setPart("port", $port);
         return $inst;
     }
 
@@ -268,7 +271,7 @@ class Uri implements UriInterface
     public function withPath(string $path): UriInterface
     {
         $inst = clone $this;
-        $inst->path = $path;
+        $inst->setPart("path", $path);
         return $inst;
     }
 
@@ -280,7 +283,7 @@ class Uri implements UriInterface
     public function withQuery(string $query): UriInterface
     {
         $inst = clone $this;
-        $inst->query = $query;
+        $inst->setPart("query", $query);
         return $inst;
     }
 
@@ -292,7 +295,19 @@ class Uri implements UriInterface
     public function withFragment(string $fragment): UriInterface
     {
         $inst = clone $this;
-        $inst->fragment = $fragment;
+        $inst->setPart("fragment", $fragment);
+        return $inst;
+    }
+
+    /**
+     * With new parts
+     * @param  array  $parts E.g. (parse_url or ["scheme" => "https", ...])
+     * @return self
+     */
+    public static function withUriParts(array $parts): self {
+        $inst = new self();
+        $inst->parts = $parts;
+        $inst->fillParts();
         return $inst;
     }
 
@@ -312,10 +327,21 @@ class Uri implements UriInterface
     /**
      * Return part if object found and has not yet been encoded
      * @param  string  $key
-     * @return boolean
+     * @return string|boolean
      */
-    private function hasPart($key) 
+    protected function getPart($key) 
     {
         return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : NULL;
+    }
+
+    /**
+     * Set/reset part (will tell the script to re-encode the specified part)
+     * @param string $key   Part key (e.g. scheme, path, port...)
+     * @param string|NULL $value New part value
+     */
+    protected function setPart(string $key, mixed $value) {
+        $this->{$key} = $value;
+        if(isset($this->encoded[$key])) $this->encoded[$key] = NULL;
+        return $this;
     }
 }

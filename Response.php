@@ -7,6 +7,7 @@ namespace PHPFuse\Http;
 use PHPFuse\Http\Interfaces\ResponseInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
 
+
 class Response extends Message implements ResponseInterface
 {
 
@@ -180,6 +181,9 @@ class Response extends Message implements ResponseInterface
 
     /**
      * Clear cache. No exceptions!
+     * Out of security reasons it is actually good practice to call this BY default on a framework
+     * The reason for this is to make sure that sensitive data is not cached.
+     * So then you as the developer can then make the choice to cache the data or not.
      * @return static
      */
     public function clearCache(): ResponseInterface

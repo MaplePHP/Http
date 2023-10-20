@@ -26,6 +26,9 @@ class Url implements UrlInterface
         $this->request = $request;
         $this->uri = $this->request->getUri();
         $this->parts = $path;
+
+        //print_r($this->parts);
+        //die();
         $this->fullPath = $this->uri->getPath();
         $this->dirPath = $this->getDirPath();
         $this->realPath = $this->getRealPath();

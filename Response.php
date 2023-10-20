@@ -6,6 +6,7 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\ResponseInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
+use PHPFuse\Http\Interfaces\HeadersInterface;
 
 
 class Response extends Message implements ResponseInterface
@@ -81,17 +82,22 @@ class Response extends Message implements ResponseInterface
     private $contentType = "text/html";
     private $charset = "UTF-8";
     
-    private $headerLines = array();
+    //private $headerLines = array();
     
     private $modDate;
     private $hasHeadersInit;
     private $location;
 
-    function __construct(StreamInterface $body, array $headers = array(), int $status = 200, ?string $phrase = NULL, ?string $version = NULL) 
-    {
-        parent::__construct($body);
+    function __construct(
+        StreamInterface $body, 
+        ?HeadersInterface $headers = NULL, 
+        int $status = 200, 
+        ?string $phrase = NULL, 
+        ?string $version = NULL
+    ) {
+        $this->body = $body;
         $this->statusCode = $status;
-        $this->headers = $this->setHeaders($headers);
+        $this->headers = is_null($headers) ? new Headers() : $headers;
         $this->body = $body;
         if(!is_null($version)) $this->version = $version;
         if(!is_null($phrase)) $this->phrase = $phrase;

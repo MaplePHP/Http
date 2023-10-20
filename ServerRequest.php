@@ -4,43 +4,27 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\ServerRequestInterface;
 use PHPFuse\Http\Interfaces\UriInterface;
-use PHPFuse\Http\Interfaces\StreamInterface;
+use PHPFuse\Http\Interfaces\EnvironmentInterface;
 
 
 class ServerRequest extends Request implements ServerRequestInterface
-{    
+{
 
-    private $cookies;
-    private $queryParams;
-    private $files;
-    private $parsedBody;
-    private $attr = array();
-
+    protected $attr = array();
     protected $env;
-    protected $headers;
     protected $cliKeywords;
     protected $cliArgs;
 
-    function __construct(
-        UriInterface $uriInst,
-        ?StreamInterface $stream = NULL,
-        ?array $cookies = NULL, 
-        ?array $queryParams = NULL, 
-        ?array $files = NULL, 
-        ?array $parsedBody = NULL, 
-        array $attr = []
-    ) {
-        
-        if(is_null($this->headers)) $this->headers = self::requestHeaders();
-        if(is_null($stream)) $stream = new Stream(Stream::INPUT);
-
-        parent::__construct($uriInst, $stream);
-
-        $this->cookies = (is_null($cookies)) ? $_COOKIE : $cookie;
-        $this->queryParams = (is_null($queryParams)) ? $_GET : $queryParams;
-        $this->files = (is_null($files)) ? $_FILES : $files;
-        $this->parsedBody = (is_null($parsedBody)) ? $_POST : $parsedBody;
-        $this->attr = array_merge($this->env, $attr);
+    function __construct(UriInterface $uri, EnvironmentInterface $env) {
+        $this->env = $env;
+        parent::__construct($this->env->get("REQUEST_METHOD", "GET"), $uri, new Headers(Headers::getGlobalHeaders()));
+        $this->attr = [
+            "env" => $this->env->fetch(),
+            "cookies" => ($_COOKIE ?? []),
+            "queryParams" => ($_GET ?? []),
+            "files" => ($_FILES ?? []),
+            "parsedBody" => ($_POST ?? [])
+        ];
     }
 
     /**
@@ -53,7 +37,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return array
      */
     public function getServerParams() {
-        return $this->env;
+        return $this->env->fetch();
     }
 
     /**
@@ -67,7 +51,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return array
      */
     public function getCookieParams() {
-        return $this->cookies;
+        return $this->attr['cookies'];
     }
 
     /**
@@ -89,7 +73,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies) {
         $inst = clone $this;
-        $inst->cookies = $cookies;
+        $inst->attr['cookies'] = $cookies;
         return $inst;
     }
 
@@ -107,7 +91,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return array
      */
     public function getQueryParams() {
-        return $this->queryParams;
+        return $this->attr['queryParams'];
     }
 
 
@@ -135,7 +119,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withQueryParams(array $query) {
         $inst = clone $this;
-        $inst->queryParams = $query;
+        $inst->attr['queryParams'] = $query;
         return $inst;
     }
 
@@ -152,7 +136,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *     array MUST be returned if no data is present.
      */
     public function getUploadedFiles() {
-        return $this->files;
+        return $this->attr['files'];
     }
 
     /**
@@ -168,7 +152,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles) {
         $inst = clone $this;
-        $inst->files = $uploadedFiles;
+        $inst->attr['files'] = $uploadedFiles;
         return $inst;
     }
 
@@ -194,17 +178,16 @@ class ServerRequest extends Request implements ServerRequestInterface
             $contents = $this->getBody()->getContents();
             switch($this->getHeaderLine('Content-Type')) {
                 case "application/x-www-form-urlencoded":
-                    parse_str($contents, $this->parsedBody);
+                    parse_str($contents, $this->attr['parsedBody']);
                 break;
                 case "application/json":
-                    $this->parsedBody = json_decode($contents, true);
+                    $this->attr['parsedBody'] = json_decode($contents, true);
                 break;
-                case "application/json":
-                    $this->parsedBody = simplexml_load_string($contents);
+                case "application/xml":
+                    $this->attr['parsedBody'] = simplexml_load_string($contents);
                 break;                
             }
-
-            return $this->parsedBody;
+            return $this->attr['parsedBody'];
         }
 
         return NULL;
@@ -240,7 +223,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function withParsedBody($data) {
         $inst = clone $this;
-        $inst->parsedBody = $data;
+        $inst->attr['parsedBody'] = $data;
         return $inst;
     }
 
@@ -364,5 +347,11 @@ class ServerRequest extends Request implements ServerRequestInterface
         return $this->cliArgs;
     }
 
+
+    /*
+    public function getEnv() {
+        return $this->env;
+    }
+     */
 
 }

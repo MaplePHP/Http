@@ -4,23 +4,30 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\RequestInterface;
 use PHPFuse\Http\Interfaces\UriInterface;
+use PHPFuse\Http\Interfaces\HeadersInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
-use PHPFuse\Http\Uri;
+//use PHPFuse\Http\Uri;
 
 
 class Request extends Message implements RequestInterface
 {
     private $method;
-    private $uriInst;
+    private $uri;
     private $requestTarget;
-    private static $requestHeaders;
+
     protected $headers;
+    protected $body;
     
-    function __construct(UriInterface $uriInst, ?StreamInterface $stream = NULL) 
-    {
-        $this->headers = static::requestHeaders();
-        parent::__construct($stream);
-        $this->uriInst = $uriInst;
+    function __construct(
+        string $method, UriInterface|string $uri, 
+        HeadersInterface|array $headers = [], 
+        StreamInterface|array|string|null $body = NULL
+    ) {
+        $this->method = $method; // WHITELIST CASE SENSITIVE UPPERCASE
+        $this->uri = is_string($uri) ? new Uri($uri) : $uri;
+        $this->headers = is_array($headers) ? new Headers($headers) : $headers;
+        $this->body = $this->resolveRequestStream($body);
+        $this->setHostHeader();
     }
 
     /**
@@ -54,7 +61,6 @@ class Request extends Message implements RequestInterface
      */
     public function getMethod(): string
     {
-        if(is_null($this->method)) $this->method = strtoupper($this->getEnv("REQUEST_METHOD"));
         return $this->method;
     }
 
@@ -76,7 +82,7 @@ class Request extends Message implements RequestInterface
      */
     public function getUri(): UriInterface
     {
-        return $this->uriInst;
+        return $this->uri;
     }
 
     /**
@@ -94,36 +100,12 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * Get all request headers
-     * @return array
-     */
-    public static function requestHeaders(): array 
-    {
-        if(is_null(static::$requestHeaders)) {
-            if(function_exists("getallheaders")) {
-                static::$requestHeaders = getallheaders();
-            } else {
-                static::$requestHeaders = array();
-                foreach($_SERVER as $key => $value) {
-                    if (substr($key, 0, 5) <> 'HTTP_') {
-                        continue;
-                    }
-                    $header = str_replace(' ', '-', ucwords(str_replace('_', ' ', strtolower(substr($key, 5)))));
-                    static::$requestHeaders[$header] = $value;
-                }
-            }
-        }
-        static::$requestHeaders = array_change_key_case(static::$requestHeaders);
-        return static::$requestHeaders;
-    }
-
-    /**
      * Chech if is request is SSL
      * @return boolean [description]
      */
     function isSSL(): bool 
     {
-        $https = strtolower($this->getEnv("HTTPS"));
+        $https = strtolower($this->env->get("HTTPS"));
         return (bool)($https === "on" || $https === "1" || $this->getPort() === 443);
     }
 
@@ -133,8 +115,38 @@ class Request extends Message implements RequestInterface
      */
     function getPort(): int 
     {
-        $port = (int)(($p = $this->getEnv("SERVER_PORT")) ? $p : $this->uriInst->getPort());
+        $port = (int)(($p = $this->env->get("SERVER_PORT")) ? $p : $this->uri->getPort());
         return (int)$port;
+    }
+
+    /**
+     * Set host header if missing or overwrite if custom is set. 
+     * @return void
+     */
+    final protected function setHostHeader(): void 
+    {
+        if (!$this->headers->hasHeader('Host') || $this->uri->getHost() !== '') {
+            $this->headers->setHeader('Host', $this->uri->getHost());
+        }
+    }
+
+    /**
+     * This will resolve the Request Stream and make the call user friendly
+     * @param  StreamInterface|array|string|null $body
+     * @return StreamInterface
+     */
+    private function resolveRequestStream(StreamInterface|array|string|null $body): StreamInterface{
+        if($body instanceof StreamInterface) {
+            $stream = $body;
+        } else {
+            if(is_array($body)) $body = http_build_query($body);
+            $stream = new Stream(Stream::TEMP);
+            if(!is_null($body)) {
+                $stream->write($body);
+                $stream->rewind();
+            }   
+        }
+        return $stream;
     }
 
 }

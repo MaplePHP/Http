@@ -78,3 +78,25 @@ echo $stream->read(); // Hello world
 $upload = new Http\UploadedFile($stream);
 $upload->moveTo("/var/www/html/upload/log.txt"); // Place Hello world in txt file
 ```
+
+#### Create a request (The PSR way)
+The client will be using curl, so it's essential to ensure that it is enabled in case it has been disabled for any reason.
+```php
+// Init request client
+$client = new Http\Client([CURLOPT_HTTPAUTH => CURLAUTH_DIGEST]); // Pass on Curl options
+
+// Create request data
+$request = new Http\Request(
+    "POST", // The HTTP Method
+    "https://admin:mypass@wazabii.se:443/test.php", // The Request URI
+    ["customHeader" => "lorem"], // Add Headers, empty array is allowed
+    ["email" => "john.doe@example.com"] // Post data
+);
+
+// Pass request data to client and POST
+$response = $client->sendRequest($request);
+
+// Get Stream data
+var_dump($response->getBody()->getContents());
+```
+

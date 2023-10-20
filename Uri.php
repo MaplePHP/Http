@@ -70,7 +70,7 @@ class Uri implements UriInterface
      */
     public function getScheme(): string
     {
-        if($val = $this->getPart("scheme")) {
+        if($val = $this->getUniquePart("scheme")) {
             $this->encoded['scheme'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['scheme'];
@@ -82,7 +82,7 @@ class Uri implements UriInterface
      */
     public function getDir(): string
     {
-        if($val = $this->getPart("dir")) {
+        if($val = $this->getUniquePart("dir")) {
             $this->encoded['dir'] = $val;
         }
         return (string)$this->encoded['dir'];
@@ -96,6 +96,7 @@ class Uri implements UriInterface
     {
         if(is_null($this->authority)) {
             $this->authority = "";
+
             if(($host = $this->getHost()) && ($userInfo = $this->getUserInfo())) {
                 $this->authority = "{$userInfo}@{$host}";
             } else {
@@ -116,8 +117,9 @@ class Uri implements UriInterface
         if(is_null($this->userInfo)) {
             $this->userInfo = "";
             $user = $pass = NULL;
-            if($user = $this->getPart("user")) $this->encoded['user'] = $user;
-            if($pass = $this->getPart("pass")) $this->encoded['pass'] = $pass;
+            if($user = $this->getUniquePart("user")) $this->encoded['user'] = $user;
+            if($pass = $this->getUniquePart("pass")) $this->encoded['pass'] = $pass;
+
             if(!is_null($user)) {
                 $this->userInfo .= "{$user}";
                 if(!is_null($pass))  $this->userInfo .= ":{$pass}";
@@ -132,7 +134,7 @@ class Uri implements UriInterface
      */
     public function getHost(): string
     {
-        if($val = $this->getPart("host")) {
+        if($val = $this->getUniquePart("host")) {
             $this->encoded['host'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['host'];
@@ -145,8 +147,19 @@ class Uri implements UriInterface
      */
     public function getPort(): ?int
     {
+        //if(is_null($this->port) && !is_null($this->scheme)) $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? NULL);
+        if($val = $this->getUniquePart("port")) $this->encoded['port'] = (int)$val;
+        return ($this->encoded['port'] ?? NULL);
+    }
+
+    /**
+     * Get port
+     * @return int|null (ex: 443)
+     */
+    public function getDefaultPort(): ?int
+    {
         if(is_null($this->port) && !is_null($this->scheme)) $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? NULL);
-        if($val = $this->getPart("port")) $this->encoded['port'] = (int)$val;
+        if($val = $this->getUniquePart("port")) $this->encoded['port'] = (int)$val;
         return $this->port;
     }
 
@@ -156,7 +169,7 @@ class Uri implements UriInterface
      */
     public function getPath(): string
     {
-        if($val = $this->getPart("path")) {
+        if($val = $this->getUniquePart("path")) {
             $this->encoded['path'] = Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
         }
         return (string)$this->encoded['path'];
@@ -168,7 +181,7 @@ class Uri implements UriInterface
      */
     public function getQuery(): string
     {
-        if($val = $this->getPart("query")) {
+        if($val = $this->getUniquePart("query")) {
             $this->encoded['query'] = Format\Str::value($val)->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])->get();
         }
         return (string)$this->encoded['query'];
@@ -180,7 +193,7 @@ class Uri implements UriInterface
      */
     public function getFragment(): string
     {
-        if($val = $this->getPart("fragment")) {
+        if($val = $this->getUniquePart("fragment")) {
             $this->encoded['fragment'] = Format\Str::value($val)->toggleUrlencode()->get();
         }
         return (string)$this->encoded['fragment'];
@@ -312,6 +325,26 @@ class Uri implements UriInterface
     }
 
     /**
+     * Return part if object found and has not yet been encoded
+     * @param  string  $key
+     * @return string|boolean
+     */
+    private function getUniquePart(string $key) 
+    {
+        return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : NULL;
+    }
+
+    /**
+     * Return part if object found and has not yet been encoded
+     * @param  string  $key
+     * @return string|null
+     */
+    public function getPart(string $key): ?string
+    {
+        return ($this->encoded[$key] ?? ($this->{$key} ?? NULL));
+    }
+
+    /**
      * Fill and encode all parts 
      * @return void
      */
@@ -322,16 +355,6 @@ class Uri implements UriInterface
             $this->encoded[$k] = NULL;
             if(isset($this->parts[$k]) && ($p = $this->parts[$k])) $this->{$k} = $p;
         }
-    }
-
-    /**
-     * Return part if object found and has not yet been encoded
-     * @param  string  $key
-     * @return string|boolean
-     */
-    protected function getPart($key) 
-    {
-        return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : NULL;
     }
 
     /**

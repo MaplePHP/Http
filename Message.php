@@ -10,21 +10,23 @@ abstract class Message implements MessageInterface
 {
 
     protected $server;
-    protected $serverProtocol;
+    //protected $serverProtocol;
     protected $version;
-    protected $headers = array();
+    protected $headers;
     protected $body;
     protected $uriParts;
     protected $env;
     protected $path;
     protected $headerLine;
 
+    /*
     function __construct(?StreamInterface $body = NULL) 
     {
         $this->env = $_SERVER;
-        $this->serverProtocol = ($this->env['SERVER_PROTOCOL'] ?? "HTTP/1.1");
+        //$this->serverProtocol = ($this->env['SERVER_PROTOCOL'] ?? "HTTP/1.1");
         $this->body = $body;
     }
+     */
 
     /**
      * Get server HTTP protocol version number 
@@ -33,7 +35,7 @@ abstract class Message implements MessageInterface
     public function getProtocolVersion() 
     {
         if(is_null($this->version)) {
-            $prot = explode("/", $this->serverProtocol);
+            $prot = explode("/", ($this->env['SERVER_PROTOCOL'] ?? "HTTP/1.1"));
             $this->version = end($prot);
         }
 
@@ -56,20 +58,9 @@ abstract class Message implements MessageInterface
      * Get all current headers
      * @return array
      */
-    public function getHeaders() 
+    public function getHeaders(): array 
     {
-        return $this->headers;
-    }
-
-    /**
-     * Check is a header exists 
-     * @param  string  $name Header name/key (case insensitive)
-     * @return boolean
-     */
-    public function hasHeader($name) 
-    {
-        $name = $this->headerKey($name);
-        return (bool)($this->headers[$name] ?? NULL);
+        return $this->headers->getHeaders();
     }
 
     /**
@@ -77,10 +68,21 @@ abstract class Message implements MessageInterface
      * @param  string $name name/key (case insensitive)
      * @return array
      */
-    public function getHeader($name) 
+    public function getHeader($name): array 
     {
-        $name = $this->headerKey($name);
-        return ($this->headers[$name] ?? []);
+        return $this->headers->getHeader($name);
+    }
+
+
+    /**
+     * Check is a header exists 
+     * @param  string  $name Header name/key (case insensitive)
+     * @return boolean
+     */
+    public function hasHeader($name): bool 
+    {
+        if(is_null($this->headers)) throw new \Exception("Missing The HTTP Headers instance", 1);
+        return $this->headers->hasHeader($name);
     }
 
     /**
@@ -140,34 +142,9 @@ abstract class Message implements MessageInterface
     public function withHeader($name, $value) 
     {
         $inst = clone $this;
-        $inst->setHeader($name, $value);
-        $inst->resetHeaderLine();
+        $inst->headers->setHeader($name, $value);
+        //$inst->resetHeaderLine();
         return $inst;
-    }
-
-    /**
-     * Set new header
-     * @param  string $name 
-     * @param  string/array $value
-     * @return static
-     */
-    public function setHeader($name, $value) 
-    {
-        $name = $this->headerKey($name);
-        $this->headers[$name] = is_array($value) ? $value : array_map('trim', explode(';', $value));
-        return $this->headers;
-    }
-
-    /**
-     * Set new headers
-     * @param  string $name 
-     * @param  string/array $value
-     * @return static
-     */
-    public function setHeaders(array $arr): array 
-    {
-        foreach($arr as $key => $val) $this->setHeader($key, $val);
-        return $this->headers;
     }
 
     /**
@@ -180,8 +157,8 @@ abstract class Message implements MessageInterface
     {
         $inst = clone $this;
         if($inst->hasHeader($name)) $inst->headers[$name][] = $value;
-        $inst->setHeader($name, $inst->headers[$name]);
-        $inst->resetHeaderLine();
+        $inst->headers->setHeader($name, $inst->headers[$name]);
+        //$inst->resetHeaderLine();
         return $inst;
     }
 
@@ -195,7 +172,7 @@ abstract class Message implements MessageInterface
         $inst = clone $this;
         $name = $this->headerKey($name);
         if(isset($inst->headers[$name])) unset($inst->headers[$name]);
-        $inst->resetHeaderLine();
+        //$inst->resetHeaderLine();
         return $inst;
 
     }
@@ -221,90 +198,10 @@ abstract class Message implements MessageInterface
         return $inst;
     }
 
-    /**
-     * Get URI enviment Part data that will be passed to UriInterface and match to public object if exists.
-     * @return array
-     */
-    function getUriEnv(array $add): array
-    {
-        if(is_null($this->uriParts)) {
-            $this->uriParts['scheme'] = ($this->getEnv("HTTPS") === 'on') ? 'https' : 'http';
-            $this->uriParts['user'] = $this->getEnv("PHP_AUTH_USER");
-            $this->uriParts['pass'] = $this->getEnv("PHP_AUTH_PW");
-            $this->uriParts['host'] = ($host = $this->getEnv("HTTP_HOST")) ? $host : $this->getEnv("SERVER_NAME");
-            $this->uriParts['port'] = $this->getEnv("SERVER_PORT", NULL);
-            $this->uriParts['path'] = $this->getEnvPath();
-            $this->uriParts['query'] = $this->getEnv("QUERY_STRING");
-            $this->uriParts['fragment'] = NULL;
-            if(!is_null($this->uriParts['port'])) $this->uriParts['port'] = (int)$this->uriParts['port']; 
-            $this->uriParts = array_merge($this->uriParts, $add);
-        }
-        return $this->uriParts;
-    }
-
-    function setUriEnv($key, $value): void 
-    {
-        $this->uriParts[$key] = $value;
-    }
-
-
-    /**
-     * Get request/server environment data
-     * @param  string $key     Server key
-     * @param  string $default Default value, returned if Env data is empty
-     * @return string|null
-     */
-    function getEnv(string $key, ?string $default = ""): ?string 
-    {
-        return ($this->env[$key] ?? $default);
-    }
-
-    /**
-     * Check if environment data exists
-     * @param  string  $key Server key
-     * @return boolean
-     */
-    function hasEnv($key): bool 
-    {
-        return (bool)($this->getEnv($key, NULL));
-    }
-
-    /**
-     * Build and return URI Path from environment
-     * @return string
-     */
-    function getEnvPath(): string 
-    {
-        if(is_null($this->path)) {
-            $basePath = '';
-            $requestName = Format\Uri::value($this->getEnv("SCRIPT_NAME"))->extractPath()->get();
-            $requestDir = dirname($requestName);
-            $requestUri = Format\Uri::value($this->getEnv("REQUEST_URI"))->extractPath()->get();
-
-            $this->path = $requestUri;
-            if (stripos($requestUri, $requestName) === 0) {
-                $basePath = $requestName;
-            } elseif ($requestDir !== '/' && stripos($requestUri, $requestDir) === 0) {
-                $basePath = $requestDir;
-            }
-            if($basePath) $this->path = ltrim(substr($requestUri, strlen($basePath)), '/');
-        }
-        return $this->path;
-    }
-
-    /**
-     * Used to make header keys consistent 
-     * @param  string $key
-     * @return string
-     */
-    protected function headerKey(string $key): string 
-    {
-        return strtolower($key);
-    }
-
+    /*
     protected function resetHeaderLine(): void 
     {
         $this->headerLine = NULL;
     }
-
+     */
 }

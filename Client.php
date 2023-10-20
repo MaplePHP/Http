@@ -6,6 +6,7 @@ namespace PHPFuse\Http;
 use PHPFuse\Http\Interfaces\RequestInterface;
 use PHPFuse\Http\Interfaces\ResponseInterface;
 use PHPFuse\Http\Interfaces\ClientInterface;
+use PHPFuse\Http\Interfaces\StreamInterface;
 
 use PHPFuse\Http\Exceptions\ClientException;
 use PHPFuse\Http\Exceptions\RequestException;
@@ -177,11 +178,7 @@ class Client implements ClientInterface {
 	 */
 	protected function put(): void 
 	{
-		$fh = fopen('php://memory', 'rw');
-		fwrite($fh, $this->requestData);
-		rewind($fh);
-		
-		curl_setopt($this->ch, CURLOPT_INFILE, $fh);
+		curl_setopt($this->ch, CURLOPT_INFILE, $this->createParsedBody()->getResource());
 		curl_setopt($this->ch, CURLOPT_INFILESIZE, $this->requestDataLength);
 		curl_setopt($this->ch, CURLOPT_PUT, true);
 	}
@@ -229,5 +226,17 @@ class Client implements ClientInterface {
 			$data[] = "{$name}: ".$request->getHeaderLine($name);
 		}
 		curl_setopt($this->ch, CURLOPT_HTTPHEADER, $data);
+	}
+
+	/**
+	 * Parsed body can be used in e.g. put method
+	 * @return StreamInterface
+	 */
+	private function createParsedBody(): StreamInterface
+	{
+		$stream = new Stream('php://memory', 'rw');
+		$stream->write($this->requestData);
+		$stream->rewind();
+		return $stream;
 	}
 }

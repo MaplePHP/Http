@@ -182,7 +182,9 @@ class Uri implements UriInterface
     public function getQuery(): string
     {
         if($val = $this->getUniquePart("query")) {
-            $this->encoded['query'] = Format\Str::value($val)->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])->get();
+            $this->encoded['query'] = Format\Str::value($val)
+            ->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])
+            ->get();
         }
         return (string)$this->encoded['query'];
     }

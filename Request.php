@@ -19,7 +19,8 @@ class Request extends Message implements RequestInterface
     protected $body;
     
     function __construct(
-        string $method, UriInterface|string $uri, 
+        string $method, 
+        UriInterface|string $uri, 
         HeadersInterface|array $headers = [], 
         StreamInterface|array|string|null $body = NULL
     ) {

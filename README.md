@@ -4,14 +4,7 @@ The library is fully integrated with PSR Http Message and designed for use with 
 ## Request
 None of the construct attributes are required and will auto propagate if you leave them be.
 ```php
-$request = new Http\ServerRequest(
-	(array) Cookies, 
-	(array) QueryParams, 
-	(array) Files, 
-	(array) ParsedBody, 
-	(array) Attribute,
-	(UriInterface) Uri
-);
+$request = new Http\ServerRequest(UriInterface $uri, EnvironmentInterface $env);
 ```
 ####  Get request method
 ```php
@@ -87,8 +80,8 @@ $client = new Http\Client([CURLOPT_HTTPAUTH => CURLAUTH_DIGEST]); // Pass on Cur
 
 // Create request data
 $request = new Http\Request(
-    "POST", // The HTTP Method
-    "https://admin:mypass@wazabii.se:443/test.php", // The Request URI
+    "POST", // The HTTP Method (GET, POST, PUT, DELETE, PATCH)
+    "https://admin:mypass@example.com:443/test.php", // The Request URI
     ["customHeader" => "lorem"], // Add Headers, empty array is allowed
     ["email" => "john.doe@example.com"] // Post data
 );

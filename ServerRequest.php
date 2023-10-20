@@ -15,17 +15,26 @@ class ServerRequest extends Request implements ServerRequestInterface
     protected $cliKeywords;
     protected $cliArgs;
 
-    function __construct(UriInterface $uri, EnvironmentInterface $env) {
+    protected $queryParams;
+    protected $parsedBody;
+
+    function __construct(UriInterface $uri, EnvironmentInterface $env) 
+    {
         $this->env = $env;
-        parent::__construct($this->env->get("REQUEST_METHOD", "GET"), $uri, new Headers(Headers::getGlobalHeaders()));
+        parent::__construct(
+            $this->env->get("REQUEST_METHOD", "GET"), 
+            $uri, 
+            new Headers(Headers::getGlobalHeaders()),
+            ($_POST ?? [])
+        );
+
         $this->attr = [
             "env" => $this->env->fetch(),
             "cookies" => ($_COOKIE ?? []),
-            "queryParams" => ($_GET ?? []),
-            "files" => ($_FILES ?? []),
-            "parsedBody" => ($_POST ?? [])
+            "files" => ($_FILES ?? [])
         ];
     }
+
 
     /**
      * Retrieve server parameters.
@@ -36,7 +45,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getServerParams() {
+    public function getServerParams(): array 
+    {
         return $this->env->fetch();
     }
 
@@ -50,7 +60,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getCookieParams() {
+    public function getCookieParams(): array 
+    {
         return $this->attr['cookies'];
     }
 
@@ -71,7 +82,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param array $cookies Array of key/value pairs representing cookies.
      * @return static
      */
-    public function withCookieParams(array $cookies) {
+    public function withCookieParams(array $cookies): self 
+    {
         $inst = clone $this;
         $inst->attr['cookies'] = $cookies;
         return $inst;
@@ -90,10 +102,13 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getQueryParams() {
-        return $this->attr['queryParams'];
+    public function getQueryParams(): array 
+    {
+        if(is_null($this->queryParams)) {
+            parse_str($this->getUri()->getQuery(), $this->queryParams);
+        }
+        return $this->queryParams;
     }
-
 
     /**
      * Return an instance with the specified query string arguments.
@@ -117,9 +132,10 @@ class ServerRequest extends Request implements ServerRequestInterface
      *     $_GET.
      * @return static
      */
-    public function withQueryParams(array $query) {
+    public function withQueryParams(array $query): self 
+    {
         $inst = clone $this;
-        $inst->attr['queryParams'] = $query;
+        $inst->queryParams = $query;
         return $inst;
     }
 
@@ -135,7 +151,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return array An array tree of UploadedFileInterface instances; an empty
      *     array MUST be returned if no data is present.
      */
-    public function getUploadedFiles() {
+    public function getUploadedFiles(): array 
+    {
         return $this->attr['files'];
     }
 
@@ -150,7 +167,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return static
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
-    public function withUploadedFiles(array $uploadedFiles) {
+    public function withUploadedFiles(array $uploadedFiles): self 
+    {
         $inst = clone $this;
         $inst->attr['files'] = $uploadedFiles;
         return $inst;
@@ -171,26 +189,24 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return null|array|object The deserialized body parameters, if any.
      *     These will typically be an array or object.
      */
-    public function getParsedBody()
+    public function getParsedBody(): null|array|object
     {
-        if($this->getMethod() === "POST") {
-
-            $contents = $this->getBody()->getContents();
-            switch($this->getHeaderLine('Content-Type')) {
+        if(is_null($this->parsedBody) && $this->getMethod() === "POST") {
+            $header = $this->getHeader('Content-Type');
+            $contents = (string)$this->getBody();
+            switch(($header[0] ?? NULL)) {
                 case "application/x-www-form-urlencoded":
-                    parse_str($contents, $this->attr['parsedBody']);
+                    parse_str($contents, $this->parsedBody);
                 break;
                 case "application/json":
-                    $this->attr['parsedBody'] = json_decode($contents, true);
+                    $this->parsedBody = json_decode($contents, true);
                 break;
                 case "application/xml":
-                    $this->attr['parsedBody'] = simplexml_load_string($contents);
+                    $this->parsedBody = simplexml_load_string($contents);
                 break;                
             }
-            return $this->attr['parsedBody'];
         }
-
-        return NULL;
+        return $this->parsedBody;
     }
 
     /**
@@ -221,9 +237,10 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @throws \InvalidArgumentException if an unsupported argument type is
      *     provided.
      */
-    public function withParsedBody($data) {
+    public function withParsedBody($data): self 
+    {
         $inst = clone $this;
-        $inst->attr['parsedBody'] = $data;
+        $inst->parsedBody = $data;
         return $inst;
     }
 
@@ -238,7 +255,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array Attributes derived from the request.
      */
-    public function getAttributes() {
+    public function getAttributes(): array 
+    {
         return $this->attr;
     }
 
@@ -257,7 +275,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
      */
-    public function getAttribute($name, $default = NULL) {
+    public function getAttribute($name, $default = NULL): mixed 
+    {
         return ($this->attr[$name] ?? $default);
     }
 
@@ -276,7 +295,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param mixed $value The value of the attribute.
      * @return static
      */
-    public function withAttribute($name, $value) {
+    public function withAttribute($name, $value): self 
+    {
         $inst = clone $this;
         $inst->attr[$name] = $value;
         return $inst;
@@ -296,7 +316,8 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param string $name The attribute name.
      * @return static
      */
-    public function withoutAttribute($name) {
+    public function withoutAttribute($name): self 
+    {
         $inst = clone $this;
         unset($inst->attr[$name]);
         return $inst;

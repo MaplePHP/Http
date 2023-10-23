@@ -6,6 +6,8 @@ use PHPFuse\Http\Interfaces\ServerRequestInterface;
 use PHPFuse\Http\Interfaces\UriInterface;
 use PHPFuse\Http\Interfaces\EnvironmentInterface;
 
+use PHPFuse\Http\Stream;
+
 
 class ServerRequest extends Request implements ServerRequestInterface
 {
@@ -21,11 +23,12 @@ class ServerRequest extends Request implements ServerRequestInterface
     function __construct(UriInterface $uri, EnvironmentInterface $env) 
     {
         $this->env = $env;
+        
         parent::__construct(
             $this->env->get("REQUEST_METHOD", "GET"), 
             $uri, 
             new Headers(Headers::getGlobalHeaders()),
-            ($_POST ?? [])
+            new Stream(Stream::INPUT)
         );
 
         $this->attr = [

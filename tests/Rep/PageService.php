@@ -2,18 +2,18 @@
 
 namespace Http\tests\Rep;
 
-class PageService {
-
+class PageService
+{
     private $about;
 
-    function __construct(\Http\tests\Rep\PageServiceB $ser) {
+    public function __construct(\Http\tests\Rep\PageServiceB $ser)
+    {
         $this->about = "wdwqdwqdqwdqw";
     }
 
-    function about() {
+    public function about()
+    {
         // Change meta titles
         return $this->about;
-      
     }
-
 }

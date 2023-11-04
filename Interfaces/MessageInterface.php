@@ -185,4 +185,3 @@ interface MessageInterface
      */
     public function withBody(StreamInterface $body);
 }
-

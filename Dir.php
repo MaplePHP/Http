@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 
 declare(strict_types=1);
 
@@ -8,40 +9,45 @@ use PHPFuse\Http\Interfaces\DirInterface;
 
 class Dir implements DirInterface
 {
-
     private $dir;
-    
-    function __construct($dir)
+
+    public function __construct($dir)
     {
         $this->dir = $dir;
     }
 
-    function getDir(string $path = "") {
+    public function getDir(string $path = "")
+    {
         return $this->dir.$path;
     }
 
-    function getRoot(string $path = "") {
+    public function getRoot(string $path = "")
+    {
         return $this->getDir($path);
     }
 
-    function getResources(string $path = "") {
+    public function getResources(string $path = "")
+    {
         return $this->getDir("resources/{$path}");
     }
 
-    function getPublic(string $path = "") {
+    public function getPublic(string $path = "")
+    {
         return $this->getDir("public/{$path}");
     }
 
-    function getStorage(string $path = "") {
+    public function getStorage(string $path = "")
+    {
         return $this->getDir("storage/{$path}");
     }
 
-    function getLogs(string $path = "") {
+    public function getLogs(string $path = "")
+    {
         return $this->getStorage("logs/{$path}");
     }
 
-    function getCaches(string $path = "") {
+    public function getCaches(string $path = "")
+    {
         return $this->getStorage("caches/{$path}");
     }
-
 }

@@ -4,7 +4,6 @@ namespace PHPFuse\Http\Interfaces;
 
 interface EnvironmentInterface
 {
-
     /**
      * Get request/server environment data
      * @param  string $key     Server key
@@ -31,5 +30,4 @@ interface EnvironmentInterface
      * @return array
      */
     public function getUriParts(array $add): array;
-
 }

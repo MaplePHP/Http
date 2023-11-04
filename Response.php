@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 
 declare(strict_types=1);
 
@@ -8,11 +9,9 @@ use PHPFuse\Http\Interfaces\ResponseInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
 use PHPFuse\Http\Interfaces\HeadersInterface;
 
-
 class Response extends Message implements ResponseInterface
 {
-
-    const PHRASE = array(
+    public const PHRASE = array(
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
@@ -72,7 +71,7 @@ class Response extends Message implements ResponseInterface
         506 => 'Variant Also Negotiates',
         507 => 'Insufficient Storage',
         510 => 'Not Extended',
-        511 => 'Network Authentication Required', 
+        511 => 'Network Authentication Required',
     );
 
     private $statusCode = 200;
@@ -81,29 +80,33 @@ class Response extends Message implements ResponseInterface
 
     private $contentType = "text/html";
     private $charset = "UTF-8";
-    
+
     //private $headerLines = array();
-    
+
     private $modDate;
     private $hasHeadersInit;
     private $location;
 
-    function __construct(
-        StreamInterface $body, 
-        ?HeadersInterface $headers = NULL, 
-        int $status = 200, 
-        ?string $phrase = NULL, 
-        ?string $version = NULL
+    public function __construct(
+        StreamInterface $body,
+        ?HeadersInterface $headers = null,
+        int $status = 200,
+        ?string $phrase = null,
+        ?string $version = null
     ) {
         $this->body = $body;
         $this->statusCode = $status;
         $this->headers = is_null($headers) ? new Headers() : $headers;
         $this->body = $body;
-        if(!is_null($version)) $this->version = $version;
-        if(!is_null($phrase)) $this->phrase = $phrase;
+        if (!is_null($version)) {
+            $this->version = $version;
+        }
+        if (!is_null($phrase)) {
+            $this->phrase = $phrase;
+        }
     }
 
-    public function getStatusCode() 
+    public function getStatusCode()
     {
         return $this->statusCode;
     }
@@ -116,21 +119,21 @@ class Response extends Message implements ResponseInterface
         return $clone;
     }
 
-    public function getReasonPhrase() 
+    public function getReasonPhrase()
     {
-        if(is_null($this->phrase)) {
+        if (is_null($this->phrase)) {
             $this->phrase = $this::PHRASE[$this->statusCode];
         }
         return $this->phrase;
     }
 
-    public function setDescription(string $description): self 
+    public function setDescription(string $description): self
     {
         $this->description = $description;
         return $this;
     }
 
-    public function getDescription(): ?string 
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -143,7 +146,7 @@ class Response extends Message implements ResponseInterface
      * Get modified date
      * @return int|null
      */
-    function getModDate(): ?int 
+    public function getModDate(): ?int
     {
         return $this->modDate;
     }
@@ -153,7 +156,7 @@ class Response extends Message implements ResponseInterface
      * @param  string $date
      * @return ResponseInterface
      */
-    function withLastModified(string $date): ResponseInterface
+    public function withLastModified(string $date): ResponseInterface
     {
         $clone = clone $this;
         $clone->modDate = strtotime($date);
@@ -180,7 +183,7 @@ class Response extends Message implements ResponseInterface
     {
         return $this->withHeaders([
             "Cache-Control" => "max-age={$ttl}, immutable, public",
-            "Expires" => date("D, d M Y H:i:s", $time+$ttl)." GMT",
+            "Expires" => date("D, d M Y H:i:s", $time + $ttl)." GMT",
             "Pragma" => "public"
         ]);
     }
@@ -200,8 +203,8 @@ class Response extends Message implements ResponseInterface
         ]);
     }
 
-    
-    
+
+
     /**
      * Redirect to new location
      * @param  string      $url        URL
@@ -210,23 +213,26 @@ class Response extends Message implements ResponseInterface
      */
     public function location(string $url, int $statusCode = 302): void
     {
-        if($statusCode !== 301 && $statusCode !== 302) throw new \Exception("The second argumnet (statusCode) is expecting 301 or 302", 1);
+        if ($statusCode !== 301 && $statusCode !== 302) {
+            throw new \Exception("The second argumnet (statusCode) is expecting 301 or 302", 1);
+        }
         $this->withStatus($statusCode)
         ->withHeader("Location", $url)
         ->createHeaders();
         die();
     }
 
-    // Same as @location 
-    public function redirect(string $url, int $statusCode = 302): void {
+    // Same as @location
+    public function redirect(string $url, int $statusCode = 302): void
+    {
         $this->location($url, $statusCode);
     }
 
     public function createHeaders(): void
     {
-        if(is_null($this->hasHeadersInit)) {
+        if (is_null($this->hasHeadersInit)) {
             $this->hasHeadersInit = true;
-            foreach($this->getHeaders() as $key => $val) {
+            foreach ($this->getHeaders() as $key => $val) {
                 $value = $this->getHeaderLine($key);
                 header("{$key}: {$value}");
             }
@@ -234,13 +240,15 @@ class Response extends Message implements ResponseInterface
     }
 
 
-    function executeHeaders(): void 
+    public function executeHeaders(): void
     {
         $this->createHeaders();
-        $statusLine = sprintf('HTTP/%s %s %s', $this->getProtocolVersion(), $this->getStatusCode(), $this->getReasonPhrase());
+        $statusLine = sprintf(
+            'HTTP/%s %s %s',
+            $this->getProtocolVersion(),
+            $this->getStatusCode(),
+            $this->getReasonPhrase()
+        );
         header($statusLine, true, $this->getStatusCode());
     }
-    
-    
-
 }

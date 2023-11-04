@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 
 declare(strict_types=1);
 
@@ -8,16 +9,15 @@ use RuntimeException;
 use PHPFuse\Http\Interfaces\UploadedFileInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
 
-
 class UploadedFile implements UploadedFileInterface
 {
+    public const MOVE_CHUNK_SIZE = 1024;
 
-    const MOVE_CHUNK_SIZE = 1024;
-
-    const ERROR_PHRASE = [
+    public const ERROR_PHRASE = [
         UPLOAD_ERR_OK => "There is no error, the file uploaded with success",
         UPLOAD_ERR_INI_SIZE => "The uploaded file exceeds the upload_max_filesize directive in php.ini",
-        UPLOAD_ERR_FORM_SIZE => "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form",
+        UPLOAD_ERR_FORM_SIZE => "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified ".
+        "in the HTML form",
         UPLOAD_ERR_PARTIAL => "The uploaded file was only partially uploaded",
         UPLOAD_ERR_NO_FILE => "No file was uploaded",
         UPLOAD_ERR_NO_TMP_DIR => "No temporary directory. This is a server error, please try again later",
@@ -33,28 +33,25 @@ class UploadedFile implements UploadedFileInterface
     private $error;
     private $moved;
     private $target;
-    
+
     /**
      * Prepare for upload
      * Expects: $_FILES['uploadKey']
      *          StreamInterface
      *          (string) FilePath/php stream
      */
-    function __construct($stream)
+    public function __construct($stream)
     {
-        if($stream instanceof StreamInterface) {
+        if ($stream instanceof StreamInterface) {
             $this->stream = $stream;
-
-        } else if(isset($stream['tmp_name'])) {
+        } elseif (isset($stream['tmp_name'])) {
             $this->name = $stream['name'];
             $this->type = $stream['type'];
             $this->tmp = $stream['tmp_name'];
             $this->error = $stream['error'];
             $this->size = $stream['size'];
-
-        } else if(is_string($stream)) {
+        } elseif (is_string($stream)) {
             $this->stream = $this->withStream($stream);
-
         } else {
             throw new RuntimeException("The stream argument is not a valid resource", 1);
         }
@@ -66,8 +63,12 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getStream(): StreamInterface
     {
-        if(is_null($this->stream)) throw new RuntimeException("The no stream exists. You need to construct a new stream", 1);
-        if(is_string($this->stream)) $this->stream = $this->withStream($this->stream);
+        if (is_null($this->stream)) {
+            throw new RuntimeException("The no stream exists. You need to construct a new stream", 1);
+        }
+        if (is_string($this->stream)) {
+            $this->stream = $this->withStream($this->stream);
+        }
         return $this->stream;
     }
 
@@ -78,17 +79,20 @@ class UploadedFile implements UploadedFileInterface
      */
     public function moveTo($targetPath): void
     {
-        if($this->moved) throw new RuntimeException('File has already been moved');
-        if(!is_writable(dirname($targetPath))) throw new RuntimeException('Target directory is not writable');
+        if ($this->moved) {
+            throw new RuntimeException('File has already been moved');
+        }
+        if (!is_writable(dirname($targetPath))) {
+            throw new RuntimeException('Target directory is not writable');
+        }
 
-        if(!is_null($this->stream)) {
+        if (!is_null($this->stream)) {
             $this->streamFile($targetPath);
-
-        } else if(!is_null($this->tmp)) {
+        } elseif (!is_null($this->tmp)) {
             $this->moveUploadedFile($targetPath);
         }
 
-        if(!$this->moved) {
+        if (!$this->moved) {
             throw new RuntimeException('Failed to move file to target path');
         }
     }
@@ -98,13 +102,13 @@ class UploadedFile implements UploadedFileInterface
      * @param  string $targetPath
      * @return void
      */
-    function streamFile(string $targetPath): void 
+    public function streamFile(string $targetPath): void
     {
         $stream = $this->getStream();
         $stream->seek(0);
 
         $targetStream = new Stream($targetPath, 'w');
-        while(!$stream->eof()) {
+        while (!$stream->eof()) {
             $targetStream->write($stream->read($this::MOVE_CHUNK_SIZE));
         }
 
@@ -118,15 +122,18 @@ class UploadedFile implements UploadedFileInterface
      * @param  string $targetPath
      * @return int/bool
      */
-    function moveUploadedFile(string $targetPath) {
-        if(!is_uploaded_file($this->tmp)) {
+    public function moveUploadedFile(string $targetPath)
+    {
+        if (!is_uploaded_file($this->tmp)) {
             throw new RuntimeException("Could not upload the file \"{$this->name}\" becouse of a conflict.");
         }
         $this->moved = move_uploaded_file($this->tmp, $targetPath);
 
-        // Add file to stream as a String, that way it will be prepared and 
+        // Add file to stream as a String, that way it will be prepared and
         // without loading resource unless you call/follow up with the @getStream method
-        if($this->moved) $this->stream = $targetPath;
+        if ($this->moved) {
+            $this->stream = $targetPath;
+        }
         return $this->moved;
     }
 
@@ -134,16 +141,17 @@ class UploadedFile implements UploadedFileInterface
      * Get file size
      * @return int|null
      */
-    function getSize(): ?int
+    public function getSize(): ?int
     {
-        return (is_null($this->size)) ? (is_resource($this->stream) ? $this->stream->getSize() : NULL) : $this->size;
+        return (is_null($this->size)) ? (is_resource($this->stream) ? $this->stream->getSize() : null) : $this->size;
     }
 
     /**
      * Get error
      * @return int
      */
-    function getError() {
+    public function getError()
+    {
         return (int)$this->error;
     }
 
@@ -151,16 +159,16 @@ class UploadedFile implements UploadedFileInterface
      * Get error phrarse
      * @return string
      */
-    function getErrorPhrase(): ?string 
+    public function getErrorPhrase(): ?string
     {
-        return ($this::ERROR_PHRASE[$this->error] ?? NULL);
+        return ($this::ERROR_PHRASE[$this->error] ?? null);
     }
 
     /**
      * Get client file name
      * @return string
      */
-    function getClientFilename(): ?string 
+    public function getClientFilename(): ?string
     {
         return $this->name;
     }
@@ -169,15 +177,14 @@ class UploadedFile implements UploadedFileInterface
      * Get client media type
      * @return string
      */
-    function getClientMediaType(): ?string 
+    public function getClientMediaType(): ?string
     {
         return $this->type;
     }
 
-    function withStream(string $stream): StreamInterface 
+    public function withStream(string $stream): StreamInterface
     {
         $inst = new Stream($stream, 'r+');
         return $inst;
     }
-
 }

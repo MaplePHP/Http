@@ -6,34 +6,36 @@ use PHPFuse\DTO\Format;
 
 class Method
 {
-
     private $request;
     private $arrToJson = false;
 
     /**
-     * Start instance 
+     * Start instance
      * get(slug|key): Will catch GET result
      * post(slug|key): Will catch POST result
      * value([test => lorem ispsum]): Custom string or array value
      * @param  string|array $a
      * @return self
      */
-    static function __callStatic($k, $a): self
+    public static function __callStatic($k, $a): self
     {
         $inst = new static();
-        switch($k) {
-            case 'get': case '_get':
+        switch ($k) {
+            case 'get':
+            case '_get':
                 $inst->request = $inst->getRawGet($a[0]);
-            break;
-            case 'post': case '_post':
+                break;
+            case 'post':
+            case '_post':
                 $inst->request = $inst->getRawPost($a[0]);
-            break;
-            case 'value':  case '_value': 
+                break;
+            case 'value':
+            case '_value':
                 $inst->request = $a[0];
-            break;
+                break;
             default:
                 throw new \Exception("The method \"{$k}\" does not exist in ".__CLASS__."", 1);
-            break;
+                break;
         }
 
         return $inst;
@@ -44,19 +46,19 @@ class Method
      * @param  bool $yes = true
      * @return self
      */
-    function arrToJson(bool $yes = true) 
+    public function arrToJson(bool $yes = true)
     {
         $this->arrToJson = $yes;
         return $this;
     }
 
-    function __call($m, $a) {
+    public function __call($m, $a)
+    {
 
-        if($m === "get") {
+        if ($m === "get") {
             return call_user_func_array([$this, "param"], $a);
-            
         } else {
-            throw new \Exception("The Method \"{$m}\" does not exist in the class \"".get_class($this)."\".", 1);   
+            throw new \Exception("The Method \"{$m}\" does not exist in the class \"".get_class($this)."\".", 1);
         }
     }
 
@@ -64,17 +66,24 @@ class Method
      * Get XXS "Protected" result
      * @return string|array|null
      */
-    function param(bool $encode = false) 
+    public function param(bool $encode = false)
     {
-        if(is_array($this->request)) {
-            $this->request = Format\Arr::value($this->request)->walk(function($value) use($encode) {
+        if (is_array($this->request)) {
+            $this->request = Format\Arr::value($this->request)->walk(function ($value) use ($encode) {
                 $uri = Format\Uri::value((string)$value)->xxs();
-                if($encode) $uri->rawurlencode();
+                if ($encode) {
+                    $uri->rawurlencode();
+                }
                 return $uri->get();
             })->get();
 
-            if($this->arrToJson) foreach($this->request as $k => &$v) if(is_array($v)) $v = json_encode($v);
-
+            if ($this->arrToJson) {
+                foreach ($this->request as $k => &$v) {
+                    if (is_array($v)) {
+                        $v = json_encode($v);
+                    }
+                }
+            }
         } else {
             $this->request = Format\Uri::value($this->request)->xxs()->get();
         }
@@ -87,7 +96,7 @@ class Method
      * BE CAREFUL: You need to manualy escape result if presented in body
      * @return string|array|null
      */
-    function raw() 
+    public function raw()
     {
         return $this->request;
     }
@@ -97,9 +106,9 @@ class Method
      * @param  string $key
      * @return value
      */
-    private function getRawGet($key) 
+    private function getRawGet($key)
     {
-        return ($_GET[$key] ?? NULL);
+        return ($_GET[$key] ?? null);
     }
 
     /**
@@ -107,8 +116,8 @@ class Method
      * @param  string $key
      * @return value
      */
-    private function getRawPost($key) 
+    private function getRawPost($key)
     {
-        return ($_POST[$key] ?? NULL);
+        return ($_POST[$key] ?? null);
     }
 }

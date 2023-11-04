@@ -8,10 +8,8 @@ use PHPFuse\Http\Interfaces\EnvironmentInterface;
 
 use PHPFuse\Http\Stream;
 
-
 class ServerRequest extends Request implements ServerRequestInterface
 {
-
     protected $attr = array();
     protected $env;
     protected $cliKeywords;
@@ -20,13 +18,13 @@ class ServerRequest extends Request implements ServerRequestInterface
     protected $queryParams;
     protected $parsedBody;
 
-    function __construct(UriInterface $uri, EnvironmentInterface $env) 
+    public function __construct(UriInterface $uri, EnvironmentInterface $env)
     {
         $this->env = $env;
-        
+
         parent::__construct(
-            $this->env->get("REQUEST_METHOD", "GET"), 
-            $uri, 
+            $this->env->get("REQUEST_METHOD", "GET"),
+            $uri,
             new Headers(Headers::getGlobalHeaders()),
             new Stream(Stream::INPUT)
         );
@@ -48,7 +46,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getServerParams(): array 
+    public function getServerParams(): array
     {
         return $this->env->fetch();
     }
@@ -63,7 +61,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getCookieParams(): array 
+    public function getCookieParams(): array
     {
         return $this->attr['cookies'];
     }
@@ -85,7 +83,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param array $cookies Array of key/value pairs representing cookies.
      * @return static
      */
-    public function withCookieParams(array $cookies): self 
+    public function withCookieParams(array $cookies): self
     {
         $inst = clone $this;
         $inst->attr['cookies'] = $cookies;
@@ -105,9 +103,9 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array
      */
-    public function getQueryParams(): array 
+    public function getQueryParams(): array
     {
-        if(is_null($this->queryParams)) {
+        if (is_null($this->queryParams)) {
             parse_str($this->getUri()->getQuery(), $this->queryParams);
         }
         return $this->queryParams;
@@ -135,7 +133,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *     $_GET.
      * @return static
      */
-    public function withQueryParams(array $query): self 
+    public function withQueryParams(array $query): self
     {
         $inst = clone $this;
         $inst->queryParams = $query;
@@ -154,7 +152,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return array An array tree of UploadedFileInterface instances; an empty
      *     array MUST be returned if no data is present.
      */
-    public function getUploadedFiles(): array 
+    public function getUploadedFiles(): array
     {
         return $this->attr['files'];
     }
@@ -170,7 +168,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @return static
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
-    public function withUploadedFiles(array $uploadedFiles): self 
+    public function withUploadedFiles(array $uploadedFiles): self
     {
         $inst = clone $this;
         $inst->attr['files'] = $uploadedFiles;
@@ -194,19 +192,19 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getParsedBody(): null|array|object
     {
-        if(is_null($this->parsedBody) && $this->getMethod() === "POST") {
+        if (is_null($this->parsedBody) && $this->getMethod() === "POST") {
             $header = $this->getHeader('Content-Type');
             $contents = (string)$this->getBody();
-            switch(($header[0] ?? NULL)) {
+            switch (($header[0] ?? null)) {
                 case "application/x-www-form-urlencoded":
                     parse_str($contents, $this->parsedBody);
-                break;
+                    break;
                 case "application/json":
                     $this->parsedBody = json_decode($contents, true);
-                break;
+                    break;
                 case "application/xml":
                     $this->parsedBody = simplexml_load_string($contents);
-                break;                
+                    break;
             }
         }
         return $this->parsedBody;
@@ -240,7 +238,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @throws \InvalidArgumentException if an unsupported argument type is
      *     provided.
      */
-    public function withParsedBody($data): self 
+    public function withParsedBody($data): self
     {
         $inst = clone $this;
         $inst->parsedBody = $data;
@@ -258,7 +256,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      *
      * @return array Attributes derived from the request.
      */
-    public function getAttributes(): array 
+    public function getAttributes(): array
     {
         return $this->attr;
     }
@@ -278,7 +276,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
      */
-    public function getAttribute($name, $default = NULL): mixed 
+    public function getAttribute($name, $default = null): mixed
     {
         return ($this->attr[$name] ?? $default);
     }
@@ -298,7 +296,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param mixed $value The value of the attribute.
      * @return static
      */
-    public function withAttribute($name, $value): self 
+    public function withAttribute($name, $value): self
     {
         $inst = clone $this;
         $inst->attr[$name] = $value;
@@ -319,7 +317,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      * @param string $name The attribute name.
      * @return static
      */
-    public function withoutAttribute($name): self 
+    public function withoutAttribute($name): self
     {
         $inst = clone $this;
         unset($inst->attr[$name]);
@@ -331,13 +329,13 @@ class ServerRequest extends Request implements ServerRequestInterface
      * Get Cli keyword
      * @return string|null
      */
-    public function getCliKeyword(): ?string 
+    public function getCliKeyword(): ?string
     {
-        if(is_null($this->cliKeywords)) {
+        if (is_null($this->cliKeywords)) {
             $new = array();
             $arg = $this->getUri()->getArgv();
-            foreach($arg as $k => $v) {
-                if((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
+            foreach ($arg as $k => $v) {
+                if ((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
                     break;
                 } else {
                     $new[] = $v;
@@ -354,15 +352,18 @@ class ServerRequest extends Request implements ServerRequestInterface
      * Get Cli arguments
      * @return array
      */
-    public function getCliArgs(): array {
-        if(is_null($this->cliArgs)) {
+    public function getCliArgs(): array
+    {
+        if (is_null($this->cliArgs)) {
             $arg = $this->getUri()->getArgv();
             $this->cliArgs = array();
-            foreach($arg as $k => $v) {
+            foreach ($arg as $k => $v) {
                 $v = str_replace("&", "#", $v);
-                if((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
+                if ((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
                     parse_str(substr($v, ($p1 !== false ? 2 : 1)), $result);
-                    foreach($result as &$val) $val = str_replace("#", "&", $val);
+                    foreach ($result as &$val) {
+                        $val = str_replace("#", "&", $val);
+                    }
                     $this->cliArgs = array_merge($this->cliArgs, $result);
                 }
             }
@@ -377,5 +378,4 @@ class ServerRequest extends Request implements ServerRequestInterface
         return $this->env;
     }
      */
-
 }

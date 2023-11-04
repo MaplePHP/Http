@@ -1,18 +1,18 @@
 <?php
 
 namespace Http\tests\Rep;
+
 use PHPFuse\Container\Interfaces\ContainerInterface;
-class PagesLast {
 
-
-    function __construct(ContainerInterface $con) {
-        
+class PagesLast
+{
+    public function __construct(ContainerInterface $con)
+    {
     }
 
-    function about() {
+    public function about()
+    {
         // Change meta titles
         return "ABOUT";
-      
     }
-
 }

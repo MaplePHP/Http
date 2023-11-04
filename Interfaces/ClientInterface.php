@@ -2,7 +2,6 @@
 
 namespace PHPFuse\Http\Interfaces;
 
-
 interface ClientInterface
 {
     /**

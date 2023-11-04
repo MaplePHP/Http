@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 
 declare(strict_types=1);
 
@@ -22,7 +23,7 @@ class Uri implements UriInterface
         'pop' => 110,
         'ldap' => 389,
     ];
-    
+
     private $uri;
     private $parts = array();
     private $scheme;
@@ -45,9 +46,9 @@ class Uri implements UriInterface
      * URI in parts
      * @param array|string $uri
      */
-    function __construct(array|string $uri)
+    public function __construct(array|string $uri)
     {
-        if(is_array($uri)) {
+        if (is_array($uri)) {
             $this->parts = $uri;
         } else {
             $this->parts = parse_url($uri);
@@ -59,30 +60,30 @@ class Uri implements UriInterface
      * Get formated URI
      * @return string
      */
-    public function __toString() 
+    public function __toString()
     {
         return $this->getUri();
     }
 
     /**
-     * Get schema 
+     * Get schema
      * @return string (ex: http/https)
      */
     public function getScheme(): string
     {
-        if($val = $this->getUniquePart("scheme")) {
+        if ($val = $this->getUniquePart("scheme")) {
             $this->encoded['scheme'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['scheme'];
     }
 
     /**
-     * Get dir 
+     * Get dir
      * @return string (ex: http/https)
      */
     public function getDir(): string
     {
-        if($val = $this->getUniquePart("dir")) {
+        if ($val = $this->getUniquePart("dir")) {
             $this->encoded['dir'] = $val;
         }
         return (string)$this->encoded['dir'];
@@ -94,35 +95,43 @@ class Uri implements UriInterface
      */
     public function getAuthority(): string
     {
-        if(is_null($this->authority)) {
+        if (is_null($this->authority)) {
             $this->authority = "";
 
-            if(($host = $this->getHost()) && ($userInfo = $this->getUserInfo())) {
+            if (($host = $this->getHost()) && ($userInfo = $this->getUserInfo())) {
                 $this->authority = "{$userInfo}@{$host}";
             } else {
                 $this->authority = $host;
             }
-            if($port = $this->getPort()) $this->authority .= ":{$port}";
+            if ($port = $this->getPort()) {
+                $this->authority .= ":{$port}";
+            }
         }
-       
+
         return $this->authority;
     }
 
     /**
-     * Get user info 
+     * Get user info
      * @return string (ex: username:password)
      */
     public function getUserInfo(): string
     {
-        if(is_null($this->userInfo)) {
+        if (is_null($this->userInfo)) {
             $this->userInfo = "";
-            $user = $pass = NULL;
-            if($user = $this->getUniquePart("user")) $this->encoded['user'] = $user;
-            if($pass = $this->getUniquePart("pass")) $this->encoded['pass'] = $pass;
+            $user = $pass = null;
+            if ($user = $this->getUniquePart("user")) {
+                $this->encoded['user'] = $user;
+            }
+            if ($pass = $this->getUniquePart("pass")) {
+                $this->encoded['pass'] = $pass;
+            }
 
-            if(!is_null($user)) {
+            if (!is_null($user)) {
                 $this->userInfo .= "{$user}";
-                if(!is_null($pass))  $this->userInfo .= ":{$pass}";
+                if (!is_null($pass)) {
+                    $this->userInfo .= ":{$pass}";
+                }
             }
         }
         return $this->userInfo;
@@ -134,7 +143,7 @@ class Uri implements UriInterface
      */
     public function getHost(): string
     {
-        if($val = $this->getUniquePart("host")) {
+        if ($val = $this->getUniquePart("host")) {
             $this->encoded['host'] = Format\Str::value($val)->tolower()->get();
         }
         return (string)$this->encoded['host'];
@@ -147,9 +156,10 @@ class Uri implements UriInterface
      */
     public function getPort(): ?int
     {
-        //if(is_null($this->port) && !is_null($this->scheme)) $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? NULL);
-        if($val = $this->getUniquePart("port")) $this->encoded['port'] = (int)$val;
-        return ($this->encoded['port'] ?? NULL);
+        if ($val = $this->getUniquePart("port")) {
+            $this->encoded['port'] = (int)$val;
+        }
+        return ($this->encoded['port'] ?? null);
     }
 
     /**
@@ -158,8 +168,12 @@ class Uri implements UriInterface
      */
     public function getDefaultPort(): ?int
     {
-        if(is_null($this->port) && !is_null($this->scheme)) $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? NULL);
-        if($val = $this->getUniquePart("port")) $this->encoded['port'] = (int)$val;
+        if (is_null($this->port) && !is_null($this->scheme)) {
+            $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? null);
+        }
+        if ($val = $this->getUniquePart("port")) {
+            $this->encoded['port'] = (int)$val;
+        }
         return $this->port;
     }
 
@@ -169,7 +183,7 @@ class Uri implements UriInterface
      */
     public function getPath(): string
     {
-        if($val = $this->getUniquePart("path")) {
+        if ($val = $this->getUniquePart("path")) {
             $this->encoded['path'] = Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
         }
         return (string)$this->encoded['path'];
@@ -181,7 +195,7 @@ class Uri implements UriInterface
      */
     public function getQuery(): string
     {
-        if($val = $this->getUniquePart("query")) {
+        if ($val = $this->getUniquePart("query")) {
             $this->encoded['query'] = Format\Str::value($val)
             ->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])
             ->get();
@@ -195,7 +209,7 @@ class Uri implements UriInterface
      */
     public function getFragment(): string
     {
-        if($val = $this->getUniquePart("fragment")) {
+        if ($val = $this->getUniquePart("fragment")) {
             $this->encoded['fragment'] = Format\Str::value($val)->toggleUrlencode()->get();
         }
         return (string)$this->encoded['fragment'];
@@ -205,15 +219,25 @@ class Uri implements UriInterface
      * Get formated URI
      * @return string
      */
-    public function getUri(): string 
+    public function getUri(): string
     {
-        if(is_null($this->build)) {
+        if (is_null($this->build)) {
             $this->build = "";
-            if($scheme = $this->getScheme()) $this->build .= "{$scheme}:";
-            if($authority = $this->getAuthority()) $this->build .= "//{$authority}";
-            if($path = $this->getPath()) $this->build .= "{$path}";
-            if($query = $this->getQuery()) $this->build .= "?{$query}";
-            if($fragment = $this->getFragment()) $this->build .= "#{$fragment}";
+            if ($scheme = $this->getScheme()) {
+                $this->build .= "{$scheme}:";
+            }
+            if ($authority = $this->getAuthority()) {
+                $this->build .= "//{$authority}";
+            }
+            if ($path = $this->getPath()) {
+                $this->build .= "{$path}";
+            }
+            if ($query = $this->getQuery()) {
+                $this->build .= "?{$query}";
+            }
+            if ($fragment = $this->getFragment()) {
+                $this->build .= "#{$fragment}";
+            }
         }
         return $this->build;
     }
@@ -223,7 +247,7 @@ class Uri implements UriInterface
      * E.g.: new Http\Uri($response->getUriEnv(["argv" => $argv]));
      * @return array
      */
-    public function getArgv(): array 
+    public function getArgv(): array
     {
         return $this->argv;
     }
@@ -233,7 +257,7 @@ class Uri implements UriInterface
      * @param  string $scheme
      * @return UriInterface
      */
-    public function withScheme(string $scheme): UriInterface 
+    public function withScheme(string $scheme): UriInterface
     {
         $inst = clone $this;
         $inst->setPart("scheme", $scheme);
@@ -246,7 +270,7 @@ class Uri implements UriInterface
      * @param  string $password
      * @return UriInterface
      */
-    public function withUserInfo(string $user, ?string $password = NULL) 
+    public function withUserInfo(string $user, ?string $password = null)
     {
         $inst = clone $this;
         $inst->setPart("user", $user)->setPart("pass", $password);
@@ -319,7 +343,8 @@ class Uri implements UriInterface
      * @param  array  $parts E.g. (parse_url or ["scheme" => "https", ...])
      * @return self
      */
-    public static function withUriParts(array $parts): self {
+    public static function withUriParts(array $parts): self
+    {
         $inst = new self();
         $inst->parts = $parts;
         $inst->fillParts();
@@ -331,9 +356,9 @@ class Uri implements UriInterface
      * @param  string  $key
      * @return string|boolean
      */
-    private function getUniquePart(string $key) 
+    private function getUniquePart(string $key)
     {
-        return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : NULL;
+        return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : null;
     }
 
     /**
@@ -343,19 +368,21 @@ class Uri implements UriInterface
      */
     public function getPart(string $key): ?string
     {
-        return ($this->encoded[$key] ?? ($this->{$key} ?? NULL));
+        return ($this->encoded[$key] ?? ($this->{$key} ?? null));
     }
 
     /**
-     * Fill and encode all parts 
+     * Fill and encode all parts
      * @return void
      */
-    private function fillParts(): void 
+    private function fillParts(): void
     {
         $vars = get_object_vars($this);
-        foreach($vars as $k => $v) {
-            $this->encoded[$k] = NULL;
-            if(isset($this->parts[$k]) && ($p = $this->parts[$k])) $this->{$k} = $p;
+        foreach ($vars as $k => $v) {
+            $this->encoded[$k] = null;
+            if (isset($this->parts[$k]) && ($p = $this->parts[$k])) {
+                $this->{$k} = $p;
+            }
         }
     }
 
@@ -364,9 +391,12 @@ class Uri implements UriInterface
      * @param string $key   Part key (e.g. scheme, path, port...)
      * @param string|NULL $value New part value
      */
-    protected function setPart(string $key, mixed $value) {
+    protected function setPart(string $key, mixed $value)
+    {
         $this->{$key} = $value;
-        if(isset($this->encoded[$key])) $this->encoded[$key] = NULL;
+        if (isset($this->encoded[$key])) {
+            $this->encoded[$key] = null;
+        }
         return $this;
     }
 }

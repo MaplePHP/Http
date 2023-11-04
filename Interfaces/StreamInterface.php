@@ -154,5 +154,5 @@ interface StreamInterface
      *     provided. Returns a specific key value if a key is provided and the
      *     value is found, or null if the key is not found.
      */
-    public function getMetadata(?string $key = NULL);
+    public function getMetadata(?string $key = null);
 }

@@ -1,9 +1,9 @@
 <?php
+
 ini_set('display_errors', "1");
 ini_set('error_reporting', (string)E_ALL);
 use PHPFuse\Http;
 use PHPFuse\Container\Container;
-
 
 $prefix = "PHPFuse";
 $dir = dirname(__FILE__)."/../";
@@ -15,20 +15,24 @@ $dir = dirname(__FILE__)."/../";
  */
 require_once("{$dir}../_vendors/composer/vendor/autoload.php");
 
-spl_autoload_register(function($class) use($dir, $prefix) {
-    $classFilePath = NULL;
+spl_autoload_register(function ($class) use ($dir, $prefix) {
+    $classFilePath = null;
     $class = str_replace("\\", "/", $class);
     $exp = explode("/", $class);
     $sh1 = array_shift($exp);
     $path = implode("/", $exp).".php";
-    if($sh1 !== $prefix) $path = "{$sh1}/{$path}";
+    if ($sh1 !== $prefix) {
+        $path = "{$sh1}/{$path}";
+    }
 
     $filePath = $dir."../".$path;
 
 
-    if(!is_file($filePath)) throw new \Exception("Could not require file: {$class}", 1);
-    
-    require_once($filePath);    
+    if (!is_file($filePath)) {
+        throw new \Exception("Could not require file: {$class}", 1);
+    }
+
+    require_once($filePath);
 });
 
 
@@ -73,7 +77,7 @@ $dom->bindTag("meta", "viewport")->attr("name", "Viewport")->attr("content", "wi
 
 // Router Path
 $routes->setDispatchPath("/".Http\Method::_get("page")->get());
-$routes->map(["GET", "HEAD"], "/", function($response, $request) use($container) {
+$routes->map(["GET", "HEAD"], "/", function ($response, $request) use ($container) {
 
     // Change meta titles
     $container->get("domHead")->getElement("title")->setValue("HOME");
@@ -85,11 +89,11 @@ $routes->map(["GET", "HEAD"], "/", function($response, $request) use($container)
         "date" => "2023-02-30 15:33:22",
         "feed" => [
             [
-                "headline" => "test 1", 
+                "headline" => "test 1",
                 "description" => "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt, architecto."
             ],
             [
-                "headline" => "test 2", 
+                "headline" => "test 2",
                 "description" => "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt, architecto."
             ]
         ]
@@ -101,39 +105,38 @@ $routes->map(["GET", "HEAD"], "/", function($response, $request) use($container)
 $routes->get("/{page:test}[/{cat:soffa}]", ['Http\tests\Controllers\Pages', "about"]);
 $routes->get("/test2", \Http\tests\Controllers\Pages::class);
 
-$routes->dispatch($response, function($dispatchStatus, $response, $url) use($container, $request) {
+$routes->dispatch($response, function ($dispatchStatus, $response, $url) use ($container, $request) {
 
-    switch($dispatchStatus) {
+    switch ($dispatchStatus) {
         case Http\RouterDispatcher::NOT_FOUND:
             return $response->withStatus(404);
-        break;
+            break;
         case Http\RouterDispatcher::METHOD_NOT_ALLOWED:
             return $response->withStatus(403);
-        break;
+            break;
         case Http\RouterDispatcher::FOUND:
-        
             // Add a class that will where it's instance will be remembered through the app and its controllers
-            // To do this, you must first create an interface of the class, which will become its uniqe identifier. 
-            PHPFuse\Container\Reflection::interfaceFactory(function($c, $s, $i) use($container, $request, $response, $url) {
-                 switch($s) {
+            // To do this, you must first create an interface of the class, which will become its uniqe identifier.
+            PHPFuse\Container\Reflection::interfaceFactory(function ($c, $s, $i)
+ use ($container, $request, $response, $url) {
+                switch ($s) {
                     case "UrlInterface":
                         return $url;
-                    break;
+                        break;
                     case "ContainerInterface":
                         return $container;
-                    break;
+                        break;
                     case "RequestInterface":
                         return $request;
-                    break;
+                        break;
                     case "ResponseInterface":
                         return $response;
-                    break;
+                        break;
                 }
             });
 
-        break;
+            break;
     }
-
 });
 
 

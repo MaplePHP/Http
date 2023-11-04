@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 declare(strict_types=1);
 
 namespace PHPFuse\Http;
@@ -8,7 +9,6 @@ use PHPFuse\Http\Interfaces\StreamInterface;
 
 class Stream implements StreamInterface
 {
-
     protected const DEFAULT_WRAPPER = 'php://temp';
 
     public const OUTPUT = 'php://output';
@@ -33,45 +33,46 @@ class Stream implements StreamInterface
     private $writable;
     private $seekable;
     private $output;
-    
+
 
     /**
      * PSR-7 Stream
      * @param Resource  $stream
      * @param string    $permission Default stream permission is r+
      */
-    function __construct($stream = NULL, string $permission = "r+")
+    public function __construct($stream = null, string $permission = "r+")
     {
-        if(is_null($stream)) $stream = $this::DEFAULT_WRAPPER;
-        
-        if(is_resource($stream)) {
+        if (is_null($stream)) {
+            $stream = $this::DEFAULT_WRAPPER;
+        }
+
+        if (is_resource($stream)) {
             $this->resource = $stream;
             $this->meta = $this->getMetadata();
             $this->stream = $this->meta['stream_type'];
             $this->permission = $this->meta['mode'];
-
         } else {
             $this->stream = $stream;
             $this->permission = $permission;
             $this->resource = fopen($this->stream, $this->permission);
             $this->meta = $this->getMetadata();
-        }       
+        }
     }
 
     /**
      * Get current stream
      * @return string
      */
-    function getStream(): string 
+    public function getStream(): string
     {
         return $this->stream;
     }
-    
+
     /**
      * Get contents
      * @return string
      */
-    public function __toString() 
+    public function __toString()
     {
         $this->rewind();
         return $this->getContents();
@@ -81,7 +82,7 @@ class Stream implements StreamInterface
      * Get current resource
      * @return resource
      */
-    public function getResource() 
+    public function getResource()
     {
         return $this->resource;
     }
@@ -90,10 +91,10 @@ class Stream implements StreamInterface
      * Closes the stream and any underlying resources.
      * @return void
      */
-    public function close(): void 
+    public function close(): void
     {
         fclose($this->resource);
-        $this->resource = NULL;
+        $this->resource = null;
     }
 
     /**
@@ -111,7 +112,7 @@ class Stream implements StreamInterface
      * Returns whether or not the stream is seekable.
      * @return bool
      */
-    public function isSeekable(): bool 
+    public function isSeekable(): bool
     {
         return $this->seekable;
     }
@@ -120,7 +121,7 @@ class Stream implements StreamInterface
      * Returns whether or not the stream is writable.
      * @return bool
      */
-    public function isWritable(): bool 
+    public function isWritable(): bool
     {
         return $this->writable;
     }
@@ -129,7 +130,7 @@ class Stream implements StreamInterface
      * Returns whether or not the stream is readable.
      * @return bool
      */
-    public function isReadable(): bool 
+    public function isReadable(): bool
     {
         return $this->readable;
     }
@@ -139,20 +140,20 @@ class Stream implements StreamInterface
      * @param  string|null $key array item key of fstat (null = get all)
      * @return string|array|null
      */
-    public function stats(?string $key = NULL): mixed
+    public function stats(?string $key = null): mixed
     {
         $stats = fstat($this->resource);
-        return is_null($key) ? $stats : ($stats[$key] ?? NULL);
+        return is_null($key) ? $stats : ($stats[$key] ?? null);
     }
 
     /**
      * Get the size of the stream if known.
      * @return int|null Returns the size in bytes if known, or null if unknown.
      */
-    public function getSize(): ?int 
+    public function getSize(): ?int
     {
         $size = $this->stats('size');
-        $this->size = isset($size) ? $size : NULL;
+        $this->size = isset($size) ? $size : null;
         return $this->size;
     }
 
@@ -161,7 +162,7 @@ class Stream implements StreamInterface
      * @return int Position of the file pointer
      * @throws \RuntimeException on error.
      */
-    public function tell(): int 
+    public function tell(): int
     {
         return (int)ftell($this->resource);
     }
@@ -170,7 +171,7 @@ class Stream implements StreamInterface
      * Gets line from file pointer
      * @return string|false
      */
-    function getLine(): string|bool 
+    public function getLine(): string|bool
     {
         $line = fgets($this->resource);
         return trim($line);
@@ -180,7 +181,7 @@ class Stream implements StreamInterface
      * Returns true if the stream is at the end of the stream.
      * @return bool
      */
-    public function eof(): bool 
+    public function eof(): bool
     {
         return (is_resource($this->resource)) ? feof($this->resource) : true;
     }
@@ -189,7 +190,7 @@ class Stream implements StreamInterface
      * Clean file
      * @return void
      */
-    function clean(): void
+    public function clean(): void
     {
         ftruncate($this->resource, 0);
     }
@@ -207,9 +208,8 @@ class Stream implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET): void
     {
-        if($this->isSeekable()) {
+        if ($this->isSeekable()) {
             fseek($this->resource, $offset, $whence);
-            
         } else {
             throw new RuntimeException("The stream \"{$this->stream} ({$this->permission})\" is not seekable!", 1);
         }
@@ -223,7 +223,7 @@ class Stream implements StreamInterface
      * @link http://www.php.net/manual/en/function.fseek.php
      * @throws \RuntimeException on failure.
      */
-    public function rewind(): void 
+    public function rewind(): void
     {
         $this->seek(0);
     }
@@ -233,9 +233,11 @@ class Stream implements StreamInterface
      * @param string $string The string that is to be written.
      * @return int Returns the number of bytes written to the stream.
      */
-    public function write(string $string): int 
+    public function write(string $string): int
     {
-        if(is_null($this->size)) $this->size = 0;
+        if (is_null($this->size)) {
+            $this->size = 0;
+        }
         $byte = fwrite($this->resource, $string);
         return $byte;
     }
@@ -250,15 +252,15 @@ class Stream implements StreamInterface
         if (!$this->isReadable() || ($body = fread($this->resource, $length)) === false) {
             throw new RuntimeException('Could not read from stream');
         }
-        return $body;        
+        return $body;
     }
-    
+
     /**
      * Returns the remaining contents in a string
      * @return string
      * @throws \RuntimeException if unable to read or an error occurs while reading.
      */
-    public function getContents(): string 
+    public function getContents(): string
     {
         if (!$this->isReadable() || ($body = stream_get_contents($this->resource)) === false) {
             throw new RuntimeException('Could not get contents of stream');
@@ -271,13 +273,13 @@ class Stream implements StreamInterface
      * @param string $key Specific metadata to retrieve.
      * @return array|mixed|null Returns an associative array
      */
-    public function getMetadata(?string $key = NULL): mixed
+    public function getMetadata(?string $key = null): mixed
     {
         $this->meta = stream_get_meta_data($this->resource);
         $this->readable = (bool)preg_match(self::READABLE_MATCH, $this->meta['mode']);
         $this->writable = (bool)preg_match(self::WRITABLE_MATCH, $this->meta['mode']);
         $this->seekable = (bool)$this->meta['seekable'];
-        return (!is_null($key) ? ($this->meta[$key] ?? NULL) : $this->meta);
+        return (!is_null($key) ? ($this->meta[$key] ?? null) : $this->meta);
     }
 
     /**
@@ -285,12 +287,11 @@ class Stream implements StreamInterface
      * @param  array  $opts
      * @return StreamInterface
      */
-    function withContext(array $opts): StreamInterface
+    public function withContext(array $opts): StreamInterface
     {
         $inst = clone $this;
         $context = stream_context_create($opts);
         $inst->resource = fopen($this->stream, $this->permission, false, $context);
         return $inst;
     }
-
 }

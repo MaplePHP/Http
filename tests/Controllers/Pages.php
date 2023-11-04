@@ -8,19 +8,21 @@ use PHPFuse\Http\Interfaces\UrlInterface;
 
 use PHPFuse\Container\Interfaces\ContainerInterface;
 
-class Pages {
-
+class Pages
+{
     private $container;
 
-    
-    function __construct(ContainerInterface $container, UrlInterface $url) {
+
+    public function __construct(ContainerInterface $container, UrlInterface $url)
+    {
         $this->container = $container;
     }
 
-    function about(ResponseInterface $response, RequestInterface $request) {
+    public function about(ResponseInterface $response, RequestInterface $request)
+    {
         // Change meta titles
 
-        
+
         $this->container->get("domHead")->getElement("title")->setValue("ABOUT");
         $this->container->get("domHead")->getElement("description")->attr("content", "Changed!");
 
@@ -30,11 +32,11 @@ class Pages {
             "date" => "2023-02-30 15:33:22",
             "feed" => [
                 [
-                    "headline" => "test 1", 
+                    "headline" => "test 1",
                     "description" => "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt, architecto."
                 ],
                 [
-                    "headline" => "test 2", 
+                    "headline" => "test 2",
                     "description" => "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sunt, architecto."
                 ]
             ]
@@ -44,11 +46,11 @@ class Pages {
         return $response;
     }
 
-    
-    function __invoke(ResponseInterface $response, RequestInterface $request) {
+
+    public function __invoke(ResponseInterface $response, RequestInterface $request)
+    {
         $response = $response->withHeader("Content-type", "application/json; charset=UTF-8");
         $response->getBody()->write(json_encode(["status" => 2, "message" => "THIS HAS BEEN INVOKED"]));
         return $response;
     }
-
 }

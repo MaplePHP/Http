@@ -2,12 +2,10 @@
 
 namespace PHPFuse\Http\Interfaces;
 
-
 interface CookiesInterface
 {
-    function set(string $name, string $value, int $expires, bool $force = false): void;
-    function has(string $name): bool;
-    function get(string $name, ?string $default = NULL): ?string;
-    function delete(string $name): void;
+    public function set(string $name, string $value, int $expires, bool $force = false): void;
+    public function has(string $name): bool;
+    public function get(string $name, ?string $default = null): ?string;
+    public function delete(string $name): void;
 }
-

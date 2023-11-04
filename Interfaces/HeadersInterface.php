@@ -4,10 +4,9 @@ namespace PHPFuse\Http\Interfaces;
 
 interface HeadersInterface
 {
-
     /**
      * Set new header
-     * @param  string $name 
+     * @param  string $name
      * @param  string/array $value
      * @return void
      */
@@ -15,14 +14,14 @@ interface HeadersInterface
 
     /**
      * Set new headers
-     * @param  string $name 
+     * @param  string $name
      * @param  string/array $value
      * @return void
      */
     public function setHeaders(array $arr): void;
 
     /**
-     * Check is a header exists 
+     * Check is a header exists
      * @param  string  $name Header name/key (case insensitive)
      * @return boolean
      */
@@ -40,5 +39,4 @@ interface HeadersInterface
      * @return array
      */
     public function getHeader($name): array|string;
-
 }

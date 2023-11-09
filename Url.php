@@ -7,7 +7,6 @@ namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\UrlInterface;
 use PHPFuse\Http\Interfaces\RequestInterface;
-use PHPFuse\Http\Method;
 
 class Url implements UrlInterface
 {
@@ -16,19 +15,16 @@ class Url implements UrlInterface
     private $url;
     private $parts;
     private $vars;
-    private $path;
+    //private $path;
     private $dirPath;
     private $fullPath;
     private $realPath;
 
-    public function __construct(RequestInterface $request, $path, string $dir = "")
+    public function __construct(RequestInterface $request, $path)
     {
         $this->request = $request;
         $this->uri = $this->request->getUri();
         $this->parts = $path;
-
-        //print_r($this->parts);
-        //die();
         $this->fullPath = $this->uri->getPath();
         $this->dirPath = $this->getDirPath();
         $this->realPath = $this->getRealPath();
@@ -37,12 +33,12 @@ class Url implements UrlInterface
     /**
      * Access http PSR URI message
      */
-    public function __call($a, $b)
+    public function __call($method, $args)
     {
-        if (method_exists($this->uri, $a)) {
-            return call_user_func_array([$this->uri, $a], $b);
+        if (method_exists($this->uri, $method)) {
+            return call_user_func_array([$this->uri, $method], $args);
         } else {
-            throw new \BadMethodCallException("The method ({$a}) does not exist in UrlInterface or UriInterface.", 1);
+            throw new \BadMethodCallException("The method ({$method}) does not exist in UrlInterface or UriInterface.", 1);
         }
     }
 
@@ -267,7 +263,7 @@ class Url implements UrlInterface
         }
         return $this->url.$setPath;
     }
-
+    
     /**
      * Get URL to public directory
      * @param  string $path  add to URI
@@ -313,6 +309,7 @@ class Url implements UrlInterface
         return $this->getPublic("css/{$path}");
     }
 
+    /*
     final public function filterParts($vars): array
     {
         if ((is_array($vars) && count($vars) === 0 &&
@@ -320,6 +317,7 @@ class Url implements UrlInterface
             $vars = explode("/", $path);
         }
         // True: rawurlencode
-        return Method::_value($vars)->get(true);
+        return $vars;
     }
+     */
 }

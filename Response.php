@@ -77,15 +77,8 @@ class Response extends Message implements ResponseInterface
     private $statusCode = 200;
     private $phrase;
     private $description; // Can be used to describe status code
-
-    private $contentType = "text/html";
-    private $charset = "UTF-8";
-
-    //private $headerLines = array();
-
     private $modDate;
     private $hasHeadersInit;
-    private $location;
 
     public function __construct(
         StreamInterface $body,
@@ -106,11 +99,12 @@ class Response extends Message implements ResponseInterface
         }
     }
 
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
-
+    /**
+     * Response with status code
+     * @param  int    $code
+     * @param  string $reasonPhrase
+     * @return ResponseInterface
+     */
     public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
         $clone = clone $this;
@@ -119,6 +113,19 @@ class Response extends Message implements ResponseInterface
         return $clone;
     }
 
+    /**
+     * Get current response status code
+     * @return int
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
+    }
+
+    /**
+     * Get current response status phrase
+     * @return string|null
+     */
     public function getReasonPhrase()
     {
         if (is_null($this->phrase)) {
@@ -126,21 +133,6 @@ class Response extends Message implements ResponseInterface
         }
         return $this->phrase;
     }
-
-    public function setDescription(string $description): self
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-
-    // Move to an diffrent filler file (Better to keep PS6 Clean from custom methods)
-
 
     /**
      * Get modified date
@@ -240,6 +232,11 @@ class Response extends Message implements ResponseInterface
     }
 
 
+    /**
+     * Will build with the createHeaders method then and execute all the headers
+     * createHeaders will only be exeuted once per instance!
+     * @return void
+     */
     public function executeHeaders(): void
     {
         $this->createHeaders();
@@ -250,5 +247,25 @@ class Response extends Message implements ResponseInterface
             $this->getReasonPhrase()
         );
         header($statusLine, true, $this->getStatusCode());
+    }
+
+
+    /**
+     * Set extra description, can be used to describe the error code more in details
+     * @param string $description
+     */
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * Get current response status description
+     * @return [type] [description]
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
     }
 }

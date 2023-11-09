@@ -17,16 +17,7 @@ abstract class Message implements MessageInterface
     protected $env;
     protected $path;
     protected $headerLine;
-
-    /*
-    function __construct(?StreamInterface $body = NULL)
-    {
-        $this->env = $_SERVER;
-        //$this->serverProtocol = ($this->env['SERVER_PROTOCOL'] ?? "HTTP/1.1");
-        $this->body = $body;
-    }
-     */
-
+    
     /**
      * Get server HTTP protocol version number
      * @return string
@@ -145,7 +136,6 @@ abstract class Message implements MessageInterface
     {
         $inst = clone $this;
         $inst->headers->setHeader($name, $value);
-        //$inst->resetHeaderLine();
         return $inst;
     }
 
@@ -158,11 +148,7 @@ abstract class Message implements MessageInterface
     public function withAddedHeader($name, $value)
     {
         $inst = clone $this;
-        if ($inst->hasHeader($name)) {
-            $inst->headers[$name][] = $value;
-        }
-        $inst->headers->setHeader($name, $inst->headers[$name]);
-        //$inst->resetHeaderLine();
+        $inst->headers->setHeader($name, $value);
         return $inst;
     }
 
@@ -174,11 +160,7 @@ abstract class Message implements MessageInterface
     public function withoutHeader($name)
     {
         $inst = clone $this;
-        $name = $this->headerKey($name);
-        if (isset($inst->headers[$name])) {
-            unset($inst->headers[$name]);
-        }
-        //$inst->resetHeaderLine();
+        $inst->headers->deleteHeader($name);
         return $inst;
     }
 
@@ -202,11 +184,4 @@ abstract class Message implements MessageInterface
         $inst->body = $body;
         return $inst;
     }
-
-    /*
-    protected function resetHeaderLine(): void
-    {
-        $this->headerLine = NULL;
-    }
-     */
 }

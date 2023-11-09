@@ -73,6 +73,20 @@ class Headers implements HeadersInterface
     }
 
     /**
+     * Delete header from name/key
+     * @param  string $name name/key (case insensitive)
+     * @return array
+     */
+    public function deleteHeader($name): bool
+    {
+        if ($this->hasHeader($name)) {
+            unset($this->headers[$name]);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Used to make header keys consistent
      * @param  string $key
      * @return string

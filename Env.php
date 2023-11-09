@@ -14,7 +14,7 @@ class Env
     private $data = array();
     private $set = array();
     private $drop = array();
-    private $readOnly = false;
+    //private $readOnly = false;
 
     public function __construct(?string $file = null)
     {
@@ -37,8 +37,8 @@ class Env
 
     public function set(string $key, string $value): string
     {
-        if ($k = $this->hasEnv($key)) {
-            $this->fileData[$k] = $value;
+        if ($keyB = $this->hasEnv($key)) {
+            $this->fileData[$keyB] = $value;
         } else {
             $key = $this->formatKey($key);
             $this->set[$key] = $value;
@@ -54,7 +54,7 @@ class Env
 
     public function formatKey($key)
     {
-        return Format\Uri::value($key)->clearBreaks("-")->trim()->replaceSpecialChar()
+        return Format\Str::value($key)->clearBreaks("-")->trim()->replaceSpecialChar()
                 ->trimSpaces()->replaceSpaces("-")->toUpper()->get();
     }
 
@@ -70,7 +70,7 @@ class Env
             }
         }
 
-        $l = count($data);
+        $length = count($data);
         foreach ($data as $key => $val) {
             if (empty($this->drop[$key])) {
                 $key = $this->formatKey($key);
@@ -79,7 +79,7 @@ class Env
                     $val = "'{$val}'";
                 }
                 $out .= "{$key}={$val}";
-                if ($l > 1) {
+                if ($length > 1) {
                     $out .= "\n";
                 }
             }
@@ -100,9 +100,9 @@ class Env
             if (is_array($val)) {
                 foreach ($val as $k1 => $v1) {
                     foreach ($v1 as $k2 => $v2) {
-                        $k = strtoupper("{$k1}_{$k2}");
-                        if (!isset($this->fileData[$k])) {
-                            $this->data[$k] = $v2;
+                        $newKey = strtoupper("{$k1}_{$k2}");
+                        if (!isset($this->fileData[$newKey])) {
+                            $this->data[$newKey] = $v2;
                         }
                     }
                 }
@@ -132,10 +132,10 @@ class Env
     public function execute(bool $overwrite = false): void
     {
         if ($this->fileData) {
-            $this->put($this->fileData);
+            $this->put($this->fileData, $overwrite);
         }
         if ($this->data) {
-            $this->put($this->data);
+            $this->put($this->data, $overwrite);
         }
     }
 

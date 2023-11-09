@@ -8,5 +8,5 @@ interface UrlInterface
     public function getRealPath(): string;
     public function getDirPath(): string;
     public function getVars(): array;
-    public function filterParts($vars): array;
+    //public function filterParts($vars): array;
 }

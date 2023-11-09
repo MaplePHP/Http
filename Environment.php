@@ -78,9 +78,9 @@ class Environment implements EnvironmentInterface
     {
         if (is_null($this->path)) {
             $basePath = '';
-            $requestName = Format\Uri::value($this->get("SCRIPT_NAME"))->extractPath()->get();
+            $requestName = Format\Str::value($this->get("SCRIPT_NAME"))->extractPath()->get();
             $requestDir = dirname($requestName);
-            $requestUri = Format\Uri::value($this->get("REQUEST_URI"))->extractPath()->get();
+            $requestUri = Format\Str::value($this->get("REQUEST_URI"))->extractPath()->get();
 
             $this->path = $requestUri;
             if (stripos($requestUri, $requestName) === 0) {

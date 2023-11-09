@@ -20,7 +20,7 @@ class Client implements ClientInterface
     public const DEFAULT_AUTH = CURLAUTH_DIGEST;
 
     private $options;
-    private $ch;
+    private $curl;
 
     private $requestData;
     private $requestDataLength;
@@ -65,14 +65,15 @@ class Client implements ClientInterface
         $this->requestData = (string)$request->getBody();
         $this->requestDataLength = strlen($this->requestData);
         $this->prepareRequest($request);
-
+        $this->buildHeaders($request);
+        
         try {
             if (!extension_loaded('curl')) {
                 throw new InvalidArgumentException('You need to enable CURL on your server.');
             }
 
             // Init curl request
-            $this->ch = curl_init();
+            $this->curl = curl_init();
             $this->buildOptions();
             switch ($request->getMethod()) {
                 case 'GET':
@@ -99,7 +100,7 @@ class Client implements ClientInterface
             $this->createRequest();
 
             // Close curl request
-            curl_close($this->ch);
+            curl_close($this->curl);
         } catch (InvalidArgumentException $e) {
             throw new RequestException($e->getMessage(), 1);
         } catch (NetworkException $e) {
@@ -135,7 +136,7 @@ class Client implements ClientInterface
         $stream = new Stream(Stream::TEMP);
         $stream->write($this->requestResponse);
         if (!$stream->isSeekable()) {
-            throw new RequestExceptionInterface("Request body is not seekable", 1);
+            throw new RequestException("Request body is not seekable", 1);
         }
         $stream->seek(0);
 
@@ -148,11 +149,11 @@ class Client implements ClientInterface
      */
     final protected function createRequest(): void
     {
-        $this->requestResponse = curl_exec($this->ch);
+        $this->requestResponse = curl_exec($this->curl);
         if ($this->requestResponse === false) {
-            throw new NetworkException(curl_error($this->ch), 1);
+            throw new NetworkException(curl_error($this->curl), 1);
         }
-        $this->requestMeta = curl_getinfo($this->ch);
+        $this->requestMeta = curl_getinfo($this->curl);
     }
 
     /**
@@ -171,8 +172,8 @@ class Client implements ClientInterface
      */
     protected function post(): void
     {
-        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $this->requestData);
-        curl_setopt($this->ch, CURLOPT_POST, 1);
+        curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->requestData);
+        curl_setopt($this->curl, CURLOPT_POST, 1);
     }
 
     /**
@@ -181,9 +182,9 @@ class Client implements ClientInterface
      */
     protected function put(): void
     {
-        curl_setopt($this->ch, CURLOPT_INFILE, $this->createParsedBody()->getResource());
-        curl_setopt($this->ch, CURLOPT_INFILESIZE, $this->requestDataLength);
-        curl_setopt($this->ch, CURLOPT_PUT, true);
+        curl_setopt($this->curl, CURLOPT_INFILE, $this->createParsedBody()->getResource());
+        curl_setopt($this->curl, CURLOPT_INFILESIZE, $this->requestDataLength);
+        curl_setopt($this->curl, CURLOPT_PUT, true);
     }
 
     /**
@@ -192,8 +193,8 @@ class Client implements ClientInterface
      */
     protected function patch(RequestInterface $request): RequestInterface
     {
-        curl_setopt($this->ch, CURLOPT_POSTFIELDS, $this->requestData);
-        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+        curl_setopt($this->curl, CURLOPT_POSTFIELDS, $this->requestData);
+        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
         $request = $request->withHeader("content-type", "application/json-patch+json");
         return $request;
     }
@@ -204,7 +205,7 @@ class Client implements ClientInterface
      */
     protected function delete(): void
     {
-        curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+        curl_setopt($this->curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
     }
 
     /**
@@ -217,7 +218,7 @@ class Client implements ClientInterface
             if (!is_int($i)) {
                 throw new ClientException("The options key needs to be an integer!", 1);
             }
-            curl_setopt($this->ch, $i, $val);
+            curl_setopt($this->curl, $i, $val);
         }
     }
 
@@ -231,7 +232,7 @@ class Client implements ClientInterface
         foreach ($request->getHeaders() as $name => $val) {
             $data[] = "{$name}: ".$request->getHeaderLine($name);
         }
-        curl_setopt($this->ch, CURLOPT_HTTPHEADER, $data);
+        curl_setopt($this->curl, CURLOPT_HTTPHEADER, $data);
     }
 
     /**

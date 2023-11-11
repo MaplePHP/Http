@@ -85,7 +85,10 @@ abstract class Message implements MessageInterface
     public function getHeaderLine($name)
     {
         $data = $this->getHeaderLineData($name);
-        return (count($data) > 0) ? implode("; ", $data) : ($data[0] ?? "");
+        if (!is_array($data)) {
+            throw new \Exception("The header line is not an array!", 1);
+        }
+        return (count($data) > 0) ? implode("; ", $data) : "";
     }
 
     /**

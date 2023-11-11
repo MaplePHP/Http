@@ -8,38 +8,32 @@ use PHPFuse\Http\Interfaces\CookiesInterface;
 
 class Cookies implements CookiesInterface
 {
-    private $name;
-    private $value;
-    private $expires;
+    //private $name;
+    //private $value;
+    //private $expires;
     private $path;
     private $domain;
     private $secure;
-    private $httponly;
+    private $httpOnly;
     private $samesite;
 
     /**
-     * [__construct description]
-     *  setcookie(
-        string $name,
-        string $value = "",
-        int $expires_or_options = 0,
-        string $path = "",
-        string $domain = "",
-        bool $secure = false,
-        bool $httponly = false
-    ): bool
-     * @param [type] $uri [description]
+     * Set Cookie
+     * @param string       $path
+     * @param string       $domain
+     * @param bool|boolean $secure
+     * @param bool|boolean $httpOnly
      */
     public function __construct(
         string $path = "/",
         string $domain = "",
         bool $secure = true,
-        bool $httponly = true
+        bool $httpOnly = true
     ) {
         $this->path = $path;
         $this->domain = $domain;
         $this->secure = $secure;
-        $this->httponly = $httponly;
+        $this->httpOnly = $httpOnly;
     }
 
     /**
@@ -54,7 +48,7 @@ class Cookies implements CookiesInterface
 
     /**
      * Set cookie allowed domain
-     * @param string $path URI Path
+     * @param string $domain URI Path
      */
     public function setDomain(string $domain)
     {
@@ -64,7 +58,7 @@ class Cookies implements CookiesInterface
 
     /**
      * Set cookie secure flag (HTTPS only: true)
-     * @param string $path URI Path
+     * @param string $secure URI Path
      */
     public function setSecure(bool $secure)
     {
@@ -75,19 +69,18 @@ class Cookies implements CookiesInterface
     /**
      * Set cookie http only flag. Cookie won't be accessible by scripting languages, such as JavaScript if true.
      * Can effectively help to reduce identity theft through XSS attacks, Not supported in all browsers tho
-     * @param string $path URI Path
+     * @param bool $httpOnly enable http only flag
      */
-    public function setHttpOnly(bool $httponly)
+    public function sethttpOnly(bool $httpOnly)
     {
-        $this->httponly = $httponly;
+        $this->httpOnly = $httpOnly;
         return $this;
     }
 
 
     /**
-     * Set same site
-     * (Requires PHP version >= 7.3.0)
-     * @param string $sameSite [description]
+     * Set same site (Requires PHP version >= 7.3.0)
+     * @param string $samesite
      */
     public function setSameSite(string $samesite)
     {
@@ -110,7 +103,7 @@ class Cookies implements CookiesInterface
         if (version_compare(PHP_VERSION, '7.3.0') >= 0) {
             setcookie($name, $value, $this->cookieOpt($expires));
         } else {
-            setcookie($name, $value, $expires, $this->path, $this->domain, $this->secure, $this->httponly);
+            setcookie($name, $value, $expires, $this->path, $this->domain, $this->secure, $this->httpOnly);
         }
         if ($force) {
             $_COOKIE[$name] = $value;
@@ -158,7 +151,7 @@ class Cookies implements CookiesInterface
      */
     public function isSecure(): bool
     {
-        return (bool)($this->samesite === "Strict" && $this->secure && $this->httponly);
+        return (bool)($this->samesite === "Strict" && $this->secure && $this->httpOnly);
     }
 
     /**
@@ -173,7 +166,7 @@ class Cookies implements CookiesInterface
             'path' => $this->path,
             'domain' => $this->domain,
             'secure' => $this->secure,
-            'httponly' => $this->httponly,
+            'httponly' => $this->httpOnly,
             'samesite' => $this->samesite
         ];
     }

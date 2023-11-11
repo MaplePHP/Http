@@ -32,15 +32,15 @@ class Stream implements StreamInterface
     private $readable;
     private $writable;
     private $seekable;
-    private $output;
+    //private $output;
 
 
     /**
      * PSR-7 Stream
-     * @param Resource  $stream
+     * @param mixed  $stream
      * @param string    $permission Default stream permission is r+
      */
-    public function __construct($stream = null, string $permission = "r+")
+    public function __construct(mixed $stream = null, string $permission = "r+")
     {
         if (is_null($stream)) {
             $stream = $this::DEFAULT_WRAPPER;
@@ -72,7 +72,7 @@ class Stream implements StreamInterface
      * Get contents
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         $this->rewind();
         return $this->getContents();

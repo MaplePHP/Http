@@ -65,7 +65,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * Return an instance with the specific set Method
-     * @param  string $requestTarget
+     * @param  string $method
      * @return RequestInterface
      */
     public function withMethod(string $method): RequestInterface

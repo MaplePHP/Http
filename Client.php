@@ -74,40 +74,50 @@ class Client implements ClientInterface
             // Init curl request
             $this->curl = curl_init();
             $this->buildOptions();
-            switch ($request->getMethod()) {
-                case 'GET':
-                    $this->get();
-                    break;
-                case 'POST':
-                    $this->post();
-                    break;
-                case 'PUT':
-                    $this->put();
-                    break;
-                case 'PATCH':
-                    $request = $this->patch($request);
-                    break;
-                case 'DELETE':
-                    $this->delete();
-                    break;
-                default:
-                    throw new InvalidArgumentException('The requesr method (' . $request->getMethod() . ') ' .
-                        'is not supported.');
-            }
+            $this->buildFromMethods($request);
 
             // Execute request
             $this->createRequest();
 
             // Close curl request
             curl_close($this->curl);
+
+            // Retrive the body
+            return $this->createResponse();
         } catch (InvalidArgumentException $e) {
             throw new RequestException($e->getMessage(), 1);
         } catch (NetworkException $e) {
             throw $e;
         }
+    }
 
-        // Retrive the body
-        return $this->createResponse();
+    /**
+     * Build client curl methods
+     * @param  RequestInterface $request
+     * @return void
+     */
+    protected function buildFromMethods(RequestInterface $request): void
+    {
+        switch ($request->getMethod()) {
+            case 'GET':
+                $this->get();
+                // no break
+            case 'POST':
+                $this->post();
+                // no break
+            case 'PUT':
+                $this->put();
+                // no break
+            case 'PATCH':
+                $request = $this->patch($request);
+                // no break
+            case 'DELETE':
+                $this->delete();
+                // no break
+            default:
+                throw new InvalidArgumentException('The requesr method (' . $request->getMethod() . ') ' .
+                    'is not supported.');
+        }
     }
 
     /**
@@ -188,7 +198,7 @@ class Client implements ClientInterface
 
     /**
      * Path request
-     * @return void
+     * @return RequestInterface
      */
     protected function patch(RequestInterface $request): RequestInterface
     {
@@ -228,7 +238,7 @@ class Client implements ClientInterface
     private function buildHeaders(RequestInterface $request): void
     {
         $data = array();
-        foreach ($request->getHeaders() as $name => $val) {
+        foreach ($request->getHeaders() as $name => $_unUsedVal) {
             $data[] = "{$name}: " . $request->getHeaderLine($name);
         }
         curl_setopt($this->curl, CURLOPT_HTTPHEADER, $data);

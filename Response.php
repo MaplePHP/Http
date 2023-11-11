@@ -223,7 +223,7 @@ class Response extends Message implements ResponseInterface
     {
         if (is_null($this->hasHeadersInit)) {
             $this->hasHeadersInit = true;
-            foreach ($this->getHeaders() as $key => $val) {
+            foreach ($this->getHeaders() as $key => $_unusedVal) {
                 $value = $this->getHeaderLine($key);
                 header("{$key}: {$value}");
             }

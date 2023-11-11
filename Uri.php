@@ -73,7 +73,7 @@ class Uri implements UriInterface
      * Get formated URI
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->getUri();
     }
@@ -132,7 +132,6 @@ class Uri implements UriInterface
     {
         if (is_null($this->userInfo)) {
             $this->userInfo = "";
-            $user = $pass = null;
             if ($user = $this->getUniquePart("user")) {
                 $this->encoded['user'] = $user;
             }
@@ -304,7 +303,7 @@ class Uri implements UriInterface
 
     /**
      * Create new instance with same URI, BUT with a new port
-     * @param  int $post
+     * @param  int $port
      * @return UriInterface
      */
     public function withPort(?int $port): UriInterface
@@ -391,7 +390,7 @@ class Uri implements UriInterface
     private function fillParts(): void
     {
         $vars = get_object_vars($this);
-        foreach ($vars as $key => $valueNotUsed) {
+        foreach ($vars as $key => $_valueNotUsed) {
             $this->encoded[$key] = null;
             $part = ($this->parts[$key] ?? null);
             if (!is_null($part)) {

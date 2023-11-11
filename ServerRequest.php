@@ -333,8 +333,8 @@ class ServerRequest extends Request implements ServerRequestInterface
         if (is_null($this->cliKeywords)) {
             $new = array();
             $arg = $this->getUri()->getArgv();
-            foreach ($arg as $k => $v) {
-                if ((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
+            foreach ($arg as $v) {
+                if ((($pos1 = strpos($v, "--")) === 0) || (($pos2 = strpos($v, "-")) === 0)) {
                     break;
                 } else {
                     $new[] = $v;
@@ -356,10 +356,10 @@ class ServerRequest extends Request implements ServerRequestInterface
         if (is_null($this->cliArgs)) {
             $arg = $this->getUri()->getArgv();
             $this->cliArgs = array();
-            foreach ($arg as $k => $v) {
+            foreach ($arg as $v) {
                 $v = str_replace("&", "#", $v);
-                if ((($p1 = strpos($v, "--")) === 0) || (($p2 = strpos($v, "-")) === 0)) {
-                    parse_str(substr($v, ($p1 !== false ? 2 : 1)), $result);
+                if ((($pos1 = strpos($v, "--")) === 0) || (($pos2 = strpos($v, "-")) === 0)) {
+                    parse_str(substr($v, ($pos1 !== false ? 2 : 1)), $result);
                     foreach ($result as &$val) {
                         $val = str_replace("#", "&", $val);
                     }

@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 namespace PHPFuse\Http;
@@ -24,9 +23,9 @@ class Uri implements UriInterface
         'ldap' => 389,
     ];
 
-    private $uri;
     private $parts = array();
     private $scheme;
+    //private $uri;
     private $host;
     private $port;
     private $user;
@@ -34,9 +33,9 @@ class Uri implements UriInterface
     private $path;
     private $query;
     private $fragment; // Anchor/after hash
+    private $dir;
     private $userInfo;
     private $authority;
-    private $dir;
     private $argv;
     private $encoded;
     private $build;
@@ -53,7 +52,21 @@ class Uri implements UriInterface
         } else {
             $this->parts = parse_url($uri);
         }
+        $this->pollyfill();
         $this->fillParts();
+    }
+
+    protected function pollyfill()
+    {
+        $this->scheme = "http";
+        $this->host = "localhost";
+        $this->port = 80;
+        $this->user = "";
+        $this->pass = "";
+        $this->path = "";
+        $this->query = "";
+        $this->fragment = "";
+        $this->dir = "";
     }
 
     /**
@@ -343,9 +356,9 @@ class Uri implements UriInterface
      * @param  array  $parts E.g. (parse_url or ["scheme" => "https", ...])
      * @return self
      */
-    public static function withUriParts(array $parts): self
+    public function withUriParts(array $parts): self
     {
-        $inst = new self();
+        $inst = clone $this;
         $inst->parts = $parts;
         $inst->fillParts();
         return $inst;
@@ -378,10 +391,11 @@ class Uri implements UriInterface
     private function fillParts(): void
     {
         $vars = get_object_vars($this);
-        foreach ($vars as $k => $v) {
-            $this->encoded[$k] = null;
-            if (isset($this->parts[$k]) && ($p = $this->parts[$k])) {
-                $this->{$k} = $p;
+        foreach ($vars as $key => $valueNotUsed) {
+            $this->encoded[$key] = null;
+            $part = ($this->parts[$key] ?? null);
+            if (!is_null($part)) {
+                $this->{$key} = $part;
             }
         }
     }

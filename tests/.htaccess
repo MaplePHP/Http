@@ -1,8 +1,0 @@
-
-
-#Options +FollowSymLinks -MultiViews
-RewriteEngine On
-RewriteBase /systems/_libraries/Http/tests
-RewriteCond %{REQUEST_FILENAME} !-f 
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?page=$1 [QSA,L]

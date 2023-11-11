@@ -17,7 +17,7 @@ abstract class Message implements MessageInterface
     protected $env;
     protected $path;
     protected $headerLine;
-    
+
     /**
      * Get server HTTP protocol version number
      * @return string

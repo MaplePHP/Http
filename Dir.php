@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 namespace PHPFuse\Http;
@@ -18,7 +17,7 @@ class Dir implements DirInterface
 
     public function getDir(string $path = "")
     {
-        return $this->dir.$path;
+        return $this->dir . $path;
     }
 
     public function getRoot(string $path = "")

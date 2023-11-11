@@ -5,7 +5,6 @@ namespace PHPFuse\Http;
 use PHPFuse\Http\Interfaces\ServerRequestInterface;
 use PHPFuse\Http\Interfaces\UriInterface;
 use PHPFuse\Http\Interfaces\EnvironmentInterface;
-
 use PHPFuse\Http\Stream;
 
 class ServerRequest extends Request implements ServerRequestInterface

@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 namespace PHPFuse\Http;
@@ -238,7 +237,7 @@ class Url implements UrlInterface
             $url .= rtrim($dir, "/");
         }
 
-        return $url.$path;
+        return $url . $path;
     }
 
     /**
@@ -261,9 +260,9 @@ class Url implements UrlInterface
         if ($path = $this->getRealPath()) {
             $this->url .= "{$path}";
         }
-        return $this->url.$setPath;
+        return $this->url . $setPath;
     }
-    
+
     /**
      * Get URL to public directory
      * @param  string $path  add to URI

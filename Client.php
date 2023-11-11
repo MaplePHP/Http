@@ -8,7 +8,6 @@ use PHPFuse\Http\Interfaces\RequestInterface;
 use PHPFuse\Http\Interfaces\ResponseInterface;
 use PHPFuse\Http\Interfaces\ClientInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
-
 use PHPFuse\Http\Exceptions\ClientException;
 use PHPFuse\Http\Exceptions\RequestException;
 use PHPFuse\Http\Exceptions\NetworkException;
@@ -66,7 +65,7 @@ class Client implements ClientInterface
         $this->requestDataLength = strlen($this->requestData);
         $this->prepareRequest($request);
         $this->buildHeaders($request);
-        
+
         try {
             if (!extension_loaded('curl')) {
                 throw new InvalidArgumentException('You need to enable CURL on your server.');
@@ -92,7 +91,7 @@ class Client implements ClientInterface
                     $this->delete();
                     break;
                 default:
-                    throw new InvalidArgumentException('The requesr method ('.$request->getMethod().') '.
+                    throw new InvalidArgumentException('The requesr method (' . $request->getMethod() . ') ' .
                         'is not supported.');
             }
 
@@ -230,7 +229,7 @@ class Client implements ClientInterface
     {
         $data = array();
         foreach ($request->getHeaders() as $name => $val) {
-            $data[] = "{$name}: ".$request->getHeaderLine($name);
+            $data[] = "{$name}: " . $request->getHeaderLine($name);
         }
         curl_setopt($this->curl, CURLOPT_HTTPHEADER, $data);
     }

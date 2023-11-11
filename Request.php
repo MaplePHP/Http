@@ -6,16 +6,13 @@ use PHPFuse\Http\Interfaces\RequestInterface;
 use PHPFuse\Http\Interfaces\UriInterface;
 use PHPFuse\Http\Interfaces\HeadersInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
-
-//use PHPFuse\Http\Uri;
-
+use PHPFuse\Http\Uri;
 
 class Request extends Message implements RequestInterface
 {
     private $method;
     private $uri;
     private $requestTarget;
-
     protected $headers;
     protected $body;
 
@@ -33,14 +30,14 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * Get the message request target
+     * Get the message request target (path+query)
      * @return string
      */
     public function getRequestTarget(): string
     {
-        if (is_null($this->requestTarget)) {
-            $parts = $this->getUriEnv();
-            $this->requestTarget = $parts['path'].(($parts['query']) ? "?{$parts['query']}" : "");
+        $this->requestTarget = $this->getUri()->getPath();
+        if ($query = $this->getUri()->getQuery()) {
+            $this->requestTarget .= '?' . $query;
         }
         return $this->requestTarget;
     }
@@ -97,9 +94,9 @@ class Request extends Message implements RequestInterface
     {
         $inst = clone $this;
         if ($preserveHost) {
-            $uri->withHost($this->getHeader("Host"));
+            $uri = $uri->withHost($this->getHeader("Host"));
         }
-        $inst->uriInst = $url;
+        $inst->uri = $uri;
         return $inst;
     }
 
@@ -119,7 +116,8 @@ class Request extends Message implements RequestInterface
      */
     public function getPort(): int
     {
-        $port = (int)(($p = $this->env->get("SERVER_PORT")) ? $p : $this->uri->getPort());
+        $serverPort = $this->env->get("SERVER_PORT");
+        $port = (int)(($serverPort) ? $serverPort : $this->uri->getPort());
         return (int)$port;
     }
 

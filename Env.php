@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 namespace PHPFuse\Http;
@@ -118,7 +117,7 @@ class Env
     {
         foreach ($data as $key => $value) {
             if (!$overwrite && getenv($key) !== false) {
-                throw new InvalidArgumentException("The Environmental variable \"{$key}\" already exists. ".
+                throw new InvalidArgumentException("The Environmental variable \"{$key}\" already exists. " .
                     "It's recommended to make every variable unique.", 1);
             }
             $_ENV[$key] = $value;

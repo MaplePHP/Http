@@ -1,6 +1,5 @@
 <?php
 
-
 declare(strict_types=1);
 
 namespace PHPFuse\Http;
@@ -152,7 +151,7 @@ class Response extends Message implements ResponseInterface
     {
         $clone = clone $this;
         $clone->modDate = strtotime($date);
-        return $clone->withHeader('Last-Modified', gmdate('D, d M Y H:i:s', $clone->modDate).' GMT');
+        return $clone->withHeader('Last-Modified', gmdate('D, d M Y H:i:s', $clone->modDate) . ' GMT');
     }
 
     /**
@@ -162,7 +161,7 @@ class Response extends Message implements ResponseInterface
      */
     public function withExpires(string $date): ResponseInterface
     {
-        return $this->withHeader("Expires", gmdate('D, d M Y H:i:s', strtotime($date)).' GMT');
+        return $this->withHeader("Expires", gmdate('D, d M Y H:i:s', strtotime($date)) . ' GMT');
     }
 
     /**
@@ -175,7 +174,7 @@ class Response extends Message implements ResponseInterface
     {
         return $this->withHeaders([
             "Cache-Control" => "max-age={$ttl}, immutable, public",
-            "Expires" => date("D, d M Y H:i:s", $time + $ttl)." GMT",
+            "Expires" => date("D, d M Y H:i:s", $time + $ttl) . " GMT",
             "Pragma" => "public"
         ]);
     }

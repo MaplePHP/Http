@@ -137,13 +137,16 @@ class Stream implements StreamInterface
 
     /**
      * Get stats
-     * @param  string|null $key array item key of fstat (null = get all)
-     * @return string|array|null
+     * @param  string|null $key array item key of fstat
+     * @return mixed
      */
     public function stats(?string $key = null): mixed
     {
         $stats = fstat($this->resource);
-        return is_null($key) ? $stats : ($stats[$key] ?? null);
+        if (is_array($stats)) {
+            return is_null($key) ? $stats : ($stats[$key] ?? false);
+        }
+        return false;
     }
 
     /**
@@ -278,7 +281,7 @@ class Stream implements StreamInterface
         $this->meta = stream_get_meta_data($this->resource);
         $this->readable = (bool)preg_match(self::READABLE_MATCH, $this->meta['mode']);
         $this->writable = (bool)preg_match(self::WRITABLE_MATCH, $this->meta['mode']);
-        $this->seekable = (bool)$this->meta['seekable'];
+        $this->seekable = $this->meta['seekable'];
         return (!is_null($key) ? ($this->meta[$key] ?? null) : $this->meta);
     }
 

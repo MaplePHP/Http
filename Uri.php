@@ -161,10 +161,9 @@ class Uri implements UriInterface
         return (string)$this->encoded['host'];
     }
 
-
     /**
      * Get port
-     * @return int|null (ex: 443)
+     * @return int|null The URI port
      */
     public function getPort(): ?int
     {
@@ -267,7 +266,7 @@ class Uri implements UriInterface
     /**
      * Create new instance with same URI, BUT with a new scheme
      * @param  string $scheme
-     * @return UriInterface
+     * @return static
      */
     public function withScheme(string $scheme): UriInterface
     {
@@ -280,9 +279,9 @@ class Uri implements UriInterface
      * Create new instance with same URI, BUT with a new userInfo
      * @param  string $user
      * @param  string $password
-     * @return UriInterface
+     * @return static
      */
-    public function withUserInfo(string $user, ?string $password = null)
+    public function withUserInfo(string $user, ?string $password = null): UriInterface
     {
         $inst = clone $this;
         $inst->setPart("user", $user)->setPart("pass", $password);
@@ -292,7 +291,7 @@ class Uri implements UriInterface
     /**
      * Create new instance with same URI, BUT with a new host
      * @param  string $host
-     * @return UriInterface
+     * @return static
      */
     public function withHost(string $host): UriInterface
     {
@@ -303,13 +302,12 @@ class Uri implements UriInterface
 
     /**
      * Create new instance with same URI, BUT with a new port
-     * @param  int $port
-     * @return UriInterface
+     * @param  int|null $port
+     * @return static
      */
     public function withPort(?int $port): UriInterface
     {
         $inst = clone $this;
-
         $inst->setPart("port", $port);
         return $inst;
     }
@@ -317,7 +315,7 @@ class Uri implements UriInterface
     /**
      * Create new instance with same URI, BUT with a new path
      * @param  string $path
-     * @return UriInterface
+     * @return static
      */
     public function withPath(string $path): UriInterface
     {
@@ -329,7 +327,7 @@ class Uri implements UriInterface
     /**
      * Create new instance with same URI, BUT with a new query
      * @param  string $query
-     * @return UriInterface
+     * @return static
      */
     public function withQuery(string $query): UriInterface
     {
@@ -341,7 +339,7 @@ class Uri implements UriInterface
     /**
      * Create new instance with same URI, BUT with a new fragment
      * @param  string $fragment
-     * @return UriInterface
+     * @return static
      */
     public function withFragment(string $fragment): UriInterface
     {
@@ -366,9 +364,9 @@ class Uri implements UriInterface
     /**
      * Return part if object found and has not yet been encoded
      * @param  string  $key
-     * @return string|boolean
+     * @return string|null
      */
-    private function getUniquePart(string $key)
+    private function getUniquePart(string $key): ?string
     {
         return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : null;
     }
@@ -402,9 +400,9 @@ class Uri implements UriInterface
     /**
      * Set/reset part (will tell the script to re-encode the specified part)
      * @param string $key   Part key (e.g. scheme, path, port...)
-     * @param string|NULL $value New part value
+     * @param mixed $value New part value
      */
-    protected function setPart(string $key, mixed $value)
+    protected function setPart(string $key, mixed $value): self
     {
         $this->{$key} = $value;
         if (isset($this->encoded[$key])) {

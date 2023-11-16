@@ -2,6 +2,7 @@
 
 namespace PHPFuse\Http;
 
+use PHPFuse\Http\Exceptions\RequestException;
 use PHPFuse\Http\Interfaces\MessageInterface;
 use PHPFuse\Http\Interfaces\StreamInterface;
 use PHPFuse\DTO\Format;
@@ -72,7 +73,7 @@ abstract class Message implements MessageInterface
     public function hasHeader($name): bool
     {
         if (is_null($this->headers)) {
-            throw new \Exception("Missing The HTTP Headers instance", 1);
+            throw new RequestException("Missing The HTTP Headers instance", 1);
         }
         return $this->headers->hasHeader($name);
     }
@@ -85,22 +86,22 @@ abstract class Message implements MessageInterface
     public function getHeaderLine($name)
     {
         $data = $this->getHeaderLineData($name);
-        if (!is_array($data)) {
-            throw new \Exception("The header line is not an array!", 1);
+        if (count($data) === 0) {
+            throw new RequestException("Could not find the header line", 1);
         }
-        return (count($data) > 0) ? implode("; ", $data) : "";
+        return implode("; ", $data);
     }
 
     /**
      * Get header value data items
      * @param  string $name name/key (case insensitive)
-     * @return null||array
+     * @return array
      */
-    public function getHeaderLineData(string $name): ?array
+    public function getHeaderLineData(string $name): array
     {
         $this->headerLine = array();
-        $headerArr = $this->getHeader($name);
-        if (is_array($headerArr)) {
+        if ($this->hasHeader($name)) {
+            $headerArr = $this->getHeader($name);
             foreach ($headerArr as $key => $val) {
                 if (is_numeric($key)) {
                     $this->headerLine[] = $val;
@@ -108,10 +109,7 @@ abstract class Message implements MessageInterface
                     $this->headerLine[] = "{$key} {$val}";
                 }
             }
-        } else {
-            $this->headerLine[] = $headerArr;
         }
-
         return $this->headerLine;
     }
 
@@ -120,9 +118,9 @@ abstract class Message implements MessageInterface
      * @param  array  $arr
      * @return static
      */
-    public function withHeaders(array $arr)
+    public function withHeaders(array $arr): self
     {
-        $inst = $this;
+        $inst = clone $this;
         foreach ($arr as $key => $val) {
             $inst = $inst->withHeader($key, $val);
         }
@@ -132,10 +130,10 @@ abstract class Message implements MessageInterface
     /**
      * Set new header
      * @param  string $name
-     * @param  string/array $value
+     * @param  mixed $value
      * @return static
      */
-    public function withHeader($name, $value)
+    public function withHeader(string $name, mixed $value): self
     {
         $inst = clone $this;
         $inst->headers->setHeader($name, $value);
@@ -144,11 +142,11 @@ abstract class Message implements MessageInterface
 
     /**
      * Add header line
-     * @param  string $name  name/key (case insensitive)
-     * @param  string $value
+     * @param  string $name
+     * @param  mixed $value
      * @return static
      */
-    public function withAddedHeader($name, $value)
+    public function withAddedHeader(string $name, mixed $value): self
     {
         $inst = clone $this;
         $inst->headers->setHeader($name, $value);
@@ -160,7 +158,7 @@ abstract class Message implements MessageInterface
      * @param  string $name name/key (case insensitive)
      * @return static
      */
-    public function withoutHeader($name)
+    public function withoutHeader($name): self
     {
         $inst = clone $this;
         $inst->headers->deleteHeader($name);

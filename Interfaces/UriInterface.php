@@ -103,7 +103,7 @@ interface UriInterface
      * If no port is present, but a scheme is present, this method MAY return
      * the standard port for that scheme, but SHOULD return null.
      *
-     * @return null|int The URI port.
+     * @return int|null The URI port
      */
     public function getPort();
 
@@ -238,7 +238,7 @@ interface UriInterface
      * @return static A new instance with the specified port.
      * @throws \InvalidArgumentException for invalid ports.
      */
-    public function withPort(int $port);
+    public function withPort(?int $port);
 
     /**
      * Return an instance with the specified path.
@@ -321,4 +321,38 @@ interface UriInterface
      * @return string
      */
     public function __toString();
+
+
+    /**
+     *
+     * Custom methods outside of PSR
+     * But is used by the framework
+     *
+     */
+
+    /**
+     * Get dir
+     * @return string (ex: http/https)
+     */
+    public function getDir(): string;
+
+    /**
+     * Get formated URI
+     * @return string
+     */
+    public function getUri(): string;
+
+    /**
+     * Return part if object found and has not yet been encoded
+     * @param  string  $key
+     * @return string|null
+     */
+    public function getPart(string $key): ?string;
+
+    /**
+     * Argv can be used with CLI command
+     * E.g.: new Http\Uri($response->getUriEnv(["argv" => $argv]));
+     * @return array
+     */
+    public function getArgv(): array;
 }

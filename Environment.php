@@ -12,7 +12,7 @@ class Environment implements EnvironmentInterface
 
     public function __construct(array $env = [])
     {
-        $this->env = array_merge(($_SERVER ?? []), $env);
+        $this->env = array_merge($_SERVER, $env);
     }
 
     /**

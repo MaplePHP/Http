@@ -102,7 +102,7 @@ class Response extends Message implements ResponseInterface
      * Response with status code
      * @param  int    $code
      * @param  string $reasonPhrase
-     * @return ResponseInterface
+     * @return static
      */
     public function withStatus(int $code, string $reasonPhrase = ''): ResponseInterface
     {
@@ -123,12 +123,12 @@ class Response extends Message implements ResponseInterface
 
     /**
      * Get current response status phrase
-     * @return string|null
+     * @return string
      */
     public function getReasonPhrase()
     {
         if (is_null($this->phrase)) {
-            $this->phrase = $this::PHRASE[$this->statusCode];
+            $this->phrase = ($this::PHRASE[$this->statusCode] ?? "");
         }
         return $this->phrase;
     }
@@ -145,7 +145,7 @@ class Response extends Message implements ResponseInterface
     /**
      * Clear cache on modified date (E.g. can be used with uodate date on post in DB)
      * @param  string $date
-     * @return ResponseInterface
+     * @return static
      */
     public function withLastModified(string $date): ResponseInterface
     {
@@ -157,7 +157,7 @@ class Response extends Message implements ResponseInterface
     /**
      * Clear cache at given date (E.g. can be used if you set a publish date on a post in DB)
      * @param  string   $date
-     * @return ResponseInterface
+     * @return static
      */
     public function withExpires(string $date): ResponseInterface
     {
@@ -213,12 +213,11 @@ class Response extends Message implements ResponseInterface
         die();
     }
 
-    // Same as @location
-    public function redirect(string $url, int $statusCode = 302): void
-    {
-        $this->location($url, $statusCode);
-    }
 
+    /**
+     * Create headers createHeaders will only be exeuted once per instancse
+     * @return void
+     */
     public function createHeaders(): void
     {
         if (is_null($this->hasHeadersInit)) {
@@ -230,10 +229,8 @@ class Response extends Message implements ResponseInterface
         }
     }
 
-
     /**
      * Will build with the createHeaders method then and execute all the headers
-     * createHeaders will only be exeuted once per instance!
      * @return void
      */
     public function executeHeaders(): void
@@ -261,7 +258,7 @@ class Response extends Message implements ResponseInterface
 
     /**
      * Get current response status description
-     * @return [type] [description]
+     * @return string|null
      */
     public function getDescription(): ?string
     {

@@ -30,8 +30,8 @@ class ServerRequest extends Request implements ServerRequestInterface
 
         $this->attr = [
             "env" => $this->env->fetch(),
-            "cookies" => ($_COOKIE ?? []),
-            "files" => ($_FILES ?? [])
+            "cookies" => $_COOKIE,
+            "files" => $_FILES
         ];
     }
 

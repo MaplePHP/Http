@@ -18,10 +18,10 @@ class Headers implements HeadersInterface
     /**
      * Set new header
      * @param  string $name
-     * @param  string/array $value
+     * @param  mixed $value
      * @return void
      */
-    public function setHeader($name, $value): void
+    public function setHeader(string $name, mixed $value): void
     {
         $name = $this->normalizeKey($name);
         $this->headers[$name] = is_array($value) ? $value : array_map('trim', explode(';', $value));
@@ -29,8 +29,7 @@ class Headers implements HeadersInterface
 
     /**
      * Set new headers
-     * @param  string $name
-     * @param  string/array $value
+     * @param  array $arr
      * @return void
      */
     public function setHeaders(array $arr): void
@@ -75,7 +74,7 @@ class Headers implements HeadersInterface
     /**
      * Delete header from name/key
      * @param  string $name name/key (case insensitive)
-     * @return array
+     * @return bool
      */
     public function deleteHeader($name): bool
     {

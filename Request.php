@@ -44,10 +44,10 @@ class Request extends Message implements RequestInterface
 
     /**
      * Return an instance with the specific set requestTarget
-     * @param  string $requestTarget
-     * @return RequestInterface
+     * @param  mixed $requestTarget
+     * @return static
      */
-    public function withRequestTarget(string $requestTarget): RequestInterface
+    public function withRequestTarget(mixed $requestTarget): RequestInterface
     {
         $inst = clone $this;
         $inst->requestTarget = $requestTarget;
@@ -66,7 +66,7 @@ class Request extends Message implements RequestInterface
     /**
      * Return an instance with the specific set Method
      * @param  string $method
-     * @return RequestInterface
+     * @return static
      */
     public function withMethod(string $method): RequestInterface
     {
@@ -88,13 +88,13 @@ class Request extends Message implements RequestInterface
      * Return an instance with the with a new instance of UriInterface set
      * @param  UriInterface $uri          Instance of UriInterface
      * @param  boolean      $preserveHost Preserve the current request header Host
-     * @return RequestInterface
+     * @return static
      */
     public function withUri(UriInterface $uri, $preserveHost = false): RequestInterface
     {
         $inst = clone $this;
         if ($preserveHost) {
-            $uri = $uri->withHost($this->getHeader("Host"));
+            $uri = $uri->withHost($this->getHeaderLine("Host"));
         }
         $inst->uri = $uri;
         return $inst;
@@ -107,7 +107,7 @@ class Request extends Message implements RequestInterface
     public function isSSL(): bool
     {
         $https = strtolower($this->env->get("HTTPS"));
-        return (bool)($https === "on" || $https === "1" || $this->getPort() === 443);
+        return ($https === "on" || $https === "1" || $this->getPort() === 443);
     }
 
     /**
@@ -118,7 +118,7 @@ class Request extends Message implements RequestInterface
     {
         $serverPort = $this->env->get("SERVER_PORT");
         $port = (int)(($serverPort) ? $serverPort : $this->uri->getPort());
-        return (int)$port;
+        return $port;
     }
 
     /**

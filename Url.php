@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace PHPFuse\Http;
 
 use PHPFuse\Http\Interfaces\UrlInterface;
+use PHPFuse\Http\Interfaces\UriInterface;
 use PHPFuse\Http\Interfaces\RequestInterface;
 
 class Url implements UrlInterface
 {
     private $request;
     private $uri;
-    private $url;
     private $parts;
     private $vars;
     //private $path;
-    private $dirPath;
     private $fullPath;
+    private $dirPath;
     private $realPath;
 
     public function __construct(RequestInterface $request, $path)
@@ -29,10 +29,28 @@ class Url implements UrlInterface
         $this->realPath = $this->getRealPath();
     }
 
+    public function __toString(): string
+    {
+        return $this->getUrl();
+    }
+
     /**
      * Access http PSR URI message
+     * @return UriInterface
      */
-    public function __call($method, $args)
+    public function getUri(): UriInterface
+    {
+        return $this->uri;
+    }
+
+    /**
+     * Access http PSR URI message
+     * @param  string $method
+     * @param  array $args
+     * @return mixed
+     * @psalm-taint-sink
+     */
+    public function __call($method, $args): mixed
     {
         if (method_exists($this->uri, $method)) {
             return call_user_func_array([$this->uri, $method], $args);
@@ -43,10 +61,10 @@ class Url implements UrlInterface
 
     /**
      * With URI path type key
-     * @param  string|array  $type
+     * @param  null|string|array  $type (Default null: reset)
      * @return static
      */
-    public function withType(null|string|array $type): self
+    public function withType(null|string|array $type = null): self
     {
         if (is_string($type)) {
             $type = [$type];
@@ -69,7 +87,6 @@ class Url implements UrlInterface
             }
         }
 
-
         //$inst->vars = $vars;
         $inst->parts = $parts;
         $inst->realPath = implode("/", $vars);
@@ -77,14 +94,23 @@ class Url implements UrlInterface
         return $inst;
     }
 
-    public function reset(): self
-    {
-        return $this->withType(null);
-    }
-
+    /**
+     * Same as withType except that you Need to select a part
+     * @param  string|array  $type
+     * @return static
+     */
     public function select(string|array $type): self
     {
         return $this->withType($type);
+    }
+
+    /**
+     * Same as withType except it will only reset
+     * @return static
+     */
+    public function reset(): self
+    {
+        return $this->withType(null);
     }
 
     /**
@@ -136,7 +162,9 @@ class Url implements UrlInterface
         if (is_null($this->realPath)) {
             $this->realPath = str_replace($this->getDirPath(), "", $this->uri->getPath());
         }
-
+        if (!is_string($this->realPath)) {
+            throw new \Exception("Could not create realPath", 1);
+        }
         return $this->realPath;
     }
 
@@ -149,15 +177,26 @@ class Url implements UrlInterface
         if (is_null($this->dirPath)) {
             $this->dirPath = str_replace($_SERVER['DOCUMENT_ROOT'], "", $this->request->getUri()->getDir());
         }
+        if (!is_string($this->dirPath)) {
+            throw new \Exception("Could not create dirPath", 1);
+        }
         return $this->dirPath;
     }
-
-
+    
     /**
-     * Get last path item
+     * Get expected slug from path
      * @return string
      */
-    public function get(): string|bool
+    public function get(): string
+    {
+        return $this->last();
+    }
+
+    /**
+     * Get expected slug from path
+     * @return string
+     */
+    public function current(): string
     {
         return $this->last();
     }
@@ -166,16 +205,7 @@ class Url implements UrlInterface
      * Get last path item
      * @return string
      */
-    public function current(): string|bool
-    {
-        return $this->last();
-    }
-
-    /**
-     * Get last path item
-     * @return string
-     */
-    public function last(): string|bool
+    public function last(): string
     {
         if (is_null($this->vars)) {
             $this->vars = $this->getVars();
@@ -221,10 +251,11 @@ class Url implements UrlInterface
 
     /**
      * Get root URL
-     * @param  string $path add to URI
+     * @param  string   $path       add to URI
+     * @param  bool     $endSlash   add slash to the end of root URL (default false)
      * @return string
      */
-    public function getRoot(string $path = ""): string
+    public function getRoot(string $path = "", bool $endSlash = false): string
     {
         $url = "";
         if ($scheme = $this->getScheme()) {
@@ -236,31 +267,21 @@ class Url implements UrlInterface
         if ($dir = $this->getDirPath()) {
             $url .= rtrim($dir, "/");
         }
-
-        return $url . $path;
+        return $url . (($endSlash) ? "/" : "") . $path;
     }
 
     /**
      * Get full URL (path is changeable with @add and @withType method)
-     * @param  string $setPath add to URI
+     * @param  string $addToPath add to URI
      * @return string
      */
-    public function getUrl(string $setPath = ""): string
+    public function getUrl(string $addToPath = ""): string
     {
-        $this->url = "";
-        if ($scheme = $this->getScheme()) {
-            $this->url .= "{$scheme}:";
-        }
-        if ($authority = $this->getHost()) {
-            $this->url .= "//{$authority}";
-        }
-        if ($dir = $this->getDirPath()) {
-            $this->url .= "{$dir}";
-        }
+        $url = $this->getRoot("", true);
         if ($path = $this->getRealPath()) {
-            $this->url .= "{$path}";
+            $url .= "{$path}";
         }
-        return $this->url . $setPath;
+        return $url . $addToPath;
     }
 
     /**
@@ -307,16 +328,4 @@ class Url implements UrlInterface
     {
         return $this->getPublic("css/{$path}");
     }
-
-    /*
-    final public function filterParts($vars): array
-    {
-        if ((is_array($vars) && count($vars) === 0 &&
-            ($path = $this->uri->getRealPath())) || (is_string($vars) && $vars)) {
-            $vars = explode("/", $path);
-        }
-        // True: rawurlencode
-        return $vars;
-    }
-     */
 }

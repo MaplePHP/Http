@@ -53,7 +53,7 @@ class Env
 
     public function formatKey($key)
     {
-        return Format\Str::value($key)->clearBreaks("-")->trim()->replaceSpecialChar()
+        return Format\Str::value($key)->clearBreaks()->trim()->replaceSpecialChar()
                 ->trimSpaces()->replaceSpaces("-")->toUpper()->get();
     }
 

@@ -7,15 +7,14 @@ interface HeadersInterface
     /**
      * Set new header
      * @param  string $name
-     * @param  string/array $value
+     * @param  mixed $value
      * @return void
      */
-    public function setHeader($name, $value): void;
+    public function setHeader(string $name, mixed $value): void;
 
     /**
      * Set new headers
-     * @param  string $name
-     * @param  string/array $value
+     * @param  array $arr
      * @return void
      */
     public function setHeaders(array $arr): void;

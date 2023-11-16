@@ -58,7 +58,7 @@ interface RequestInterface extends MessageInterface
      * @param mixed $requestTarget
      * @return static
      */
-    public function withRequestTarget(string $requestTarget);
+    public function withRequestTarget(mixed $requestTarget);
 
     /**
      * Retrieves the HTTP method of the request.
@@ -126,4 +126,12 @@ interface RequestInterface extends MessageInterface
      * @return static
      */
     public function withUri(UriInterface $uri, $preserveHost = false);
+
+    /**
+     *
+     * Custom methods outside of PSR
+     * But is used by the framework
+     *
+     */
+
 }

@@ -42,30 +42,9 @@ interface MessageInterface
 
     /**
      * Retrieves all message header values.
-     *
-     * The keys represent the header name as it will be sent over the wire, and
-     * each value is an array of strings associated with the header.
-     *
-     *     // Represent the headers as a string
-     *     foreach ($message->getHeaders() as $name => $values) {
-     *         echo $name . ": " . implode(", ", $values);
-     *     }
-     *
-     *     // Emit headers iteratively:
-     *     foreach ($message->getHeaders() as $name => $values) {
-     *         foreach ($values as $value) {
-     *             header(sprintf('%s: %s', $name, $value), false);
-     *         }
-     *     }
-     *
-     * While header names are not case-sensitive, getHeaders() will preserve the
-     * exact case in which headers were originally specified.
-     *
-     * @return string[][] Returns an associative array of the message's headers. Each
-     *     key MUST be a header name, and each value MUST be an array of strings
-     *     for that header.
+     * @return array
      */
-    public function getHeaders();
+    public function getHeaders(): array;
 
     /**
      * Checks if a header exists by the given case-insensitive name.
@@ -78,20 +57,11 @@ interface MessageInterface
     public function hasHeader($name);
 
     /**
-     * Retrieves a message header value by the given case-insensitive name.
-     *
-     * This method returns an array of all the header values of the given
-     * case-insensitive header name.
-     *
-     * If the header does not appear in the message, this method MUST return an
-     * empty array.
-     *
-     * @param string $name Case-insensitive header field name.
-     * @return string[] An array of string values as provided for the given
-     *    header. If the header does not appear in the message, this method MUST
-     *    return an empty array.
+     * Retrieves a message header value by the given case-insensitive name
+     * @param  string $name name/key (case insensitive)
+     * @return array
      */
-    public function getHeader($name);
+    public function getHeader($name): array;
 
     /**
      * Retrieves a comma-separated string of the values for a single header.
@@ -124,12 +94,12 @@ interface MessageInterface
      * immutability of the message, and MUST return an instance that has the
      * new and/or updated header and value.
      *
-     * @param string $name Case-insensitive header field name.
-     * @param string|string[] $value Header value(s).
+     * @param  string $name
+     * @param  mixed $value
      * @return static
      * @throws \InvalidArgumentException for invalid header names or values.
      */
-    public function withHeader($name, $value);
+    public function withHeader(string $name, mixed $value);
 
     /**
      * Return an instance with the specified header appended with the given value.
@@ -142,12 +112,12 @@ interface MessageInterface
      * immutability of the message, and MUST return an instance that has the
      * new header and/or value.
      *
-     * @param string $name Case-insensitive header field name to add.
-     * @param string|string[] $value Header value(s).
+     * @param  string $name
+     * @param  mixed $value
      * @return static
      * @throws \InvalidArgumentException for invalid header names or values.
      */
-    public function withAddedHeader($name, $value);
+    public function withAddedHeader(string $name, mixed $value);
 
     /**
      * Return an instance without the specified header.
@@ -184,4 +154,11 @@ interface MessageInterface
      * @throws \InvalidArgumentException When the body is not valid.
      */
     public function withBody(StreamInterface $body);
+
+    /**
+     *
+     * Custom methods outside of PSR
+     * But is used by the framework
+     *
+     */
 }

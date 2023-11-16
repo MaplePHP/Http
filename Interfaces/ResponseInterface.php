@@ -65,4 +65,53 @@ interface ResponseInterface extends MessageInterface
      * @return string Reason phrase; must return an empty string if none present.
      */
     public function getReasonPhrase();
+
+
+    /**
+     *
+     * Custom methods outside of PSR
+     * But is used by the framework
+     *
+     */
+    
+    /**
+     * Clear cache. No exceptions!
+     * Out of security reasons it is actually good practice to call this BY default on a framework
+     * The reason for this is to make sure that sensitive data is not cached.
+     * So then you as the developer can then make the choice to cache the data or not.
+     * @return static
+     */
+    public function clearCache(): ResponseInterface;
+
+    /**
+     * Set extra description, can be used to describe the error code more in details
+     * @param string $description
+     */
+    public function setDescription(string $description): self;
+
+    /**
+     * Redirect to new location
+     * @param  string      $url        URL
+     * @param  int|integer $statusCode 301 or 302
+     * @return void
+     */
+    public function location(string $url, int $statusCode = 302): void;
+
+    /**
+     * Create headers createHeaders will only be exeuted once per instancse
+     * @return void
+     */
+    public function createHeaders(): void;
+
+    /**
+     * Will build with the createHeaders method then and execute all the headers
+     * @return void
+     */
+    public function executeHeaders(): void;
+
+    /**
+     * Get modified date
+     * @return int|null
+     */
+    public function getModDate(): ?int;
 }

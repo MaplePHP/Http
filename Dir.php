@@ -15,37 +15,72 @@ class Dir implements DirInterface
         $this->dir = $dir;
     }
 
-    public function getDir(string $path = "")
+    /**
+     * Get root dir
+     * @param  string $path
+     * @return string
+     */
+    public function getDir(string $path = ""): string
     {
         return $this->dir . $path;
     }
 
-    public function getRoot(string $path = "")
+    /**
+     * Get root dir
+     * @param  string $path
+     * @return string
+     */
+    public function getRoot(string $path = ""): string
     {
         return $this->getDir($path);
     }
 
-    public function getResources(string $path = "")
+    /**
+     * Get resource dir
+     * @param  string $path
+     * @return string
+     */
+    public function getResources(string $path = ""): string
     {
         return $this->getDir("resources/{$path}");
     }
 
-    public function getPublic(string $path = "")
+    /**
+     * Get resource dir
+     * @param  string $path
+     * @return string
+     */
+    public function getPublic(string $path = ""): string
     {
         return $this->getDir("public/{$path}");
     }
 
-    public function getStorage(string $path = "")
+    /**
+     * Get storage dir
+     * @param  string $path
+     * @return string
+     */
+    public function getStorage(string $path = ""): string
     {
         return $this->getDir("storage/{$path}");
     }
 
-    public function getLogs(string $path = "")
+    /**
+     * Get log dir
+     * @param  string $path
+     * @return string
+     */
+    public function getLogs(string $path = ""): string
     {
         return $this->getStorage("logs/{$path}");
     }
 
-    public function getCaches(string $path = "")
+    /**
+     * Get cache dir
+     * @param  string $path
+     * @return string
+     */
+    public function getCaches(string $path = ""): string
     {
         return $this->getStorage("caches/{$path}");
     }

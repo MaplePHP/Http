@@ -31,7 +31,7 @@ class UploadedFile implements UploadedFileInterface
     private $tmp;
     private $error;
     private $moved;
-    private $target;
+    //private $target;
 
     /**
      * Prepare for upload
@@ -119,7 +119,7 @@ class UploadedFile implements UploadedFileInterface
     /**
      * Will be useing the PHP function move_uploaded_file to upload a file to target path/file
      * @param  string $targetPath
-     * @return int/bool
+     * @return int|bool
      */
     public function moveUploadedFile(string $targetPath)
     {
@@ -142,7 +142,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getSize(): ?int
     {
-        return (is_null($this->size)) ? (is_resource($this->stream) ? $this->stream->getSize() : null) : $this->size;
+        return (is_null($this->size)) ? (($this->stream instanceof StreamInterface) ? $this->stream->getSize() : null) : $this->size;
     }
 
     /**

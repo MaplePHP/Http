@@ -155,4 +155,10 @@ interface StreamInterface
      *     value is found, or null if the key is not found.
      */
     public function getMetadata(?string $key = null);
+    
+    /**
+     * Get current resource
+     * @return resource
+     */
+    public function getResource();
 }

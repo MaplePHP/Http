@@ -30,7 +30,7 @@ class Client implements ClientInterface
     {
         $this->options = $options;
     }
-
+    
     /**
      * Set option
      * https://www.php.net/manual/en/function.curl-setopt.php
@@ -47,11 +47,11 @@ class Client implements ClientInterface
      * Has option
      * https://www.php.net/manual/en/function.curl-setopt.php
      * @param int   $key
-     * @return void
+     * @return bool
      */
     public function hasOption(int $key): bool
     {
-        return (bool)(isset($this->options[$key]));
+        return (isset($this->options[$key]));
     }
 
     /**

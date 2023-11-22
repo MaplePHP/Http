@@ -17,14 +17,14 @@ class Environment implements EnvironmentInterface
 
     /**
      * Get request/server environment data
-     * @param  string $key     Server key
-     * @param  string $default Default value, returned if Env data is empty
-     * @return string|null
+     * @param  string      $key     Server key
+     * @param  string|null $default Default value, returned if Env data is empty
+     * @return string
      */
-    public function get(string $key, ?string $default = ""): ?string
+    public function get(string $key, ?string $default = ""): string
     {
         $key = strtoupper($key);
-        return ($this->env[$key] ?? $default);
+        return ($this->env[$key] ?? (string)$default);
     }
 
     /**
@@ -62,7 +62,7 @@ class Environment implements EnvironmentInterface
         $arr['path'] = $this->getPath();
         $arr['query'] = $this->get("QUERY_STRING");
         $arr['fragment'] = null;
-        if (!is_null($arr['port'])) {
+        if (!is_numeric($arr['port'])) {
             $arr['port'] = (int)$arr['port'];
         }
 

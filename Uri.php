@@ -364,9 +364,9 @@ class Uri implements UriInterface
     /**
      * Return part if object found and has not yet been encoded
      * @param  string  $key
-     * @return string|null
+     * @return string|int|float|null
      */
-    private function getUniquePart(string $key): ?string
+    private function getUniquePart(string $key): string|int|float|null
     {
         return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : null;
     }

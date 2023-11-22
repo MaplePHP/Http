@@ -258,17 +258,4 @@ interface ServerRequestInterface extends RequestInterface
      * @return static
      */
     public function withoutAttribute($name);
-
-    /**
-     *
-     * Custom methods outside of PSR
-     * But is used by the framework
-     *
-     */
-
-    /**
-     * Get Cli arguments
-     * @return array
-     */
-    public function getCliArgs(): array;
 }

@@ -15,6 +15,8 @@ class Request extends Message implements RequestInterface
     private $requestTarget;
     protected $headers;
     protected $body;
+    protected $cliKeywords;
+    protected $cliArgs;
 
     public function __construct(
         string $method,
@@ -152,5 +154,56 @@ class Request extends Message implements RequestInterface
             }
         }
         return $stream;
+    }
+
+     /**
+     * Get Cli keyword
+     * @return string|null
+     */
+    public function getCliKeyword(): ?string
+    {
+        if (is_null($this->cliKeywords)) {
+            $new = array();
+            $arg = $this->getUri()->getArgv();
+            foreach ($arg as $val) {
+                if (is_string($val)) {
+                    if ((strpos($val, "--") === 0) || (strpos($val, "-") === 0)) {
+                        break;
+                    } else {
+                        $new[] = $val;
+                    }
+                }
+            }
+            array_shift($new);
+            $this->cliKeywords = implode("/", $new);
+        }
+
+        return $this->cliKeywords;
+    }
+
+    /**
+     * Get Cli arguments
+     * @return array
+     */
+    public function getCliArgs(): array
+    {
+        if (is_null($this->cliArgs)) {
+            $args = $this->getUri()->getArgv();
+            $this->cliArgs = array();
+            foreach ($args as $arg) {
+                if (is_string($arg)) {
+                    $arg = str_replace("&", "#", $arg);
+                    if ((($pos1 = strpos($arg, "--")) === 0) || (strpos($arg, "-") === 0)) {
+                        parse_str(substr($arg, ($pos1 !== false ? 2 : 1)), $result);
+                        foreach ($result as &$val) {
+                            $val = str_replace("#", "&", $val);
+                        }
+                        $this->cliArgs = array_merge($this->cliArgs, $result);
+                    }
+                }
+            }
+        }
+
+        return $this->cliArgs;
     }
 }

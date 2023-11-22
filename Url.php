@@ -175,7 +175,9 @@ class Url implements UrlInterface
     public function getDirPath(): string
     {
         if (is_null($this->dirPath)) {
-            $this->dirPath = str_replace($_SERVER['DOCUMENT_ROOT'], "", $this->request->getUri()->getDir());
+            $root = (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : "";
+            $root = htmlspecialchars($root, ENT_QUOTES, 'UTF-8');
+            $this->dirPath = str_replace($root, "", $this->request->getUri()->getDir());
         }
         if (!is_string($this->dirPath)) {
             throw new \Exception("Could not create dirPath", 1);

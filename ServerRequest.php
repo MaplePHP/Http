@@ -11,9 +11,6 @@ class ServerRequest extends Request implements ServerRequestInterface
 {
     protected $attr = array();
     protected $env;
-    protected $cliKeywords;
-    protected $cliArgs;
-
     protected $queryParams;
     protected $parsedBody;
 
@@ -321,54 +318,6 @@ class ServerRequest extends Request implements ServerRequestInterface
         $inst = clone $this;
         unset($inst->attr[$name]);
         return $inst;
-    }
-
-
-    /**
-     * Get Cli keyword
-     * @return string|null
-     */
-    public function getCliKeyword(): ?string
-    {
-        if (is_null($this->cliKeywords)) {
-            $new = array();
-            $arg = $this->getUri()->getArgv();
-            foreach ($arg as $v) {
-                if ((($pos1 = strpos($v, "--")) === 0) || (($pos2 = strpos($v, "-")) === 0)) {
-                    break;
-                } else {
-                    $new[] = $v;
-                }
-            }
-            array_shift($new);
-            $this->cliKeywords = implode("/", $new);
-        }
-
-        return $this->cliKeywords;
-    }
-
-    /**
-     * Get Cli arguments
-     * @return array
-     */
-    public function getCliArgs(): array
-    {
-        if (is_null($this->cliArgs)) {
-            $arg = $this->getUri()->getArgv();
-            $this->cliArgs = array();
-            foreach ($arg as $v) {
-                $v = str_replace("&", "#", $v);
-                if ((($pos1 = strpos($v, "--")) === 0) || (($pos2 = strpos($v, "-")) === 0)) {
-                    parse_str(substr($v, ($pos1 !== false ? 2 : 1)), $result);
-                    foreach ($result as &$val) {
-                        $val = str_replace("#", "&", $val);
-                    }
-                    $this->cliArgs = array_merge($this->cliArgs, $result);
-                }
-            }
-        }
-
-        return $this->cliArgs;
     }
 
 

@@ -6,11 +6,11 @@ interface EnvironmentInterface
 {
     /**
      * Get request/server environment data
-     * @param  string $key     Server key
-     * @param  string $default Default value, returned if Env data is empty
-     * @return string|null
+     * @param  string      $key     Server key
+     * @param  string|null $default Default value, returned if Env data is empty
+     * @return string
      */
-    public function get(string $key, ?string $default = ""): ?string;
+    public function get(string $key, ?string $default = ""): string;
 
     /**
      * Check if environment data exists

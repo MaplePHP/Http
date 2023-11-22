@@ -32,8 +32,6 @@ class Stream implements StreamInterface
     private $readable;
     private $writable;
     private $seekable;
-    //private $output;
-
 
     /**
      * PSR-7 Stream
@@ -49,6 +47,11 @@ class Stream implements StreamInterface
         if (is_resource($stream)) {
             $this->resource = $stream;
             $this->meta = $this->getMetadata();
+
+            if (is_null($this->meta)) {
+                throw new RuntimeException("Could not access the stream meta data.", 1);
+            }
+
             $this->stream = $this->meta['stream_type'];
             $this->permission = $this->meta['mode'];
         } else {

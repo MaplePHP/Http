@@ -134,4 +134,9 @@ interface RequestInterface extends MessageInterface
      *
      */
 
+    /**
+     * Get Cli arguments
+     * @return array
+     */
+    public function getCliArgs(): array;
 }

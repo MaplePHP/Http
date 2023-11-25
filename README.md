@@ -61,18 +61,29 @@ $stream = new Http\Stream(
 	(string) permission
 );
 ```
-#### Basic stream example
+### Basic stream examples
+
+#### Write to stream
 ```php
 $stream = new Http\Stream(Http\Stream:TEMP);
 $stream->write("Hello world");
 $stream->seek(0);
 echo $stream->read(); // Hello world
+```
 
+#### Get file content with stream
+```php
+$stream = new Http\Stream("/var/www/html/YourApp/dir/dir/data.json");
+echo $stream->getContents();
+```
+
+#### Upload a stream to the server
+```php
 $upload = new Http\UploadedFile($stream);
 $upload->moveTo("/var/www/html/upload/log.txt"); // Place Hello world in txt file
 ```
 
-#### Create a request (The PSR way)
+### Create a request
 The client will be using curl, so it's essential to ensure that it is enabled in case it has been disabled for any reason.
 ```php
 // Init request client
@@ -92,4 +103,3 @@ $response = $client->sendRequest($request);
 // Get Stream data
 var_dump($response->getBody()->getContents());
 ```
-

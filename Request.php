@@ -104,7 +104,7 @@ class Request extends Message implements RequestInterface
 
     /**
      * Chech if is request is SSL
-     * @return boolean [description]
+     * @return bool
      */
     public function isSSL(): bool
     {

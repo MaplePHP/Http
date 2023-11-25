@@ -281,7 +281,10 @@ class Url implements UrlInterface
     {
         $url = $this->getRoot("", true);
         if ($path = $this->getRealPath()) {
+            $path = ltrim($path, "/");
             $url .= "{$path}";
+        } else {
+            $addToPath = ltrim($addToPath, "/");
         }
         return $url . $addToPath;
     }

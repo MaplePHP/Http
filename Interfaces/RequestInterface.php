@@ -139,4 +139,10 @@ interface RequestInterface extends MessageInterface
      * @return array
      */
     public function getCliArgs(): array;
+
+    /**
+     * Chech if is request is SSL
+     * @return bool
+     */
+    public function isSSL(): bool;
 }

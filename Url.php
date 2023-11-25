@@ -33,7 +33,7 @@ class Url implements UrlInterface
         // _ENV['APP_DIR'] is alos used and should be corrected
         $envDir = getenv("APP_PUBLIC_DIR");
         if (is_string($envDir) && $this->validateDir($envDir)) {
-            $this->publicDirPath = ltrim(rtrim($envDir, "/"), "/")."/";
+            $this->publicDirPath = ltrim(rtrim($envDir, "/"), "/");
         }
     }
 
@@ -194,7 +194,7 @@ class Url implements UrlInterface
         if (!is_string($this->dirPath)) {
             throw new \Exception("Could not create dirPath", 1);
         }
-        return $this->dirPath.$this->publicDirPath;
+        return $this->dirPath;
     }
     
     /**
@@ -264,12 +264,12 @@ class Url implements UrlInterface
     }
 
     /**
-     * Get root URL
+     * Get root URL DIR
      * @param  string   $path       add to URI
      * @param  bool     $endSlash   add slash to the end of root URL (default false)
      * @return string
      */
-    public function getRoot(string $path = "", bool $endSlash = false): string
+    public function getRootDir(string $path = "", bool $endSlash = false): string
     {
         $url = "";
         if ($scheme = $this->getScheme()) {
@@ -282,6 +282,19 @@ class Url implements UrlInterface
         if ($dir = $this->getDirPath()) {
             $url .= rtrim($dir, "/");
         }
+        return $url. (($endSlash) ? "/" : "") . $path;
+    }
+
+    /**
+     * Get root URL
+     * @param  string   $path       add to URI
+     * @param  bool     $endSlash   add slash to the end of root URL (default false)
+     * @return string
+     */
+    public function getRoot(string $path = "", bool $endSlash = false): string
+    {
+        $url = $this->getRootDir("/");
+        $url .= $this->publicDirPath;
         return $url . (($endSlash) ? "/" : "") . $path;
     }
 
@@ -322,7 +335,7 @@ class Url implements UrlInterface
      */
     public function getResource(string $path = ""): string
     {
-        return $this->getRoot("/resources/{$path}");
+        return $this->getRootDir("/resources/{$path}");
     }
 
     /**

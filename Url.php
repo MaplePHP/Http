@@ -18,6 +18,7 @@ class Url implements UrlInterface
     private $fullPath;
     private $dirPath;
     private $realPath;
+    private $publicDirPath;
 
     public function __construct(RequestInterface $request, $path)
     {
@@ -27,6 +28,13 @@ class Url implements UrlInterface
         $this->fullPath = $this->uri->getPath();
         $this->dirPath = $this->getDirPath();
         $this->realPath = $this->getRealPath();
+
+        // Will move this
+        // _ENV['APP_DIR'] is alos used and should be corrected
+        $envDir = getenv("APP_PUBLIC_DIR");
+        if (is_string($envDir) && $this->validateDir($envDir)) {
+            $this->publicDirPath = ltrim(rtrim($envDir, "/"), "/")."/";
+        }
     }
 
     public function __toString(): string
@@ -178,11 +186,15 @@ class Url implements UrlInterface
             $root = (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : "";
             $root = htmlspecialchars($root, ENT_QUOTES, 'UTF-8');
             $this->dirPath = str_replace($root, "", $this->request->getUri()->getDir());
+
+            if($root.$this->dirPath !== $_ENV['APP_DIR']) {
+                throw new \Exception("Could not validate the dirPath", 1);
+            }
         }
         if (!is_string($this->dirPath)) {
             throw new \Exception("Could not create dirPath", 1);
         }
-        return $this->dirPath;
+        return $this->dirPath.$this->publicDirPath;
     }
     
     /**
@@ -266,6 +278,7 @@ class Url implements UrlInterface
         if ($authority = $this->getHost()) {
             $url .= "//{$authority}";
         }
+
         if ($dir = $this->getDirPath()) {
             $url .= rtrim($dir, "/");
         }
@@ -296,6 +309,9 @@ class Url implements UrlInterface
      */
     public function getPublic(string $path = ""): string
     {
+        if (!is_null($this->publicDirPath)) {
+            return $this->getRoot("/{$path}");
+        }
         return $this->getRoot("/public/{$path}");
     }
 
@@ -332,5 +348,11 @@ class Url implements UrlInterface
     public function getCss(string $path): string
     {
         return $this->getPublic("css/{$path}");
+    }
+
+    public function validateDir(string $path): bool
+    {
+        $fullPath = realpath($_ENV['APP_DIR'].$path);
+        return (is_string($fullPath) && strpos($fullPath, $_ENV['APP_DIR']) === 0);
     }
 }

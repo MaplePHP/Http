@@ -86,9 +86,11 @@ abstract class Message implements MessageInterface
     public function getHeaderLine($name)
     {
         $data = $this->getHeaderLineData($name);
+        /*
         if (count($data) === 0) {
             throw new RequestException("Could not find the header line", 1);
         }
+         */
         return implode("; ", $data);
     }
 

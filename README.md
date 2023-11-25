@@ -27,11 +27,11 @@ echo $uri->getUri(); // Get the full URI
 Only the **(StreamInterface) Body** attribute is required and the rest will auto propagate if you leave them be.
 ```php
 $request = new Http\Response(
-	**(StreamInterface) Body,** 
-	(array) Headers, 
-	(int) status, 
-	(?string) phrase, 
-	(?string) version
+	StreamInterface $body,
+    ?HeadersInterface $headers = null,
+    int $status = 200,
+    ?string $phrase = null,
+    ?string $version = null
 );
 ```
 ####  Get Status code

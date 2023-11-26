@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPFuse\Http\Interfaces;
+namespace MaplePHP\Http\Interfaces;
 
 interface DirInterface
 {

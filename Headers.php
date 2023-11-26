@@ -1,8 +1,8 @@
 <?php
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\HeadersInterface;
+use MaplePHP\Http\Interfaces\HeadersInterface;
 
 class Headers implements HeadersInterface
 {

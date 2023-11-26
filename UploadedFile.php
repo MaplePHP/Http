@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
 use RuntimeException;
-use PHPFuse\Http\Interfaces\UploadedFileInterface;
-use PHPFuse\Http\Interfaces\StreamInterface;
+use MaplePHP\Http\Interfaces\UploadedFileInterface;
+use MaplePHP\Http\Interfaces\StreamInterface;
 
 class UploadedFile implements UploadedFileInterface
 {

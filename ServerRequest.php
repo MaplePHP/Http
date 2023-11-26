@@ -1,11 +1,11 @@
 <?php
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\ServerRequestInterface;
-use PHPFuse\Http\Interfaces\UriInterface;
-use PHPFuse\Http\Interfaces\EnvironmentInterface;
-use PHPFuse\Http\Stream;
+use MaplePHP\Http\Interfaces\ServerRequestInterface;
+use MaplePHP\Http\Interfaces\UriInterface;
+use MaplePHP\Http\Interfaces\EnvironmentInterface;
+use MaplePHP\Http\Stream;
 
 class ServerRequest extends Request implements ServerRequestInterface
 {

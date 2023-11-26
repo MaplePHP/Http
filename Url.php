@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\UrlInterface;
-use PHPFuse\Http\Interfaces\UriInterface;
-use PHPFuse\Http\Interfaces\RequestInterface;
+use MaplePHP\Http\Interfaces\UrlInterface;
+use MaplePHP\Http\Interfaces\UriInterface;
+use MaplePHP\Http\Interfaces\RequestInterface;
 
 class Url implements UrlInterface
 {

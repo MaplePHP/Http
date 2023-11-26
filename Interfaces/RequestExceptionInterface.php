@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPFuse\Http\Interfaces;
+namespace MaplePHP\Http\Interfaces;
 
 /**
  * Exception for when a request failed.

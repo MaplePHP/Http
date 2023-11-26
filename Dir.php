@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\DirInterface;
+use MaplePHP\Http\Interfaces\DirInterface;
 
 class Dir implements DirInterface
 {

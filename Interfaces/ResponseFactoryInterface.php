@@ -1,8 +1,8 @@
 <?php
 
-namespace PHPFuse\Http\Interfaces;
+namespace MaplePHP\Http\Interfaces;
 
-use PHPFuse\Http\Interfaces\ResponseInterface;
+use MaplePHP\Http\Interfaces\ResponseInterface;
 
 interface ResponseFactoryInterface
 {

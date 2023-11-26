@@ -1,9 +1,9 @@
 <?php
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\EnvironmentInterface;
-use PHPFuse\DTO\Format;
+use MaplePHP\Http\Interfaces\EnvironmentInterface;
+use MaplePHP\DTO\Format;
 
 class Environment implements EnvironmentInterface
 {

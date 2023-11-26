@@ -1,5 +1,5 @@
-# PHP Fuse - PSR Http Message
-The library is fully integrated with PSR Http Message and designed for use with PHP Fuse framework.
+# MaplePHP - PSR Http Message
+The library is fully integrated with PSR Http Message and designed for use with MaplePHP framework.
 
 ## Request
 None of the construct attributes are required and will auto propagate if you leave them be.

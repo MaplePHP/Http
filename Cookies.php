@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\CookiesInterface;
+use MaplePHP\Http\Interfaces\CookiesInterface;
 
 class Cookies implements CookiesInterface
 {

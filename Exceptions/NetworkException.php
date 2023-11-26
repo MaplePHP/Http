@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPFuse\Http\Exceptions;
+namespace MaplePHP\Http\Exceptions;
 
 /**
  * Every HTTP client related exception MUST implement this interface.

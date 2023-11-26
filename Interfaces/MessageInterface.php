@@ -1,6 +1,6 @@
 <?php
 
-namespace PHPFuse\Http\Interfaces;
+namespace MaplePHP\Http\Interfaces;
 
 /**
  * HTTP messages consist of requests from a client to a server and responses

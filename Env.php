@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
 use InvalidArgumentException;
-use PHPFuse\DTO\Format;
+use MaplePHP\DTO\Format;
 
 class Env
 {

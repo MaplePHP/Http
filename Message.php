@@ -1,11 +1,11 @@
 <?php
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Exceptions\RequestException;
-use PHPFuse\Http\Interfaces\MessageInterface;
-use PHPFuse\Http\Interfaces\StreamInterface;
-use PHPFuse\DTO\Format;
+use MaplePHP\Http\Exceptions\RequestException;
+use MaplePHP\Http\Interfaces\MessageInterface;
+use MaplePHP\Http\Interfaces\StreamInterface;
+use MaplePHP\DTO\Format;
 
 abstract class Message implements MessageInterface
 {

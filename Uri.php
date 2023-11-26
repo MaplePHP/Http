@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\UriInterface;
-use PHPFuse\DTO\Format;
+use MaplePHP\Http\Interfaces\UriInterface;
+use MaplePHP\DTO\Format;
 
 class Uri implements UriInterface
 {

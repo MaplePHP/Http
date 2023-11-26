@@ -2,15 +2,15 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\RequestInterface;
-use PHPFuse\Http\Interfaces\ResponseInterface;
-use PHPFuse\Http\Interfaces\ClientInterface;
-use PHPFuse\Http\Interfaces\StreamInterface;
-use PHPFuse\Http\Exceptions\ClientException;
-use PHPFuse\Http\Exceptions\RequestException;
-use PHPFuse\Http\Exceptions\NetworkException;
+use MaplePHP\Http\Interfaces\RequestInterface;
+use MaplePHP\Http\Interfaces\ResponseInterface;
+use MaplePHP\Http\Interfaces\ClientInterface;
+use MaplePHP\Http\Interfaces\StreamInterface;
+use MaplePHP\Http\Exceptions\ClientException;
+use MaplePHP\Http\Exceptions\RequestException;
+use MaplePHP\Http\Exceptions\NetworkException;
 use InvalidArgumentException;
 
 class Client implements ClientInterface

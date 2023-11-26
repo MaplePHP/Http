@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\ResponseInterface;
-use PHPFuse\Http\Interfaces\StreamInterface;
-use PHPFuse\Http\Interfaces\HeadersInterface;
+use MaplePHP\Http\Interfaces\ResponseInterface;
+use MaplePHP\Http\Interfaces\StreamInterface;
+use MaplePHP\Http\Interfaces\HeadersInterface;
 
 class Response extends Message implements ResponseInterface
 {

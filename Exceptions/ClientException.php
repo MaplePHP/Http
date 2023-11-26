@@ -1,8 +1,8 @@
 <?php
 
-namespace PHPFuse\Http\Exceptions;
+namespace MaplePHP\Http\Exceptions;
 
-use PHPFuse\Http\Interfaces\ClientExceptionInterface;
+use MaplePHP\Http\Interfaces\ClientExceptionInterface;
 use Exception;
 
 /**

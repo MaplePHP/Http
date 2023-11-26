@@ -1,12 +1,12 @@
 <?php
 
-namespace PHPFuse\Http;
+namespace MaplePHP\Http;
 
-use PHPFuse\Http\Interfaces\RequestInterface;
-use PHPFuse\Http\Interfaces\UriInterface;
-use PHPFuse\Http\Interfaces\HeadersInterface;
-use PHPFuse\Http\Interfaces\StreamInterface;
-use PHPFuse\Http\Uri;
+use MaplePHP\Http\Interfaces\RequestInterface;
+use MaplePHP\Http\Interfaces\UriInterface;
+use MaplePHP\Http\Interfaces\HeadersInterface;
+use MaplePHP\Http\Interfaces\StreamInterface;
+use MaplePHP\Http\Uri;
 
 class Request extends Message implements RequestInterface
 {

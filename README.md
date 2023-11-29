@@ -1,6 +1,14 @@
 # MaplePHP - PSR-7 Http Message
 The library is fully integrated with PSR-7 Http Message and designed for use with MaplePHP framework.
 
+
+##Initialize
+The example below is utilizing the "namespace" below just to more easily demonstrate the guide.
+
+```php
+use MaplePHP\Http;
+```
+
 ## Request
 
 ```php

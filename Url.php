@@ -160,13 +160,16 @@ class Url implements UrlInterface
      */
     public function getDirPath(): string
     {
+
         if (is_null($this->dirPath)) {
             $root = (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : "";
             $root = htmlspecialchars($root, ENT_QUOTES, 'UTF-8');
             $this->dirPath = str_replace($root, "", $this->request->getUri()->getDir());
 
-            if(is_string($this->dirPath) && $root.$this->dirPath !== $_ENV['APP_DIR']) {
-                throw new \Exception("Could not validate the dirPath", 1);
+            if(isset($_ENV['APP_DIR'])) {
+                if(is_string($this->dirPath) && $root.$this->dirPath !== $_ENV['APP_DIR']) {
+                    throw new \Exception("Could not validate the dirPath", 1);
+                }
             }
         }
         if (!is_string($this->dirPath)) {

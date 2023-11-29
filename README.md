@@ -82,10 +82,16 @@ $stream = new Http\Stream(
 
 #### Write to stream
 ```php
-$stream = new Http\Stream(Http\Stream:TEMP);
-$stream->write("Hello world");
-$stream->seek(0);
-echo $stream->read(); // Hello world
+$stream = new Http\Stream(Http\Stream::TEMP);
+if ($stream->isSeekable()) {
+    $stream->write("Hello world");
+    //echo $stream; // will print Hello world
+    // Or
+    $stream->rewind();
+    echo $stream->getContents(); // Hello world
+    // Or Same as above
+    //echo $stream->read($stream->getSize());
+}
 ```
 
 #### Get file content with stream

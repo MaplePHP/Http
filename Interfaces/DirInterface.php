@@ -19,25 +19,11 @@ interface DirInterface
     public function getRoot(string $path = ""): string;
 
     /**
-     * Get resource dir
-     * @param  string $path
-     * @return string
+     * Not required but recommended. You can pass on Directory shortcuts to the class
+     * E.g. getPublic, getCss
+     * @param DirHandlerInterface $handler
      */
-    public function getResources(string $path = ""): string;
-
-    /**
-     * Get resource dir
-     * @param  string $path
-     * @return string
-     */
-    public function getPublic(string $path = ""): string;
-
-    /**
-     * Get storage dir
-     * @param  string $path
-     * @return string
-     */
-    public function getStorage(string $path = ""): string;
+    public function setHandler(DirHandlerInterface $handler): void;
 
     /**
      * Get log dir
@@ -45,12 +31,4 @@ interface DirInterface
      * @return string
      */
     public function getLogs(string $path = ""): string;
-
-
-    /**
-     * Get cache dir
-     * @param  string $path
-     * @return string
-     */
-    public function getCaches(string $path = ""): string;
 }

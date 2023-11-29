@@ -36,8 +36,7 @@ class Environment implements EnvironmentInterface
     {
         return (bool)($this->get($key, null));
     }
-
-
+    
     /**
      * Return all env
      * @return array
@@ -51,7 +50,7 @@ class Environment implements EnvironmentInterface
      * Get URI enviment Part data that will be passed to UriInterface and match to public object if exists.
      * @return array
      */
-    public function getUriParts(array $add): array
+    public function getUriParts(array $add = []): array
     {
         $arr = array();
         $arr['scheme'] = ($this->get("HTTPS") === 'on') ? 'https' : 'http';

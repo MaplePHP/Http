@@ -1,8 +1,8 @@
-# MaplePHP - PSR Http Message
-The library is fully integrated with PSR Http Message and designed for use with MaplePHP framework.
+# MaplePHP - PSR-7 Http Message
+The library is fully integrated with PSR-7 Http Message and designed for use with MaplePHP framework.
 
 ## Request
-None of the construct attributes are required and will auto propagate if you leave them be.
+
 ```php
 $request = new Http\ServerRequest(UriInterface $uri, EnvironmentInterface $env);
 ```
@@ -53,6 +53,15 @@ echo $response->hasHeader("Content-Length"); // True
 echo $response->getHeader("Content-Length"); // 1299
 echo $response->getBody(); // StreamInterface
 ```
+
+## A standard example usage
+```php
+$stream = new Http\Stream(Http\Stream::TEMP);
+$response = new Http\Response($stream);
+$env = new Http\Environment();
+$request = new Http\ServerRequest(new Http\Uri($env->getUriParts()), $env);
+```
+
 ## Stream
 None of the construct attributes are required and will auto propagate if you leave them be.
 ```php

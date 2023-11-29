@@ -107,6 +107,14 @@ interface UrlInterface
     public function getRoot(string $path = "", bool $endSlash = false): string;
 
     /**
+     * Get root URL DIR
+     * @param  string   $path       add to URI
+     * @param  bool     $endSlash   add slash to the end of root URL (default false)
+     * @return string
+     */
+    public function getRootDir(string $path = "", bool $endSlash = false): string;
+
+    /**
      * Get full URL (path is changeable with @add and @withType method)
      * @param  string $addToPath add to URI
      * @return string
@@ -114,30 +122,9 @@ interface UrlInterface
     public function getUrl(string $addToPath = ""): string;
 
     /**
-     * Get URL to public directory
-     * @param  string $path  add to URI
-     * @return string
+     * Not required but recommended. You can pass on URL shortcuts to the class
+     * E.g. getPublic, getCss
+     * @param UrlHandlerInterface $handler
      */
-    public function getPublic(string $path = ""): string;
-
-    /**
-     * Get URL to resources directory
-     * @param  string $path  add to URI
-     * @return string
-     */
-    public function getResource(string $path = ""): string;
-
-    /**
-     * Get URL to js directory
-     * @param  string $path  add to URI
-     * @return string
-     */
-    public function getJs(string $path, bool $isProd = false): string;
-
-    /**
-     * Get URL to css directory
-     * @param  string $path  add to URI
-     * @return string
-     */
-    public function getCss(string $path): string;
+    public function setHandler(UrlHandlerInterface $handler): void;
 }

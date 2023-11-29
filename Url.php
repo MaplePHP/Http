@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace MaplePHP\Http;
 
 use MaplePHP\Http\Interfaces\UrlInterface;
+use MaplePHP\Http\Interfaces\UrlHandlerInterface;
 use MaplePHP\Http\Interfaces\UriInterface;
 use MaplePHP\Http\Interfaces\RequestInterface;
 
@@ -14,27 +15,20 @@ class Url implements UrlInterface
     private $uri;
     private $parts;
     private $vars;
-    //private $path;
     private $fullPath;
     private $dirPath;
     private $realPath;
     private $publicDirPath;
+    private $handler;
 
-    public function __construct(RequestInterface $request, $path)
+    public function __construct(RequestInterface $request, array $parts)
     {
         $this->request = $request;
         $this->uri = $this->request->getUri();
-        $this->parts = $path;
+        $this->parts = $parts;
         $this->fullPath = $this->uri->getPath();
         $this->dirPath = $this->getDirPath();
         $this->realPath = $this->getRealPath();
-
-        // Will move this
-        // _ENV['APP_DIR'] is alos used and should be corrected
-        $envDir = getenv("APP_PUBLIC_DIR");
-        if (is_string($envDir) && $this->validateDir($envDir)) {
-            $this->publicDirPath = ltrim(rtrim($envDir, "/"), "/");
-        }
     }
 
     public function __toString(): string
@@ -49,22 +43,6 @@ class Url implements UrlInterface
     public function getUri(): UriInterface
     {
         return $this->uri;
-    }
-
-    /**
-     * Access http PSR URI message
-     * @param  string $method
-     * @param  array $args
-     * @return mixed
-     * @psalm-taint-sink
-     */
-    public function __call($method, $args): mixed
-    {
-        if (method_exists($this->uri, $method)) {
-            return call_user_func_array([$this->uri, $method], $args);
-        } else {
-            throw new \BadMethodCallException("The method ({$method}) does not exist in UrlInterface or UriInterface.", 1);
-        }
     }
 
     /**
@@ -187,7 +165,7 @@ class Url implements UrlInterface
             $root = htmlspecialchars($root, ENT_QUOTES, 'UTF-8');
             $this->dirPath = str_replace($root, "", $this->request->getUri()->getDir());
 
-            if($root.$this->dirPath !== $_ENV['APP_DIR']) {
+            if(is_string($this->dirPath) && $root.$this->dirPath !== $_ENV['APP_DIR']) {
                 throw new \Exception("Could not validate the dirPath", 1);
             }
         }
@@ -294,7 +272,9 @@ class Url implements UrlInterface
     public function getRoot(string $path = "", bool $endSlash = false): string
     {
         $url = $this->getRootDir("/");
-        $url .= $this->publicDirPath;
+        if (!is_null($this->handler)) {
+            $url .= $this->handler->getPublicDirPath();
+        }
         return $url . (($endSlash) ? "/" : "") . $path;
     }
 
@@ -316,56 +296,30 @@ class Url implements UrlInterface
     }
 
     /**
-     * Get URL to public directory
-     * @param  string $path  add to URI
-     * @return string
+     * Not required but recommended. You can pass on URL shortcuts to the class
+     * E.g. getPublic, getCss
+     * @param UrlHandlerInterface $handler
      */
-    public function getPublic(string $path = ""): string
+    public function setHandler(UrlHandlerInterface $handler): void
     {
-        if (!is_null($this->publicDirPath)) {
-            return $this->getRoot("/{$path}");
+        $this->handler = $handler;
+    }
+
+    /**
+     * Access http PSR URI message
+     * @param  string $method
+     * @param  array $args
+     * @return mixed
+     * @psalm-taint-sink
+     */
+    public function __call($method, $args): mixed
+    {
+        if (!is_null($this->handler) && method_exists($this->handler, $method)) {
+            return call_user_func_array([$this->handler, $method], $args);
+        } else if (method_exists($this->uri, $method)) {
+            return call_user_func_array([$this->uri, $method], $args);
+        } else {
+            throw new \BadMethodCallException("The method ({$method}) does not exist in \"".__CLASS__."\" (UrlInterface or UriInterface).", 1);
         }
-        return $this->getRoot("/public/{$path}");
-    }
-
-    /**
-     * Get URL to resources directory
-     * @param  string $path  add to URI
-     * @return string
-     */
-    public function getResource(string $path = ""): string
-    {
-        return $this->getRootDir("/resources/{$path}");
-    }
-
-    /**
-     * Get URL to js directory
-     * @param  string $path  add to URI
-     * @return string
-     */
-    public function getJs(string $path, bool $isProd = false): string
-    {
-        if ($isProd) {
-            return $this->getPublic("js/{$path}");
-        }
-        return $this->getResource("js/{$path}");
-        //$dir = ($distDir && getenv("APP_ENV") === "production") ? "dist/" : "";
-        //return $this->getPublic("js/{$dir}{$path}");
-    }
-
-    /**
-     * Get URL to css directory
-     * @param  string $path  add to URI
-     * @return string
-     */
-    public function getCss(string $path): string
-    {
-        return $this->getPublic("css/{$path}");
-    }
-
-    public function validateDir(string $path): bool
-    {
-        $fullPath = realpath($_ENV['APP_DIR'].$path);
-        return (is_string($fullPath) && strpos($fullPath, $_ENV['APP_DIR']) === 0);
     }
 }

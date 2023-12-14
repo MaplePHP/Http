@@ -134,6 +134,16 @@ class Response extends Message implements ResponseInterface
     }
 
     /**
+     * Check is status response counts as a valid response
+     * HTTP response status codes in the 200 range generally indicate a successful or valid response.
+     * @return bool
+     */
+    public function isValidResponse(): bool
+    {
+        return ($this->statusCode >= 200 && $this->statusCode < 300);
+    }
+
+    /**
      * Get modified date
      * @return int|null
      */

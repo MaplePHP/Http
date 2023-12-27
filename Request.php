@@ -78,7 +78,7 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * Get URI instance with set request messege
+     * Get URI instance with set request message
      * @return UriInterface
      */
     public function getUri(): UriInterface
@@ -103,7 +103,7 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * Chech if is request is SSL
+     * Check if is request is SSL
      * @return bool
      */
     public function isSSL(): bool

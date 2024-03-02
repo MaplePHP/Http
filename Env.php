@@ -45,6 +45,12 @@ class Env
         return "{$key}={$value}";
     }
 
+    public function get(string $key): string
+    {
+        $key = $this->formatKey($key);
+        return $this->fileData[$key];
+    }
+
     public function drop(string $key): void
     {
         $key = $this->formatKey($key);

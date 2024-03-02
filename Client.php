@@ -30,7 +30,7 @@ class Client implements ClientInterface
     {
         $this->options = $options;
     }
-    
+
     /**
      * Set option
      * https://www.php.net/manual/en/function.curl-setopt.php
@@ -53,7 +53,7 @@ class Client implements ClientInterface
     {
         return (isset($this->options[$key]));
     }
-
+    
     /**
      * Sends a PSR-7 request and returns a PSR-7 response.
      * @param  RequestInterface $request
@@ -64,24 +64,19 @@ class Client implements ClientInterface
         $this->requestData = (string)$request->getBody();
         $this->requestDataLength = strlen($this->requestData);
         $this->prepareRequest($request);
-        $this->buildHeaders($request);
-
         try {
+            $this->curl = curl_init();
+            $this->buildHeaders($request);
             if (!extension_loaded('curl')) {
                 throw new InvalidArgumentException('You need to enable CURL on your server.');
             }
-
             // Init curl request
-            $this->curl = curl_init();
             $this->buildOptions();
             $this->buildFromMethods($request);
-
             // Execute request
             $this->createRequest();
-
             // Close curl request
             curl_close($this->curl);
-
             // Retrive the body
             return $this->createResponse();
         } catch (InvalidArgumentException $e) {
@@ -101,22 +96,22 @@ class Client implements ClientInterface
         switch ($request->getMethod()) {
             case 'GET':
                 $this->get();
-                // no break
+                break;
             case 'POST':
                 $this->post();
-                // no break
+                break;
             case 'PUT':
                 $this->put();
-                // no break
+                break;
             case 'PATCH':
                 $request = $this->patch($request);
-                // no break
+                break;
             case 'DELETE':
                 $this->delete();
-                // no break
+                break;
             default:
-                throw new InvalidArgumentException('The requesr method (' . $request->getMethod() . ') ' .
-                    'is not supported.');
+                throw new InvalidArgumentException('The request method (' . $request->getMethod() . ') is not supported.');
+                break;
         }
     }
 
@@ -241,7 +236,9 @@ class Client implements ClientInterface
         foreach ($request->getHeaders() as $name => $_unUsedVal) {
             $data[] = "{$name}: " . $request->getHeaderLine($name);
         }
-        curl_setopt($this->curl, CURLOPT_HTTPHEADER, $data);
+        if (count($data) > 0) {
+            curl_setopt($this->curl, CURLOPT_HTTPHEADER, $data);
+        }
     }
 
     /**

@@ -13,7 +13,6 @@ class Env
     private $data = array();
     private $set = array();
     private $drop = array();
-    //private $readOnly = false;
 
     public function __construct(?string $file = null)
     {
@@ -21,7 +20,6 @@ class Env
             $this->loadEnvFile($file);
         }
     }
-
 
     public function loadEnvFile(string $file): void
     {
@@ -122,10 +120,12 @@ class Env
     private function put(array $data, bool $overwrite = false)
     {
         foreach ($data as $key => $value) {
+            /*
             if (!$overwrite && getenv($key) !== false) {
                 throw new InvalidArgumentException("The Environmental variable \"{$key}\" already exists. " .
                     "It's recommended to make every variable unique.", 1);
             }
+            */
             $_ENV[$key] = $value;
             if (is_array($value)) {
                 $value = json_encode($value);

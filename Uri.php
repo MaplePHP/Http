@@ -120,7 +120,6 @@ class Uri implements UriInterface
                 $this->authority .= ":{$port}";
             }
         }
-
         return $this->authority;
     }
 
@@ -139,7 +138,7 @@ class Uri implements UriInterface
                 $this->encoded['pass'] = $pass;
             }
 
-            if (!is_null($user)) {
+            if (is_string($user) && !empty($user)) {
                 $this->userInfo .= "{$user}";
                 if (!is_null($pass)) {
                     $this->userInfo .= ":{$pass}";
@@ -156,8 +155,13 @@ class Uri implements UriInterface
     public function getHost(): string
     {
         if ($val = $this->getUniquePart("host")) {
+            if(($pos = strpos($val, ":")) !== false) {
+                $val = substr($val, 0, $pos);
+            }
             $this->encoded['host'] = Format\Str::value($val)->tolower()->get();
         }
+
+
         return (string)$this->encoded['host'];
     }
 
@@ -196,6 +200,7 @@ class Uri implements UriInterface
     {
         if ($val = $this->getUniquePart("path")) {
             $this->encoded['path'] = Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
+            if($this->encoded['path']) $this->encoded['path'] = "/".ltrim($this->encoded['path'], "/");
         }
         return (string)$this->encoded['path'];
     }

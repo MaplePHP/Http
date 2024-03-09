@@ -59,6 +59,7 @@ class Url implements UrlInterface
             $type = [];
         }
 
+
         $inst = clone $this;
         $parts = $vars = array();
         foreach ($inst->parts as $sel => $row) {
@@ -256,8 +257,13 @@ class Url implements UrlInterface
         if ($scheme = $this->getScheme()) {
             $url .= "{$scheme}:";
         }
-        if ($authority = $this->getHost()) {
-            $url .= "//{$authority}";
+        if ($host = $this->getHost()) {
+            $url .= "//{$host}";
+        }
+        
+        // Do not show standard ports becouse they are not needed.
+        if (($port = $this->getPort()) && $port !== 80 && $port !== 443) {
+            $url .= ":{$port}";
         }
 
         if ($dir = $this->getDirPath()) {

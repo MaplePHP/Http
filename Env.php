@@ -46,7 +46,7 @@ class Env
     public function get(string $key): string
     {
         $key = $this->formatKey($key);
-        return $this->fileData[$key];
+        return ($this->fileData[$key] ?? "");
     }
 
     public function drop(string $key): void

@@ -195,6 +195,9 @@ class ServerRequest extends Request implements ServerRequestInterface
                 case "application/x-www-form-urlencoded":
                     parse_str($contents, $this->parsedBody);
                     break;
+                case "multipart/form-data":
+                    $this->parsedBody = $_POST;
+                    break;
                 case "application/json":
                     $this->parsedBody = json_decode($contents, true);
                     break;

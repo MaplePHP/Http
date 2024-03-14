@@ -1,13 +1,24 @@
-# MaplePHP - PSR-7 Http Message
-The library is fully integrated with PSR-7 Http Message and designed for use with MaplePHP framework.
+# MaplePHP - A Full-Featured PSR-7 Compliant HTTP Library
+MaplePHP/Http is a PHP library that brings simplicity and adherence to the PSR-7 standard into handling HTTP messages, requests, and responses within your web projects. It's thoughtfully designed to make the integration of crucial elements like Stream, Client, Cookies, UploadedFile, and Headers straightforward and efficient.
 
+By aligning closely with PSR-7, MaplePHP/Http facilitates better interoperability between web components, allowing for more effective communication within applications. Whether you're working with client-side cookies, managing headers in a request, or handling file uploads through UploadedFile, this library has got you covered, making these tasks more manageable and less time-consuming.
+
+MaplePHP/Http aims to support your web development by offering a reliable foundation for working with HTTP messaging, streamlining the process of dealing with requests and responses. It's a practical choice for developers looking to enhance their applications with PSR-7 compliant HTTP handling in a user-friendly way.
+
+
+## Installation
+
+```
+composer require maplephp/http
+```
 
 ## Initialize
-The example below is utilizing the "namespace" below just to more easily demonstrate the guide.
+The **examples** below is utilizing the "namespace" below just to more easily demonstrate the guide.
 
 ```php
 use MaplePHP\Http;
 ```
+
 
 ## Request
 
@@ -34,7 +45,7 @@ echo $uri->getUri(); // Get the full URI
 ## Response
 Only the **(StreamInterface) Body** attribute is required and the rest will auto propagate if you leave them be.
 ```php
-$request = new Http\Response(
+$response = new Http\Response(
 	StreamInterface $body,
     ?HeadersInterface $headers = null,
     int $status = 200,

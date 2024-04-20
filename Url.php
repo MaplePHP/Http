@@ -147,7 +147,7 @@ class Url implements UrlInterface
     public function getRealPath(): string
     {
         if (is_null($this->realPath)) {
-            $this->realPath = str_replace($this->getDirPath(), "", $this->uri->getPath());
+            $this->realPath = str_replace(rtrim($this->getDirPath(), "/"), "", $this->uri->getPath());
         }
         if (!is_string($this->realPath)) {
             throw new \Exception("Could not create realPath", 1);
@@ -158,8 +158,29 @@ class Url implements UrlInterface
     /**
      * Extract and get directories from the simulated htaccess path
      * @return string
-     */
+     */    
     public function getDirPath(): string
+    {
+        if (is_null($this->dirPath)) {
+            // Absolute path to the "httpdocs" directory (document root)
+            $documentRoot = (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : "";
+            $documentRoot = htmlspecialchars($documentRoot, ENT_QUOTES, 'UTF-8');
+
+            // Absolute path to the current script's directory
+            $currentScriptDir = $this->request->getUri()->getDir();
+
+            // Calculate the relative path from "httpdocs" to the script
+            $relativePath = str_replace($documentRoot, '', $currentScriptDir);
+
+            // Trim any leading or trailing slashes from the relative path
+            $this->dirPath = "/" . trim($relativePath, '/');
+        }
+
+        return $this->dirPath;
+    }
+
+    /*
+    public function getDirPathOLD(): string
     {
 
         if (is_null($this->dirPath)) {
@@ -178,7 +199,8 @@ class Url implements UrlInterface
         }
         return $this->dirPath;
     }
-    
+     */
+
     /**
      * Get expected slug from path
      * @return string
@@ -284,6 +306,7 @@ class Url implements UrlInterface
         if (!is_null($this->handler)) {
             $url .= $this->handler->getPublicDirPath();
         }
+        $url = rtrim($url, '/');
         return $url . (($endSlash) ? "/" : "") . $path;
     }
 

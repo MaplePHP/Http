@@ -45,7 +45,7 @@ class Dir implements DirInterface
      */
     public function getRoot(string $path = ""): string
     {
-        return $this->getDir($path);
+        return $this->getDir("../" . $path);
     }
 
     /**

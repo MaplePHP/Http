@@ -34,6 +34,7 @@ class Uri implements UriInterface
     private $query;
     private $fragment; // Anchor/after hash
     private $dir;
+    private $rootDir;
     private $userInfo;
     private $authority;
     private $argv;
@@ -67,6 +68,7 @@ class Uri implements UriInterface
         $this->query = "";
         $this->fragment = "";
         $this->dir = "";
+        $this->rootDir = "";
     }
 
     /**
@@ -100,6 +102,18 @@ class Uri implements UriInterface
             $this->encoded['dir'] = $val;
         }
         return (string)$this->encoded['dir'];
+    }
+
+    /**
+     * Get dir
+     * @return string (ex: http/https)
+     */
+    public function getRootDir(): string
+    {
+        if ($val = $this->getUniquePart("rootDir")) {
+            $this->encoded['rootDir'] = $val;
+        }
+        return (string)$this->encoded['rootDir'];
     }
 
     /**

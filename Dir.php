@@ -10,12 +10,14 @@ use MaplePHP\Http\Interfaces\DirHandlerInterface;
 class Dir implements DirInterface
 {
     private $dir;
+    private $getRootDir;
     private $handler;
     
 
-    public function __construct($dir)
+    public function __construct($dir, ?string $getRootDir = null)
     {
         $this->dir = $dir;
+        $this->getRootDir = $getRootDir;
     }
 
     /**
@@ -45,7 +47,7 @@ class Dir implements DirInterface
      */
     public function getRoot(string $path = ""): string
     {
-        return $this->getDir("../" . $path);
+        return $this->getRootDir.$path;
     }
 
     /**

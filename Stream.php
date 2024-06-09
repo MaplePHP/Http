@@ -57,7 +57,7 @@ class Stream implements StreamInterface
         } else {
             $this->stream = $stream;
             $this->permission = $permission;
-            $this->resource = fopen($this->stream, $this->permission);
+            $this->resource = $this->fopen($this->stream, $this->permission);
             $this->meta = $this->getMetadata();
         }
     }
@@ -297,7 +297,26 @@ class Stream implements StreamInterface
     {
         $inst = clone $this;
         $context = stream_context_create($opts);
-        $inst->resource = fopen($this->stream, $this->permission, false, $context);
+        $inst->resource = $this->fopen($this->stream, $this->permission, false, $context);
         return $inst;
+    }
+
+    /**
+     * Open a resource correct with the right resource
+     * @param ...$fArgs
+     * @return false|resource
+     * @throws \RuntimeException on error.
+     */
+    private function fopen(...$fArgs)
+    {
+        set_error_handler(function ($errorNo, $errorStr) {
+            throw new RuntimeException('Failed to open stream: ' . $errorStr, $errorNo);
+        });
+        try {
+            $this->resource = fopen(...$fArgs);
+        } finally {
+            restore_error_handler();
+        }
+        return $this->resource;
     }
 }

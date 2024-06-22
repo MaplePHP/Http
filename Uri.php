@@ -53,11 +53,11 @@ class Uri implements UriInterface
         } else {
             $this->parts = parse_url($uri);
         }
-        $this->pollyfill();
+        $this->polyfill();
         $this->fillParts();
     }
 
-    protected function pollyfill()
+    protected function polyfill()
     {
         $this->scheme = "http";
         $this->host = "localhost";

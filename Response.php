@@ -215,7 +215,7 @@ class Response extends Message implements ResponseInterface
     public function location(string $url, int $statusCode = 302): void
     {
         if ($statusCode !== 301 && $statusCode !== 302) {
-            throw new \Exception("The second argumnet (statusCode) is expecting 301 or 302", 1);
+            throw new \Exception("The second argument (statusCode) is expecting 301 or 302", 1);
         }
         $this->withStatus($statusCode)
         ->withHeader("Location", $url)
@@ -225,7 +225,7 @@ class Response extends Message implements ResponseInterface
 
 
     /**
-     * Create headers createHeaders will only be exeuted once per instancse
+     * Create headers createHeaders will only be executed once per instance
      * @return void
      */
     public function createHeaders(): void

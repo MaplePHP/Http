@@ -41,7 +41,7 @@ class Headers implements HeadersInterface
 
     /**
      * Check is a header exists
-     * @param  string  $name Header name/key (case insensitive)
+     * @param  string  $name Header name/key (case-insensitive)
      * @return boolean
      */
     public function hasHeader($name): bool
@@ -73,12 +73,13 @@ class Headers implements HeadersInterface
 
     /**
      * Delete header from name/key
-     * @param  string $name name/key (case insensitive)
+     * @param  string $name name/key (case-insensitive)
      * @return bool
      */
-    public function deleteHeader($name): bool
+    public function deleteHeader(string $name): bool
     {
         if ($this->hasHeader($name)) {
+            $name = $this->normalizeKey($name);
             unset($this->headers[$name]);
             return true;
         }

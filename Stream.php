@@ -24,14 +24,14 @@ class Stream implements StreamInterface
     private const READABLE_MATCH = '/r|a\+|ab\+|w\+|wb\+|x\+|xb\+|c\+|cb\+/';
     private const WRITABLE_MATCH = '/a|w|r\+|rb\+|rw|x|c/';
 
-    private $stream;
-    private $permission;
-    private $resource;
-    private $size;
-    private $meta = array();
-    private $readable;
-    private $writable;
-    private $seekable;
+    private mixed $stream;
+    private string $permission;
+    private mixed $resource;
+    private ?int $size = null;
+    private array $meta;
+    private bool $readable;
+    private bool $writable;
+    private bool $seekable;
 
     /**
      * PSR-7 Stream
@@ -47,11 +47,11 @@ class Stream implements StreamInterface
         if (is_resource($stream)) {
             $this->resource = $stream;
             $this->meta = $this->getMetadata();
-
-            if (is_null($this->meta)) {
-                throw new RuntimeException("Could not access the stream meta data.", 1);
+            /*
+             if (is_null($this->meta)) {
+                throw new RuntimeException("Could not access the stream metadata.", 1);
             }
-
+            */
             $this->stream = $this->meta['stream_type'];
             $this->permission = $this->meta['mode'];
         } else {
@@ -112,7 +112,7 @@ class Stream implements StreamInterface
     }
 
     /**
-     * Returns whether or not the stream is seekable.
+     * Returns whether the stream is seekable.
      * @return bool
      */
     public function isSeekable(): bool
@@ -121,7 +121,7 @@ class Stream implements StreamInterface
     }
 
     /**
-     * Returns whether or not the stream is writable.
+     * Returns whether the stream is writable.
      * @return bool
      */
     public function isWritable(): bool
@@ -130,7 +130,7 @@ class Stream implements StreamInterface
     }
 
     /**
-     * Returns whether or not the stream is readable.
+     * Returns whether the stream is readable.
      * @return bool
      */
     public function isReadable(): bool
@@ -159,14 +159,14 @@ class Stream implements StreamInterface
     public function getSize(): ?int
     {
         $size = $this->stats('size');
-        $this->size = isset($size) ? $size : null;
+        $this->size = $size ?? null;
         return $this->size;
     }
 
     /**
      * Returns the current position of the file read/write pointer
      * @return int Position of the file pointer
-     * @throws \RuntimeException on error.
+     * @throws RuntimeException on error.
      */
     public function tell(): int
     {
@@ -189,7 +189,7 @@ class Stream implements StreamInterface
      */
     public function eof(): bool
     {
-        return (is_resource($this->resource)) ? feof($this->resource) : true;
+        return !(is_resource($this->resource)) || feof($this->resource);
     }
 
     /**
@@ -210,14 +210,14 @@ class Stream implements StreamInterface
      *     PHP $whence values for `fseek()`.  SEEK_SET: Set position equal to
      *     offset bytes SEEK_CUR: Set position to current location plus offset
      *     SEEK_END: Set position to end-of-stream plus offset.
-     * @throws \RuntimeException on failure.
+     * @throws RuntimeException on failure.
      */
     public function seek($offset, $whence = SEEK_SET): void
     {
         if ($this->isSeekable()) {
             fseek($this->resource, $offset, $whence);
         } else {
-            throw new RuntimeException("The stream \"{$this->stream} ({$this->permission})\" is not seekable!", 1);
+            throw new RuntimeException("The stream \"$this->stream ($this->permission)\" is not seekable!", 1);
         }
     }
 
@@ -225,9 +225,9 @@ class Stream implements StreamInterface
      * Seek to the beginning of the stream.
      * If the stream is not seekable, this method will raise an exception;
      * otherwise, it will perform a seek(0).
+     * @throws RuntimeException on failure.
+     *@link http://www.php.net/manual/en/function.fseek.php
      * @see seek()
-     * @link http://www.php.net/manual/en/function.fseek.php
-     * @throws \RuntimeException on failure.
      */
     public function rewind(): void
     {
@@ -244,8 +244,7 @@ class Stream implements StreamInterface
         if (is_null($this->size)) {
             $this->size = 0;
         }
-        $byte = fwrite($this->resource, $string);
-        return $byte;
+        return fwrite($this->resource, $string);
     }
 
     /**
@@ -264,7 +263,7 @@ class Stream implements StreamInterface
     /**
      * Returns the remaining contents in a string
      * @return string
-     * @throws \RuntimeException if unable to read or an error occurs while reading.
+     * @throws RuntimeException if unable to read or an error occurs while reading.
      */
     public function getContents(): string
     {
@@ -276,7 +275,7 @@ class Stream implements StreamInterface
 
     /**
      * Get stream metadata as an associative array or retrieve a specific key.
-     * @param string $key Specific metadata to retrieve.
+     * @param string|null $key Specific metadata to retrieve.
      * @return array|mixed|null Returns an associative array
      */
     public function getMetadata(?string $key = null): mixed
@@ -305,7 +304,7 @@ class Stream implements StreamInterface
      * Open a resource correct with the right resource
      * @param ...$fArgs
      * @return false|resource
-     * @throws \RuntimeException on error.
+     * @throws RuntimeException on error.
      */
     private function fopen(...$fArgs)
     {

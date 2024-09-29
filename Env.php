@@ -9,10 +9,10 @@ use MaplePHP\DTO\Format;
 
 class Env
 {
-    private $fileData = array();
-    private $data = array();
-    private $set = array();
-    private $drop = array();
+    private $fileData = [];
+    private $data = [];
+    private $set = [];
+    private $drop = [];
 
     public function __construct(?string $file = null)
     {
@@ -65,7 +65,7 @@ class Env
     {
         $out = "";
 
-        $data = array();
+        $data = [];
         $validData = ["data", "fileData", "set"];
         foreach ($validData as $d) {
             if (in_array($d, $fromArr)) {

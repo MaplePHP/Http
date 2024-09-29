@@ -6,7 +6,7 @@ use MaplePHP\Http\Interfaces\HeadersInterface;
 
 class Headers implements HeadersInterface
 {
-    protected $headers = array();
+    protected $headers = [];
 
     private static $getGlobalHeaders;
 
@@ -110,7 +110,7 @@ class Headers implements HeadersInterface
         if (!$skip && function_exists("getallheaders")) {
             static::$getGlobalHeaders = getallheaders();
         } else {
-            static::$getGlobalHeaders = array();
+            static::$getGlobalHeaders = [];
             foreach ($_SERVER as $key => $value) {
                 if (substr($key, 0, 5) <> 'HTTP_') {
                     continue;

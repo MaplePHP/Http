@@ -10,7 +10,7 @@ use MaplePHP\Http\Interfaces\HeadersInterface;
 
 class Response extends Message implements ResponseInterface
 {
-    public const PHRASE = array(
+    public const PHRASE = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         102 => 'Processing',
@@ -71,7 +71,7 @@ class Response extends Message implements ResponseInterface
         507 => 'Insufficient Storage',
         510 => 'Not Extended',
         511 => 'Network Authentication Required',
-    );
+    ];
 
     private $statusCode = 200;
     private $phrase;

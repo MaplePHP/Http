@@ -39,7 +39,7 @@ interface CookiesInterface
      * @return self
      */
     public function setSameSite(string $samesite): self;
-    
+
     /**
      * Set cookie
      * @param string $name
@@ -56,12 +56,12 @@ interface CookiesInterface
      */
     public function has(string $name): bool;
 
-     /**
-     * Get cookie
-     * @param  string      $name
-     * @param  string|null $default
-     * @return string|null
-     */
+    /**
+    * Get cookie
+    * @param  string      $name
+    * @param  string|null $default
+    * @return string|null
+    */
     public function get(string $name, ?string $default = null): ?string;
 
     /**

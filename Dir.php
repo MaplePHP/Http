@@ -12,7 +12,7 @@ class Dir implements DirInterface
     private $dir;
     private $getRootDir;
     private $handler;
-    
+
 
     public function __construct($dir, ?string $getRootDir = null)
     {

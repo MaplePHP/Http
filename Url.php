@@ -61,7 +61,7 @@ class Url implements UrlInterface
 
 
         $inst = clone $this;
-        $parts = $vars = array();
+        $parts = $vars = [];
         foreach ($inst->parts as $sel => $row) {
             if (in_array($sel, $type)) {
                 if (is_array($row)) {
@@ -158,7 +158,7 @@ class Url implements UrlInterface
     /**
      * Extract and get directories from the simulated htaccess path
      * @return string
-     */    
+     */
     public function getDirPath(): string
     {
         if (is_null($this->dirPath)) {
@@ -282,7 +282,7 @@ class Url implements UrlInterface
         if ($host = $this->getHost()) {
             $url .= "//{$host}";
         }
-        
+
         // Do not show standard ports becouse they are not needed.
         if (($port = $this->getPort()) && $port !== 80 && $port !== 443) {
             $url .= ":{$port}";
@@ -348,7 +348,7 @@ class Url implements UrlInterface
     {
         if (!is_null($this->handler) && method_exists($this->handler, $method)) {
             return call_user_func_array([$this->handler, $method], $args);
-        } else if (method_exists($this->uri, $method)) {
+        } elseif (method_exists($this->uri, $method)) {
             return call_user_func_array([$this->uri, $method], $args);
         } else {
             throw new \BadMethodCallException("The method ({$method}) does not exist in \"".__CLASS__."\" (UrlInterface or UriInterface).", 1);

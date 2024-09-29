@@ -73,7 +73,7 @@ interface ResponseInterface extends MessageInterface
      * But is used by the framework
      *
      */
-    
+
     /**
      * Clear cache. No exceptions!
      * Out of security reasons it is actually good practice to call this BY default on a framework

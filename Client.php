@@ -53,7 +53,7 @@ class Client implements ClientInterface
     {
         return (isset($this->options[$key]));
     }
-    
+
     /**
      * Sends a PSR-7 request and returns a PSR-7 response.
      * @param  RequestInterface $request
@@ -232,7 +232,7 @@ class Client implements ClientInterface
      */
     private function buildHeaders(RequestInterface $request): void
     {
-        $data = array();
+        $data = [];
         foreach ($request->getHeaders() as $name => $_unUsedVal) {
             $data[] = "{$name}: " . $request->getHeaderLine($name);
         }

@@ -101,7 +101,7 @@ abstract class Message implements MessageInterface
      */
     public function getHeaderLineData(string $name): array
     {
-        $this->headerLine = array();
+        $this->headerLine = [];
         if ($this->hasHeader($name)) {
             $headerArr = $this->getHeader($name);
             foreach ($headerArr as $key => $val) {

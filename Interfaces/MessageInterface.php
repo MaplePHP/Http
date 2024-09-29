@@ -161,7 +161,7 @@ interface MessageInterface
      * But is used by the framework
      *
      */
-    
+
     /**
      * Get header value data items
      * @param  string $name name/key (case insensitive)

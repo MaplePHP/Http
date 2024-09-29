@@ -6,7 +6,6 @@ use MaplePHP\Http\Interfaces\RequestInterface;
 use MaplePHP\Http\Interfaces\UriInterface;
 use MaplePHP\Http\Interfaces\HeadersInterface;
 use MaplePHP\Http\Interfaces\StreamInterface;
-use MaplePHP\Http\Uri;
 
 class Request extends Message implements RequestInterface
 {
@@ -119,8 +118,7 @@ class Request extends Message implements RequestInterface
     public function getPort(): int
     {
         $serverPort = $this->env->get("SERVER_PORT");
-        $port = (int)(($serverPort) ? $serverPort : $this->uri->getPort());
-        return $port;
+        return (int)(($serverPort) ? $serverPort : $this->uri->getPort());
     }
 
     /**
@@ -135,7 +133,7 @@ class Request extends Message implements RequestInterface
     }
 
     /**
-     * This will resolve the Request Stream and make the call user friendly
+     * This will resolve the Request Stream and make the call user-friendly
      * @param  StreamInterface|array|string|null $body
      * @return StreamInterface
      */
@@ -156,18 +154,18 @@ class Request extends Message implements RequestInterface
         return $stream;
     }
 
-     /**
-     * Get Cli keyword
-     * @return string|null
-     */
+    /**
+    * Get Cli keyword
+    * @return string|null
+    */
     public function getCliKeyword(): ?string
     {
         if (is_null($this->cliKeywords)) {
-            $new = array();
+            $new = [];
             $arg = $this->getUri()->getArgv();
             foreach ($arg as $val) {
                 if (is_string($val)) {
-                    if ((strpos($val, "--") === 0) || (strpos($val, "-") === 0)) {
+                    if ((str_starts_with($val, "--")) || (str_starts_with($val, "-"))) {
                         break;
                     } else {
                         $new[] = $val;
@@ -189,11 +187,11 @@ class Request extends Message implements RequestInterface
     {
         if (is_null($this->cliArgs)) {
             $args = $this->getUri()->getArgv();
-            $this->cliArgs = array();
+            $this->cliArgs = [];
             foreach ($args as $arg) {
                 if (is_string($arg)) {
                     $arg = str_replace("&", "#", $arg);
-                    if ((($pos1 = strpos($arg, "--")) === 0) || (strpos($arg, "-") === 0)) {
+                    if ((($pos1 = strpos($arg, "--")) === 0) || (str_starts_with($arg, "-"))) {
                         parse_str(substr($arg, ($pos1 !== false ? 2 : 1)), $result);
                         foreach ($result as &$val) {
                             $val = str_replace("#", "&", $val);

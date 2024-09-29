@@ -9,7 +9,7 @@ use MaplePHP\Http\Stream;
 
 class ServerRequest extends Request implements ServerRequestInterface
 {
-    protected $attr = array();
+    protected $attr = [];
     protected $env;
     protected $queryParams;
     protected $parsedBody;

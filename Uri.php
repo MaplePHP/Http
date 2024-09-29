@@ -23,7 +23,7 @@ class Uri implements UriInterface
         'ldap' => 389,
     ];
 
-    private $parts = array();
+    private $parts = [];
     private $scheme;
     //private $uri;
     private $host;
@@ -214,7 +214,9 @@ class Uri implements UriInterface
     {
         if ($val = $this->getUniquePart("path")) {
             $this->encoded['path'] = Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
-            if($this->encoded['path']) $this->encoded['path'] = "/".ltrim($this->encoded['path'], "/");
+            if($this->encoded['path']) {
+                $this->encoded['path'] = "/".ltrim($this->encoded['path'], "/");
+            }
         }
         return (string)$this->encoded['path'];
     }

@@ -36,7 +36,7 @@ class Environment implements EnvironmentInterface
     {
         return (bool)($this->get($key, null));
     }
-    
+
     /**
      * Return all env
      * @return array
@@ -52,7 +52,7 @@ class Environment implements EnvironmentInterface
      */
     public function getUriParts(array $add = []): array
     {
-        $arr = array();
+        $arr = [];
         $arr['scheme'] = ($this->get("HTTPS") === 'on') ? 'https' : 'http';
         $arr['user'] = $this->get("PHP_AUTH_USER");
         $arr['pass'] = $this->get("PHP_AUTH_PW");

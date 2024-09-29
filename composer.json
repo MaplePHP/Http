@@ -1,5 +1,6 @@
 {
     "name": "maplephp/http",
+    "version": "v1.0.6",
     "type": "library",
     "description": "The library is fully integrated with PSR-7 Http Message and designed for use with MaplePHP framework.",
     "keywords": ["psr7", "http", "message", "http message", "server", "request", "client", "upload", "stream", "headers"],
@@ -18,6 +19,9 @@
     "require": {
         "php": ">=8.0",
         "maplephp/dto": "^1.0"
+    },
+    "require-dev": {
+        "maplephp/unitary": "^1.0"
     },
     "autoload": {
         "psr-4": {

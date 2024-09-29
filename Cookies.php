@@ -35,7 +35,7 @@ class Cookies implements CookiesInterface
         $this->secure = $secure;
         $this->httpOnly = $httpOnly;
     }
-    
+
     /**
      * Set cookie allowed path
      * @param string $path URI Path

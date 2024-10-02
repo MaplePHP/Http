@@ -29,7 +29,7 @@
   ],
   "require": {
     "php": ">=8.0",
-    "maplephp/dto": "^1.0"
+    "maplephp/dto": "^2.0"
   },
   "require-dev": {
     "maplephp/unitary": "^1.0"

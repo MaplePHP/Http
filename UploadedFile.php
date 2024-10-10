@@ -39,8 +39,14 @@ class UploadedFile implements UploadedFileInterface
      *          StreamInterface
      *          (string) FilePath/php stream
      */
-    public function __construct($stream)
+    public function __construct(StreamInterface|array|string $stream, mixed ...$vars)
     {
+
+        if(count($vars) > 0 && is_string($stream)) {
+            array_unshift($vars, $stream);
+            $stream = array_combine(['name', 'type', 'tmp_name', 'error', 'size'], $vars);
+        }
+
         if ($stream instanceof StreamInterface) {
             $this->stream = $stream;
         } elseif (isset($stream['tmp_name'])) {
@@ -52,7 +58,7 @@ class UploadedFile implements UploadedFileInterface
         } elseif (is_string($stream)) {
             $this->stream = $this->withStream($stream);
         } else {
-            throw new RuntimeException("The stream argument is not a valid resource", 1);
+            throw new RuntimeException("Could not validate arguments for the upload stream", 1);
         }
     }
 

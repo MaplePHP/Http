@@ -1,125 +1,253 @@
+
+
 # MaplePHP - A Full-Featured PSR-7 Compliant HTTP Library
-MaplePHP/Http is a PHP library that brings simplicity and adherence to the PSR-7 standard into handling HTTP messages, requests, and responses within your web projects. It's thoughtfully designed to make the integration of crucial elements like Stream, Client, Cookies, UploadedFile, and Headers straightforward and efficient.
 
-By aligning closely with PSR-7, MaplePHP/Http facilitates better interoperability between web components, allowing for more effective communication within applications. Whether you're working with client-side cookies, managing headers in a request, or handling file uploads through UploadedFile, this library has got you covered, making these tasks more manageable and less time-consuming.
+**MaplePHP/Http** is a powerful and easy-to-use PHP library that fully supports the PSR-7 HTTP message interfaces. It simplifies handling HTTP requests, responses, streams, URIs, and uploaded files, making it an excellent choice for developers who want to build robust and interoperable web applications.
 
-MaplePHP/Http aims to support your web development by offering a reliable foundation for working with HTTP messaging, streamlining the process of dealing with requests and responses. It's a practical choice for developers looking to enhance their applications with PSR-7 compliant HTTP handling in a user-friendly way.
+With MaplePHP, you can effortlessly work with HTTP messages while adhering to modern PHP standards, ensuring compatibility with other PSR-7 compliant libraries.
 
+## Why Choose MaplePHP?
+
+- **Full PSR-7 Compliance**: Seamlessly integrates with other PSR-7 compatible libraries and frameworks.
+- **User-Friendly API**: Designed with developers in mind for an intuitive and straightforward experience.
+- **Comprehensive Functionality**: Handles all aspects of HTTP messaging, including requests, responses, streams, URIs, and file uploads.
+- **Flexible and Extensible**: Easily adapts to projects of any size and complexity.
 
 ## Installation
 
-```
+Install MaplePHP via Composer:
+
+```bash
 composer require maplephp/http
 ```
 
-## Initialize
-The **examples** below is utilizing the "namespace" below just to more easily demonstrate the guide.
-
-```php
-use MaplePHP\Http;
-```
 
 
-## Request
+### Handling HTTP Requests
+
+#### Creating a Server Request
+
+To create a server request, use the `ServerRequest` class:
 
 ```php
-$request = new Http\ServerRequest(UriInterface $uri, EnvironmentInterface $env);
-```
-####  Get request method
-```php
-echo $request->getMethod(); // GET, POST, PUT, DELETE
-```
-####  Get Uri instance
-```php
-$uri = $request->getUri(); // UriInterface
-echo $uri->getScheme(); // https
-echo $uri->getAuthority(); // [userInfo@]host[:port]
-echo $uri->getUserInfo(); // username:password
-echo $uri->getHost(); // example.com, staging.example.com, 127.0.0.1, localhost
-echo $uri->getPort(); // 443
-echo $uri->getPath(); // /about-us/workers
-echo $uri->getQuery(); // page-id=12&filter=2
-echo $uri->getFragment(); // anchor-12 (The anchor hash without "#")
-echo $uri->getUri(); // Get the full URI
-```
-## Response
-Only the **(StreamInterface) Body** attribute is required and the rest will auto propagate if you leave them be.
-```php
-$response = new Http\Response(
-	StreamInterface $body,
-    ?HeadersInterface $headers = null,
-    int $status = 200,
-    ?string $phrase = null,
-    ?string $version = null
-);
-```
-####  Get Status code
-```php
-echo $response->getStatusCode(); // 200
-```
-####  Get Status code
-```php
-$newInst = $response->withStatus(404);
-echo $newInst->getStatusCode(); // 404
-echo $newInst->getReasonPhrase(); // Not Found
-```
-## Message
-Both Request and Response library will inherit methods under Message but with different information.
-```php
-echo $response->getProtocolVersion(); // 1.1
-echo $response->getHeaders(); // Array with all headers
-echo $response->hasHeader("Content-Length"); // True
-echo $response->getHeader("Content-Length"); // 1299
-echo $response->getBody(); // StreamInterface
+use MaplePHP\Http\ServerRequest;
+use MaplePHP\Http\Uri;
+use MaplePHP\Http\Environment;
+
+// Create an environment instance (wraps $_SERVER)
+$env = new Environment();
+
+// Create a URI instance from the environment
+$uri = new Uri($env->getUriParts());
+
+// Create the server request
+$request = new ServerRequest($uri, $env);
 ```
 
-## A standard example usage
+#### Accessing Request Data
+
+You can easily access various parts of the request:
+
 ```php
-$stream = new Http\Stream(Http\Stream::TEMP);
-$response = new Http\Response($stream);
-$env = new Http\Environment();
-$request = new Http\ServerRequest(new Http\Uri($env->getUriParts()), $env);
+// Get the HTTP method
+$method = $request->getMethod(); // e.g., GET, POST
+
+// Get request headers
+$headers = $request->getHeaders();
+
+// Get a specific header
+$userAgent = $request->getHeaderLine('User-Agent');
+
+// Get query parameters
+$queryParams = $request->getQueryParams();
+
+// Get parsed body (for POST requests)
+$parsedBody = $request->getParsedBody();
+
+// Get uploaded files
+$uploadedFiles = $request->getUploadedFiles();
+
+// Get server attributes
+$attributes = $request->getAttributes();
 ```
 
-## Stream
-None of the construct attributes are required and will auto propagate if you leave them be.
-```php
-$stream = new Http\Stream(
-	(mixed) Stream
-	(string) permission
-);
-```
-### Basic stream examples
+#### Modifying the Request
 
-#### Write to stream
+Requests are immutable; methods that modify the request return a new instance:
+
 ```php
-$stream = new Http\Stream(Http\Stream::TEMP);
-if ($stream->isSeekable()) {
-    $stream->write("Hello world");
-    //echo $stream; // will print Hello world
-    // Or
-    $stream->rewind();
-    echo $stream->getContents(); // Hello world
-    // Or Same as above
-    //echo $stream->read($stream->getSize());
+// Add a new header
+$newRequest = $request->withHeader('X-Custom-Header', 'MyValue');
+
+// Change the request method
+$newRequest = $request->withMethod('POST');
+
+// Add an attribute
+$newRequest = $request->withAttribute('user_id', 123);
+```
+
+### Managing HTTP Responses
+
+#### Creating a Response
+
+Create a response using the `Response` class:
+
+```php
+use MaplePHP\Http\Response;
+use MaplePHP\Http\Stream;
+
+// Create a stream for the response body
+$body = new Stream('php://temp', 'rw');
+
+// Write content to the body
+$body->write('Hello, world!');
+$body->rewind();
+
+// Create the response with the body
+$response = new Response($body);
+```
+
+#### Setting Status Codes and Headers
+
+You can set the HTTP status code and headers:
+
+```php
+// Set the status code to 200 OK
+$response = $response->withStatus(200);
+
+// Add headers
+$response = $response->withHeader('Content-Type', 'text/plain');
+
+// Add multiple headers
+$response = $response->withAddedHeader('X-Powered-By', 'MaplePHP');
+```
+
+#### Sending the Response
+
+To send the response to the client:
+
+```php
+// Output headers
+foreach ($response->getHeaders() as $name => $values) {
+    foreach ($values as $value) {
+        header(sprintf('%s: %s', $name, $value), false);
+    }
 }
+
+// Output status line
+header(sprintf(
+    'HTTP/%s %s %s',
+    $response->getProtocolVersion(),
+    $response->getStatusCode(),
+    $response->getReasonPhrase()
+));
+
+// Output body
+echo $response->getBody();
 ```
 
-#### Get file content with stream
+### Working with Streams
+
+Streams are used for the message body in requests and responses.
+
+#### Creating a Stream
+Reading and Writing with stream
+
 ```php
-$stream = new Http\Stream("/var/www/html/YourApp/dir/dir/data.json");
-echo $stream->getContents();
+use MaplePHP\Http\Stream;
+
+// Create a stream from a file
+//$fileStream = new Stream('/path/to/file.txt', 'r');
+
+// Create a stream from a string
+$memoryStream = new Stream(Stream::MEMORY);
+//$memoryStream = new Stream('php://memory', 'r+'); // Same as above
+$memoryStream->write('Stream content');
+
+// Write to the stream
+$memoryStream->write(' More content');
+
+// Read from the stream
+$memoryStream->rewind();
+echo $memoryStream->getContents();
+// Result: 'Stream content More content'
 ```
 
-#### Upload a stream to the server
+
+#### Using Streams in Requests and Responses
+
 ```php
-$upload = new Http\UploadedFile($stream);
-$upload->moveTo("/var/www/html/upload/log.txt"); // Place Hello world in txt file
+// Set stream as the body of a response
+$response = $response->withBody($memoryStream);
 ```
 
-### Create a request
-The client will be using curl, so it's essential to ensure that it is enabled in case it has been disabled for any reason.
+### Manipulating URIs
+
+URIs are used to represent resource identifiers.
+
+#### Creating and Modifying URIs
+
 ```php
+// Create a URI instance
+$uri = new Uri('http://example.com:8000/path?query=value#fragment');
+
+// Modify the URI
+$uri = $uri->withScheme('https')
+            ->withUserInfo('guest', 'password123')
+            ->withHost('example.org')
+            ->withPort(8080)
+            ->withPath('/new-path')
+            ->withQuery('query=newvalue')
+            ->withFragment('section1');
+
+// Convert URI to string
+echo $uri; // Outputs the full URI
+//Result: https://guest:password123@example.org:8080/new-path?query=newvalue#section1
+```
+
+#### Accessing URI Components
+
+```php
+echo $uri->getScheme();     // 'http'
+echo $uri->getUserInfo();   // 'guest:password123'
+echo $uri->getHost();       // 'example.org'
+echo $uri->getPath();       // '/new-path'
+echo $uri->getQuery();      // 'key=newvalue'
+echo $uri->getFragment();   // 'section1'
+echo $uri->getAuthority();  // 'guest:password123@example.org:8080'
+```
+
+### Handling Uploaded Files
+
+Manage file uploads with ease using the `UploadedFile` class.
+
+#### Accessing Uploaded Files
+
+```php
+// Get uploaded files from the request
+$uploadedFiles = $request->getUploadedFiles();
+
+// Access a specific uploaded file
+$uploadedFile = $uploadedFiles['file_upload'];
+
+// Get file details
+$clientFilename = $uploadedFile->getClientFilename();
+$clientMediaType = $uploadedFile->getClientMediaType();
+
+// Move the uploaded file to a new location
+$uploadedFile->moveTo('/path/to/uploads/' . $clientFilename);
+```
+
+### Using the HTTP Client
+
+Send HTTP requests using the built-in HTTP client.
+
+#### Sending a Request
+
+```php
+use MaplePHP\Http\Client;
+use MaplePHP\Http\Request;
+
 // Init request client
 $client = new Http\Client([CURLOPT_HTTPAUTH => CURLAUTH_DIGEST]); // Pass on Curl options
 
@@ -133,7 +261,20 @@ $request = new Http\Request(
 
 // Pass request data to client and POST
 $response = $client->sendRequest($request);
-
-// Get Stream data
-var_dump($response->getBody()->getContents());
+if ($response->getStatusCode() === 200) {
+    // Parse the response body
+    $data = json_decode($response->getBody()->getContents(), true);
+    // Use the data
+    echo 'User Name: ' . $data['name'];
+} else {
+    echo 'Error: ' . $response->getReasonPhrase();
+}
 ```
+
+## Conclusion
+
+**MaplePHP/Http** is a comprehensive library that makes working with HTTP in PHP a breeze. Its full PSR-7 compliance ensures that your applications are built on solid, modern standards, promoting interoperability and maintainability.
+
+Whether you're handling incoming requests, crafting responses, manipulating URIs, working with streams, or managing file uploads, MaplePHP provides a clean and intuitive API that simplifies your development process.
+
+Get started today and enhance your PHP applications with MaplePHP!

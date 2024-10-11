@@ -249,10 +249,10 @@ use MaplePHP\Http\Client;
 use MaplePHP\Http\Request;
 
 // Init request client
-$client = new Http\Client([CURLOPT_HTTPAUTH => CURLAUTH_DIGEST]); // Pass on Curl options
+$client = new Client([CURLOPT_HTTPAUTH => CURLAUTH_DIGEST]); // Pass on Curl options
 
 // Create request data
-$request = new Http\Request(
+$request = new Request(
     "POST", // The HTTP Method (GET, POST, PUT, DELETE, PATCH)
     "https://admin:mypass@example.com:443/test.php", // The Request URI
     ["customHeader" => "lorem"], // Add Headers, empty array is allowed

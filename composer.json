@@ -1,8 +1,8 @@
 {
   "name": "maplephp/http",
-  "version": "v1.2.0",
+  "version": "v1.2.1",
   "type": "library",
-  "description": "The library is fully integrated with PSR-7 Http Message and designed for use with MaplePHP framework.",
+  "description": "MaplePHP/Http is a powerful and easy-to-use PHP library that fully supports the PSR-7 HTTP message interfaces.",
   "keywords": [
     "psr7",
     "http",

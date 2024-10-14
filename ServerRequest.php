@@ -28,7 +28,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         $this->attr = [
             "env" => $this->env->fetch(),
             "cookies" => $_COOKIE,
-            "files" => $_FILES
+            "files" => $this->normalizeFiles($_FILES)
         ];
     }
 
@@ -321,6 +321,57 @@ class ServerRequest extends Request implements ServerRequestInterface
         $inst = clone $this;
         unset($inst->attr[$name]);
         return $inst;
+    }
+
+    /**
+     * This will normalize/flatten the a file Array
+     * @param  array  $file
+     * @return array
+     */
+    protected function normalizeFiles(array $files): array
+    {
+        $normalized = [];
+
+        foreach ($files as $key => $file) {
+            if (is_array($file['error'])) {
+                $normalized[$key] = $this->normalizeFileArray($file);
+            } else {
+                $normalized[$key] = new UploadedFile($file);
+            }
+        }
+        return $normalized;
+    }
+
+    /**
+     * This will normalize/flatten the a multi-level file Array
+     * @param  array  $file
+     * @return array
+     */
+    protected function normalizeFileArray(array $file): array
+    {
+        $normalized = [];
+
+        foreach ($file['error'] as $key => $error) {
+            if (is_array($error)) {
+                $normalized[$key] = $this->normalizeFileArray([
+                    'name'     => $file['name'][$key],
+                    'type'     => $file['type'][$key],
+                    'tmp_name' => $file['tmp_name'][$key],
+                    'error'    => $file['error'][$key],
+                    'size'     => $file['size'][$key]
+                ]);
+            } else {
+                $normalized[$key] = new UploadedFile(
+                    $file['name'][$key],
+                    $file['type'][$key],
+                    $file['tmp_name'][$key],
+                    $file['error'][$key],
+                    $file['size'][$key]
+                );
+            }
+        }
+
+        return $normalized;
     }
 
 

@@ -61,7 +61,7 @@ class Uri implements UriInterface
     {
         $this->scheme = "http";
         $this->host = "localhost";
-        $this->port = 80;
+        $this->port = null;
         $this->user = "";
         $this->pass = "";
         $this->path = "";

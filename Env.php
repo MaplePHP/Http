@@ -57,8 +57,8 @@ class Env
 
     public function formatKey($key)
     {
-        return Format\Str::value($key)->clearBreaks()->trim()->replaceSpecialChar()
-                ->trimSpaces()->replaceSpaces("-")->toUpper()->get();
+        return Format\Str::value($key)->clearBreaks()->trim()->normalizeAccents()
+                ->normalizeSeparators()->replaceSpaces("-")->toUpper()->get();
     }
 
     public function generateOutput(array $fromArr = ["data", "fileData", "set"])

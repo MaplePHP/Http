@@ -213,7 +213,10 @@ class Uri implements UriInterface
     public function getPath(): string
     {
         if ($val = $this->getUniquePart("path")) {
-            $this->encoded['path'] = Format\Str::value($val)->toggleUrlencode(['%2F'], ['/'])->get();
+            $this->encoded['path'] = Format\Str::value($val)
+                ->normalizeUrlEncoding()
+                ->replace(['%2F'], ['/'])
+                ->get();
             if($this->encoded['path']) {
                 $this->encoded['path'] = "/".ltrim($this->encoded['path'], "/");
             }
@@ -229,8 +232,9 @@ class Uri implements UriInterface
     {
         if ($val = $this->getUniquePart("query")) {
             $this->encoded['query'] = Format\Str::value($val)
-            ->toggleUrlencode(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])
-            ->get();
+                ->normalizeUrlEncoding()
+                ->replace(['%3D', '%26', '%5B', '%5D'], ['=', '&', '[', ']'])
+                ->get();
         }
         return (string)$this->encoded['query'];
     }

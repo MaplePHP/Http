@@ -1,20 +1,30 @@
 <?php
 
+use MaplePHP\Http\Environment;
+use MaplePHP\Http\Request;
+use MaplePHP\Http\ServerRequest;
+use MaplePHP\Http\ServerRequestTest;
+use MaplePHP\Http\Uri;
+use MaplePHP\Http\UriTest;
+use MaplePHP\Unitary\Mocker\MethodPool;
+use MaplePHP\Unitary\TestCase;
+
 $unit = new MaplePHP\Unitary\Unit();
 
 // If you build your library right it will become very easy to mock, like I have below.
 
 // Begin by adding a test
-$unit->case("MaplePHP Request URI path test", function() {
-    $request = new MaplePHP\Http\Request(
+$unit->case("MaplePHP Request URI path test", function(TestCase $inst) {
+
+    $request = new Request(
         "POST", // The HTTP Method (GET, POST, PUT, DELETE, PATCH)
         "https://admin:mypass@example.com:65535/test.php?id=5221&place=stockholm", // The Request URI
         ["Content-Type" => "application/x-www-form-urlencoded"], // Add Headers, empty array is allowed
         ["email" => "john.doe@example.com"] // Post data
     );
 
-    $this->add($request->getMethod(), function() {
-        return $this->equal("POST");
+    $inst->add($request->getMethod(), function() {
+        return $this->equal("GET");
 
     }, "HTTP Request method Type is not POST");
     // Adding an error message is not required, but it is highly recommended

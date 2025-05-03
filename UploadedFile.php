@@ -42,7 +42,7 @@ class UploadedFile implements UploadedFileInterface
     public function __construct(StreamInterface|array|string $stream, mixed ...$vars)
     {
 
-        if(count($vars) > 0 && is_string($stream)) {
+        if (count($vars) > 0 && is_string($stream)) {
             array_unshift($vars, $stream);
             $stream = array_combine(['name', 'type', 'tmp_name', 'error', 'size'], $vars);
         }

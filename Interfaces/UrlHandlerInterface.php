@@ -1,4 +1,5 @@
 <?php
+
 /**
  * UrlHandlerInterface
  * Is used to extend upon the Url instance with more url methods

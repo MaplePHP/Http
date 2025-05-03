@@ -25,14 +25,13 @@ class Uri implements UriInterface
 
     private $parts = [];
     private $scheme;
-    //private $uri;
     private $host;
     private $port;
     private $user;
     private $pass;
     private $path;
     private $query;
-    private $fragment; // Anchor/after hash
+    private $fragment;
     private $dir;
     private $rootDir;
     private $userInfo;
@@ -40,7 +39,6 @@ class Uri implements UriInterface
     private $argv;
     private $encoded;
     private $build;
-
 
     /**
      * URI in parts
@@ -169,7 +167,7 @@ class Uri implements UriInterface
     public function getHost(): string
     {
         if ($val = $this->getUniquePart("host")) {
-            if(($pos = strpos($val, ":")) !== false) {
+            if (($pos = strpos($val, ":")) !== false) {
                 $val = substr($val, 0, $pos);
             }
             $this->encoded['host'] = Format\Str::value($val)->tolower()->get();
@@ -217,7 +215,7 @@ class Uri implements UriInterface
                 ->normalizeUrlEncoding()
                 ->replace(['%2F'], ['/'])
                 ->get();
-            if($this->encoded['path']) {
+            if ($this->encoded['path']) {
                 $this->encoded['path'] = "/".ltrim($this->encoded['path'], "/");
             }
         }

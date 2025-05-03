@@ -57,7 +57,7 @@ class Dir implements DirInterface
      */
     public function getLogs(string $path = ""): string
     {
-        if(!is_null($this->handler)) {
+        if (!is_null($this->handler)) {
             return $this->handler->getLogs($path);
         }
         return $this->getRoot("storage/logs/" . $path);

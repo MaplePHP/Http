@@ -1,4 +1,5 @@
 <?php
+
 /**
  * DirHandlerInterface
  * Is used to extend upon the Dir instance with more dir methods

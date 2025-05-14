@@ -40,7 +40,7 @@ class Stream implements StreamInterface
      */
     public function __construct(mixed $stream = null, string $permission = "r+")
     {
-        if (is_null($stream)) {
+        if ($stream === null) {
             $stream = $this::DEFAULT_WRAPPER;
         }
 
@@ -48,7 +48,7 @@ class Stream implements StreamInterface
             $this->resource = $stream;
             $this->meta = $this->getMetadata();
             /*
-             if (is_null($this->meta)) {
+             if ($this->meta === null) {
                 throw new RuntimeException("Could not access the stream metadata.", 1);
             }
             */
@@ -147,7 +147,7 @@ class Stream implements StreamInterface
     {
         $stats = fstat($this->resource);
         if (is_array($stats)) {
-            return is_null($key) ? $stats : ($stats[$key] ?? false);
+            return $key === null ? $stats : ($stats[$key] ?? false);
         }
         return false;
     }
@@ -241,7 +241,7 @@ class Stream implements StreamInterface
      */
     public function write(string $string): int
     {
-        if (is_null($this->size)) {
+        if ($this->size === null) {
             $this->size = 0;
         }
         return fwrite($this->resource, $string);
@@ -284,7 +284,7 @@ class Stream implements StreamInterface
         $this->readable = (bool)preg_match(self::READABLE_MATCH, $this->meta['mode']);
         $this->writable = (bool)preg_match(self::WRITABLE_MATCH, $this->meta['mode']);
         $this->seekable = $this->meta['seekable'];
-        return (!is_null($key) ? ($this->meta[$key] ?? null) : $this->meta);
+        return ($key !== null ? ($this->meta[$key] ?? null) : $this->meta);
     }
 
     /**

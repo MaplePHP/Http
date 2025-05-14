@@ -120,7 +120,7 @@ class Uri implements UriInterface
      */
     public function getAuthority(): string
     {
-        if (is_null($this->authority)) {
+        if ($this->authority === null) {
             $this->authority = "";
 
             if (($host = $this->getHost()) && ($userInfo = $this->getUserInfo())) {
@@ -141,7 +141,7 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): string
     {
-        if (is_null($this->userInfo)) {
+        if ($this->userInfo === null) {
             $this->userInfo = "";
             if ($user = $this->getUniquePart("user")) {
                 $this->encoded['user'] = $user;
@@ -152,7 +152,7 @@ class Uri implements UriInterface
 
             if (is_string($user) && !empty($user)) {
                 $this->userInfo .= "{$user}";
-                if (!is_null($pass)) {
+                if ($pass !== null) {
                     $this->userInfo .= ":{$pass}";
                 }
             }
@@ -195,7 +195,7 @@ class Uri implements UriInterface
      */
     public function getDefaultPort(): ?int
     {
-        if (is_null($this->port) && !is_null($this->scheme)) {
+        if ($this->port === null && $this->scheme !== null) {
             $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? null);
         }
         if ($val = $this->getUniquePart("port")) {
@@ -255,7 +255,7 @@ class Uri implements UriInterface
      */
     public function getUri(): string
     {
-        if (is_null($this->build)) {
+        if ($this->build === null) {
             $this->build = "";
             if ($scheme = $this->getScheme()) {
                 $this->build .= "{$scheme}:";
@@ -391,7 +391,7 @@ class Uri implements UriInterface
      */
     private function getUniquePart(string $key): string|int|float|null
     {
-        return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : null;
+        return ($this->{$key} !== null && $this->encoded[$key] === null) ? $this->{$key} : null;
     }
 
     /**
@@ -414,7 +414,7 @@ class Uri implements UriInterface
         foreach ($vars as $key => $_valueNotUsed) {
             $this->encoded[$key] = null;
             $part = ($this->parts[$key] ?? null);
-            if (!is_null($part)) {
+            if ($part !== null) {
                 $this->{$key} = $part;
             }
         }

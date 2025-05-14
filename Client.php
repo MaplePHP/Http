@@ -126,7 +126,7 @@ class Client implements ClientInterface
         $this->setOption(CURLOPT_RETURNTRANSFER, true);
 
         // Default auth option if get user name
-        if (!$this->hasOption(CURLOPT_HTTPAUTH) && !is_null($request->getUri()->getPart("user"))) {
+        if (!$this->hasOption(CURLOPT_HTTPAUTH) && $request->getUri()->getPart("user") !== null) {
             $this->setOption(CURLOPT_HTTPAUTH, static::DEFAULT_AUTH);
         }
 

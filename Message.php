@@ -25,7 +25,7 @@ abstract class Message implements MessageInterface
      */
     public function getProtocolVersion()
     {
-        if (is_null($this->version)) {
+        if ($this->version === null) {
             $prot = explode("/", ($this->env['SERVER_PROTOCOL'] ?? "HTTP/1.1"));
             $this->version = end($prot);
         }
@@ -72,7 +72,7 @@ abstract class Message implements MessageInterface
      */
     public function hasHeader($name): bool
     {
-        if (is_null($this->headers)) {
+        if ($this->headers === null) {
             throw new RequestException("Missing The HTTP Headers instance", 1);
         }
         return $this->headers->hasHeader($name);

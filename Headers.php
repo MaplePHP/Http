@@ -106,7 +106,7 @@ class Headers implements HeadersInterface
      */
     final public static function getGlobalHeaders($skip = false): array
     {
-        //if(is_null(static::$getGlobalHeaders)) {
+        //if(static::$getGlobalHeaders === null) {
         if (!$skip && function_exists("getallheaders")) {
             static::$getGlobalHeaders = getallheaders();
         } else {

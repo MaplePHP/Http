@@ -68,7 +68,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getStream(): StreamInterface
     {
-        if (is_null($this->stream)) {
+        if ($this->stream === null) {
             throw new RuntimeException("The no stream exists. You need to construct a new stream", 1);
         }
         if (is_string($this->stream)) {
@@ -91,9 +91,9 @@ class UploadedFile implements UploadedFileInterface
             throw new RuntimeException('Target directory is not writable');
         }
 
-        if (!is_null($this->stream)) {
+        if ($this->stream !== null) {
             $this->streamFile($targetPath);
-        } elseif (!is_null($this->tmp)) {
+        } elseif ($this->tmp !== null) {
             $this->moveUploadedFile($targetPath);
         }
 
@@ -148,7 +148,7 @@ class UploadedFile implements UploadedFileInterface
      */
     public function getSize(): ?int
     {
-        return (is_null($this->size)) ? (($this->stream instanceof StreamInterface) ? $this->stream->getSize() : null) : $this->size;
+        return ($this->size === null) ? (($this->stream instanceof StreamInterface) ? $this->stream->getSize() : null) : $this->size;
     }
 
     /**

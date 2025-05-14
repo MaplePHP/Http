@@ -101,7 +101,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getQueryParams(): array
     {
-        if (is_null($this->queryParams)) {
+        if ($this->queryParams === null) {
             parse_str($this->getUri()->getQuery(), $this->queryParams);
         }
         return $this->queryParams;
@@ -188,7 +188,7 @@ class ServerRequest extends Request implements ServerRequestInterface
      */
     public function getParsedBody(): null|array|object
     {
-        if (is_null($this->parsedBody) && $this->getMethod() === "POST") {
+        if ($this->parsedBody === null && $this->getMethod() === "POST") {
             $header = $this->getHeader('Content-Type');
             $contents = (string)$this->getBody();
             switch (($header[0] ?? null)) {

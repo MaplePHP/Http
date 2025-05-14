@@ -6,7 +6,7 @@ use MaplePHP\Http\ServerRequest;
 use MaplePHP\Http\ServerRequestTest;
 use MaplePHP\Http\Uri;
 use MaplePHP\Http\UriTest;
-use MaplePHP\Unitary\Mocker\MethodPool;
+use MaplePHP\Unitary\Mocker\MethodRegistry;
 use MaplePHP\Unitary\TestCase;
 
 $unit = new MaplePHP\Unitary\Unit();

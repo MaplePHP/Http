@@ -16,7 +16,7 @@ class Env
 
     public function __construct(?string $file = null)
     {
-        if (!is_null($file) && is_file($file)) {
+        if ($file !== null && is_file($file)) {
             $this->loadEnvFile($file);
         }
     }

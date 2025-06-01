@@ -35,8 +35,9 @@ class Stream implements StreamInterface
 
     /**
      * PSR-7 Stream
-     * @param mixed  $stream
-     * @param string    $permission Default stream permission is r+
+     *
+     * @param mixed $stream
+     * @param string $permission The default stream permission is r+
      */
     public function __construct(mixed $stream = null, string $permission = "r+")
     {

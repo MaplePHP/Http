@@ -39,5 +39,8 @@
       "MaplePHP\\Http\\": ""
     }
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "scripts": {
+    "unitary": "php vendor/bin/unitary"
+  }
 }

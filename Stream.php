@@ -175,14 +175,39 @@ class Stream implements StreamInterface
     }
 
     /**
-     * Gets line from file pointer
+     * Gets line from a file pointer
      * @return string|false
      */
-    public function getLine(): string|bool
+    public function getLine(): string|false
     {
-        $line = fgets($this->resource);
-        return trim($line);
+        return fgets($this->resource);
     }
+
+    /**
+     * Will get output between a from and to line number
+     *
+     * @param int $from
+     * @param int $to
+     * @return string
+     */
+    public function getLines(int $from, int $to): string
+    {
+        $this->rewind();
+        $lineNo = 0;
+        $out = '';
+        while (($line = $this->getLine()) !== false) {
+            ++$lineNo;
+            if ($lineNo < $from) {
+                continue;
+            }
+            if ($lineNo > $to) {
+                break;
+            }
+            $out .= $line;
+        }
+        return $out;
+    }
+
 
     /**
      * Returns true if the stream is at the end of the stream.

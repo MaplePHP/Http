@@ -164,6 +164,7 @@ class Request extends Message implements RequestInterface
     public function getCliKeyword(): ?string
     {
         if ($this->cliKeywords === null) {
+
             $new = [];
             $arg = $this->getUri()->getArgv();
             foreach ($arg as $val) {
@@ -180,6 +181,19 @@ class Request extends Message implements RequestInterface
         }
 
         return $this->cliKeywords;
+    }
+
+    /**
+     * With new CLI keyword
+     *
+     * @param string $cliKeywords
+     * @return $this
+     */
+    public function withCliKeyword(string $cliKeywords): self
+    {
+        $inst = clone $this;
+        $inst->cliKeywords = trim($cliKeywords);
+        return $inst;
     }
 
     /**

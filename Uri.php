@@ -92,7 +92,7 @@ class Uri implements UriInterface
 
     /**
      * Get dir
-     * @return string (ex: http/https)
+     * @return string
      */
     public function getDir(): string
     {
@@ -100,6 +100,19 @@ class Uri implements UriInterface
             $this->encoded['dir'] = $val;
         }
         return (string)$this->encoded['dir'];
+    }
+
+    /**
+     * With new DIR
+     *
+     * @param string $dir
+     * @return $this
+     */
+    public function withDir(string $dir): self
+    {
+        $inst = clone $this;
+        $inst->setPart("dir", $dir);
+        return $inst;
     }
 
     /**

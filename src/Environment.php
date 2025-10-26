@@ -2,8 +2,8 @@
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\EnvironmentInterface;
 use MaplePHP\DTO\Format;
+use MaplePHP\Http\Interfaces\EnvironmentInterface;
 
 class Environment implements EnvironmentInterface
 {
@@ -17,6 +17,7 @@ class Environment implements EnvironmentInterface
 
     /**
      * Get request/server environment data
+     *
      * @param  string      $key     Server key
      * @param  string|null $default Default value, returned if Env data is empty
      * @return string
@@ -28,7 +29,23 @@ class Environment implements EnvironmentInterface
     }
 
     /**
+     * Set a server environment value
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function set(string $key, mixed $value): self
+    {
+        $inst = clone $this;
+        $key = strtoupper($key);
+        $inst->env[$key] = $value;
+        return $inst;
+    }
+
+    /**
      * Check if environment data exists
+     *
      * @param  string  $key Server key
      * @return boolean
      */
@@ -38,7 +55,8 @@ class Environment implements EnvironmentInterface
     }
 
     /**
-     * Return all env
+     * Return all server environments
+     *
      * @return array
      */
     public function fetch(): array
@@ -47,7 +65,8 @@ class Environment implements EnvironmentInterface
     }
 
     /**
-     * Get URI enviment Part data that will be passed to UriInterface and match to public object if exists.
+     * Get URI environment Part data that will be passed to UriInterface and match to public object if exists.
+     *
      * @return array
      */
     public function getUriParts(array $add = []): array
@@ -64,13 +83,12 @@ class Environment implements EnvironmentInterface
         if (!is_numeric($arr['port'])) {
             $arr['port'] = (int)$arr['port'];
         }
-
-        $arr = array_merge($arr, $add);
-        return $arr;
+        return array_merge($arr, $add);
     }
 
     /**
      * Build and return URI Path from environment
+     *
      * @return string
      */
     public function getPath(): string

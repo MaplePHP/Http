@@ -3,9 +3,8 @@
 namespace MaplePHP\Http;
 
 use MaplePHP\Http\Exceptions\RequestException;
-use MaplePHP\Http\Interfaces\MessageInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
-use MaplePHP\DTO\Format;
+use Psr\Http\Message\MessageInterface;
+use Psr\Http\Message\StreamInterface;
 
 abstract class Message implements MessageInterface
 {
@@ -23,7 +22,7 @@ abstract class Message implements MessageInterface
      * Get server HTTP protocol version number
      * @return string
      */
-    public function getProtocolVersion()
+    public function getProtocolVersion(): string
     {
         if ($this->version === null) {
             $prot = explode("/", ($this->env['SERVER_PROTOCOL'] ?? "HTTP/1.1"));
@@ -38,7 +37,7 @@ abstract class Message implements MessageInterface
      * @param  string $version
      * @return static
      */
-    public function withProtocolVersion($version)
+    public function withProtocolVersion(string $version): MessageInterface
     {
         $inst = clone $this;
         $inst->version = $version;
@@ -67,8 +66,9 @@ abstract class Message implements MessageInterface
 
     /**
      * Check is a header exists
-     * @param  string  $name Header name/key (case insensitive)
+     * @param string $name Header name/key (case-insensitive)
      * @return boolean
+     * @throws RequestException
      */
     public function hasHeader($name): bool
     {
@@ -80,10 +80,10 @@ abstract class Message implements MessageInterface
 
     /**
      * Get header value line
-     * @param  string $name name/key (case insensitive)
+     * @param  string $name name/key (case-insensitive)
      * @return string
      */
-    public function getHeaderLine($name)
+    public function getHeaderLine($name): string
     {
         $data = $this->getHeaderLineData($name);
         /*
@@ -181,7 +181,7 @@ abstract class Message implements MessageInterface
      * @param  StreamInterface $body
      * @return static
      */
-    public function withBody(StreamInterface $body)
+    public function withBody(StreamInterface $body): MessageInterface
     {
         $inst = clone $this;
         $inst->body = $body;

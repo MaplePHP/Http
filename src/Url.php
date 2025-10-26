@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\UrlInterface;
 use MaplePHP\Http\Interfaces\UrlHandlerInterface;
-use MaplePHP\Http\Interfaces\UriInterface;
-use MaplePHP\Http\Interfaces\RequestInterface;
+use MaplePHP\Http\Interfaces\UrlInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class Url implements UrlInterface
 {

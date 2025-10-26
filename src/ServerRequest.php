@@ -1,47 +1,37 @@
 <?php
 
-namespace MaplePHP\Http\Interfaces;
+namespace MaplePHP\Http;
 
-/**
- * Representation of an incoming, server-side HTTP request.
- *
- * Per the HTTP specification, this interface includes properties for
- * each of the following:
- *
- * - Protocol version
- * - HTTP method
- * - URI
- * - Headers
- * - Message body
- *
- * Additionally, it encapsulates all data as it has arrived to the
- * application from the CGI and/or PHP environment, including:
- *
- * - The values represented in $_SERVER.
- * - Any cookies provided (generally via $_COOKIE)
- * - Query string arguments (generally via $_GET, or as parsed via parse_str())
- * - Upload files, if any (as represented by $_FILES)
- * - Deserialized body parameters (generally from $_POST)
- *
- * $_SERVER values MUST be treated as immutable, as they represent application
- * state at the time of request; as such, no methods are provided to allow
- * modification of those values. The other values provide such methods, as they
- * can be restored from $_SERVER or the request body, and may need treatment
- * during the application (e.g., body parameters may be deserialized based on
- * content type).
- *
- * Additionally, this interface recognizes the utility of introspecting a
- * request to derive and match additional parameters (e.g., via URI path
- * matching, decrypting cookie values, deserializing non-form-encoded body
- * content, matching authorization headers to users, etc). These parameters
- * are stored in an "attributes" property.
- *
- * Requests are considered immutable; all methods that might change state MUST
- * be implemented such that they retain the internal state of the current
- * message and return an instance that contains the changed state.
- */
-interface ServerRequestInterface extends RequestInterface
+use MaplePHP\Http\Interfaces\EnvironmentInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
+
+class ServerRequest extends Request implements ServerRequestInterface
 {
+    protected $attr = [];
+    protected $env;
+    protected $queryParams;
+    protected $parsedBody;
+
+    public function __construct(UriInterface $uri, EnvironmentInterface $env)
+    {
+        $this->env = $env;
+
+        parent::__construct(
+            $this->env->get("REQUEST_METHOD", "GET"),
+            $uri,
+            new Headers(Headers::getGlobalHeaders()),
+            new Stream(Stream::INPUT)
+        );
+
+        $this->attr = [
+            "env" => $this->env->fetch(),
+            "cookies" => $_COOKIE,
+            "files" => $this->normalizeFiles($_FILES)
+        ];
+    }
+
+
     /**
      * Retrieve server parameters.
      *
@@ -51,7 +41,10 @@ interface ServerRequestInterface extends RequestInterface
      *
      * @return array
      */
-    public function getServerParams();
+    public function getServerParams(): array
+    {
+        return $this->env->fetch();
+    }
 
     /**
      * Retrieve cookies.
@@ -63,7 +56,10 @@ interface ServerRequestInterface extends RequestInterface
      *
      * @return array
      */
-    public function getCookieParams();
+    public function getCookieParams(): array
+    {
+        return $this->attr['cookies'];
+    }
 
     /**
      * Return an instance with the specified cookies.
@@ -82,7 +78,13 @@ interface ServerRequestInterface extends RequestInterface
      * @param array $cookies Array of key/value pairs representing cookies.
      * @return static
      */
-    public function withCookieParams(array $cookies);
+    public function withCookieParams(array $cookies): self
+    {
+        $inst = clone $this;
+        $inst->attr['cookies'] = $cookies;
+        return $inst;
+    }
+
 
     /**
      * Retrieve query string arguments.
@@ -96,7 +98,13 @@ interface ServerRequestInterface extends RequestInterface
      *
      * @return array
      */
-    public function getQueryParams();
+    public function getQueryParams(): array
+    {
+        if ($this->queryParams === null) {
+            parse_str($this->getUri()->getQuery(), $this->queryParams);
+        }
+        return $this->queryParams;
+    }
 
     /**
      * Return an instance with the specified query string arguments.
@@ -120,7 +128,12 @@ interface ServerRequestInterface extends RequestInterface
      *     $_GET.
      * @return static
      */
-    public function withQueryParams(array $query);
+    public function withQueryParams(array $query): self
+    {
+        $inst = clone $this;
+        $inst->queryParams = $query;
+        return $inst;
+    }
 
     /**
      * Retrieve normalized file upload data.
@@ -134,7 +147,10 @@ interface ServerRequestInterface extends RequestInterface
      * @return array An array tree of UploadedFileInterface instances; an empty
      *     array MUST be returned if no data is present.
      */
-    public function getUploadedFiles();
+    public function getUploadedFiles(): array
+    {
+        return $this->attr['files'];
+    }
 
     /**
      * Create a new instance with the specified uploaded files.
@@ -147,7 +163,12 @@ interface ServerRequestInterface extends RequestInterface
      * @return static
      * @throws \InvalidArgumentException if an invalid structure is provided.
      */
-    public function withUploadedFiles(array $uploadedFiles);
+    public function withUploadedFiles(array $uploadedFiles): self
+    {
+        $inst = clone $this;
+        $inst->attr['files'] = $uploadedFiles;
+        return $inst;
+    }
 
     /**
      * Retrieve any parameters provided in the request body.
@@ -164,7 +185,28 @@ interface ServerRequestInterface extends RequestInterface
      * @return null|array|object The deserialized body parameters, if any.
      *     These will typically be an array or object.
      */
-    public function getParsedBody();
+    public function getParsedBody(): null|array|object
+    {
+        if ($this->parsedBody === null && $this->getMethod() === "POST") {
+            $header = $this->getHeader('Content-Type');
+            $contents = (string)$this->getBody();
+            switch (($header[0] ?? null)) {
+                case "application/x-www-form-urlencoded":
+                    parse_str($contents, $this->parsedBody);
+                    break;
+                case "multipart/form-data":
+                    $this->parsedBody = $_POST;
+                    break;
+                case "application/json":
+                    $this->parsedBody = json_decode($contents, true);
+                    break;
+                case "application/xml":
+                    $this->parsedBody = simplexml_load_string($contents);
+                    break;
+            }
+        }
+        return $this->parsedBody;
+    }
 
     /**
      * Return an instance with the specified body parameters.
@@ -194,7 +236,12 @@ interface ServerRequestInterface extends RequestInterface
      * @throws \InvalidArgumentException if an unsupported argument type is
      *     provided.
      */
-    public function withParsedBody($data);
+    public function withParsedBody($data): self
+    {
+        $inst = clone $this;
+        $inst->parsedBody = $data;
+        return $inst;
+    }
 
     /**
      * Retrieve attributes derived from the request.
@@ -207,7 +254,10 @@ interface ServerRequestInterface extends RequestInterface
      *
      * @return array Attributes derived from the request.
      */
-    public function getAttributes();
+    public function getAttributes(): array
+    {
+        return $this->attr;
+    }
 
     /**
      * Retrieve a single derived request attribute.
@@ -224,7 +274,10 @@ interface ServerRequestInterface extends RequestInterface
      * @param mixed $default Default value to return if the attribute does not exist.
      * @return mixed
      */
-    public function getAttribute($name, $default = null);
+    public function getAttribute($name, $default = null): mixed
+    {
+        return ($this->attr[$name] ?? $default);
+    }
 
     /**
      * Return an instance with the specified derived request attribute.
@@ -241,7 +294,12 @@ interface ServerRequestInterface extends RequestInterface
      * @param mixed $value The value of the attribute.
      * @return static
      */
-    public function withAttribute($name, $value);
+    public function withAttribute($name, $value): self
+    {
+        $inst = clone $this;
+        $inst->attr[$name] = $value;
+        return $inst;
+    }
 
     /**
      * Return an instance that removes the specified derived request attribute.
@@ -257,5 +315,68 @@ interface ServerRequestInterface extends RequestInterface
      * @param string $name The attribute name.
      * @return static
      */
-    public function withoutAttribute($name);
+    public function withoutAttribute($name): self
+    {
+        $inst = clone $this;
+        unset($inst->attr[$name]);
+        return $inst;
+    }
+
+    /**
+     * This will normalize/flatten the a file Array
+     * @param  array  $file
+     * @return array
+     */
+    protected function normalizeFiles(array $files): array
+    {
+        $normalized = [];
+
+        foreach ($files as $key => $file) {
+            if (is_array($file['error'])) {
+                $normalized[$key] = $this->normalizeFileArray($file);
+            } else {
+                $normalized[$key] = new UploadedFile($file);
+            }
+        }
+        return $normalized;
+    }
+
+    /**
+     * This will normalize/flatten the a multi-level file Array
+     * @param  array  $file
+     * @return array
+     */
+    protected function normalizeFileArray(array $file): array
+    {
+        $normalized = [];
+
+        foreach ($file['error'] as $key => $error) {
+            if (is_array($error)) {
+                $normalized[$key] = $this->normalizeFileArray([
+                    'name'     => $file['name'][$key],
+                    'type'     => $file['type'][$key],
+                    'tmp_name' => $file['tmp_name'][$key],
+                    'error'    => $file['error'][$key],
+                    'size'     => $file['size'][$key]
+                ]);
+            } else {
+                $normalized[$key] = new UploadedFile(
+                    $file['name'][$key],
+                    $file['type'][$key],
+                    $file['tmp_name'][$key],
+                    $file['error'][$key],
+                    $file['size'][$key]
+                );
+            }
+        }
+
+        return $normalized;
+    }
+
+
+    /*
+    public function getEnv() {
+        return $this->env;
+    }
+     */
 }

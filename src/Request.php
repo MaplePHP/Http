@@ -2,10 +2,10 @@
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\RequestInterface;
-use MaplePHP\Http\Interfaces\UriInterface;
 use MaplePHP\Http\Interfaces\HeadersInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 
 class Request extends Message implements RequestInterface
 {

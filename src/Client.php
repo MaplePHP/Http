@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\RequestInterface;
-use MaplePHP\Http\Interfaces\ResponseInterface;
-use MaplePHP\Http\Interfaces\ClientInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
-use MaplePHP\Http\Exceptions\ClientException;
-use MaplePHP\Http\Exceptions\RequestException;
-use MaplePHP\Http\Exceptions\NetworkException;
 use InvalidArgumentException;
+use MaplePHP\Http\Exceptions\ClientException;
+use MaplePHP\Http\Exceptions\NetworkException;
+use MaplePHP\Http\Exceptions\RequestException;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 class Client implements ClientInterface
 {

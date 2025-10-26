@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UploadedFileInterface;
 use RuntimeException;
-use MaplePHP\Http\Interfaces\UploadedFileInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
 
 class UploadedFile implements UploadedFileInterface
 {

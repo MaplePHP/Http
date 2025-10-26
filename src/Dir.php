@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\DirInterface;
 use MaplePHP\Http\Interfaces\DirHandlerInterface;
+use MaplePHP\Http\Interfaces\DirInterface;
 
 class Dir implements DirInterface
 {

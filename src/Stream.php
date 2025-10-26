@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
+use Psr\Http\Message\StreamInterface;
 use RuntimeException;
-use MaplePHP\Http\Interfaces\StreamInterface;
 
 class Stream implements StreamInterface
 {
@@ -270,7 +270,7 @@ class Stream implements StreamInterface
         if ($this->size === null) {
             $this->size = 0;
         }
-        return fwrite($this->resource, $string);
+        return (int)fwrite($this->resource, $string);
     }
 
     /**

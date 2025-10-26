@@ -46,3 +46,5 @@ $unit->case("MaplePHP Request URI path test", function(TestCase $case) {
         "equal" => ["https://example.se"],
     ], "GetUri expects https://example.se as result");
 });
+
+return $unit;

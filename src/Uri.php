@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\UriInterface;
 use MaplePHP\DTO\Format;
+use Psr\Http\Message\UriInterface;
 
 class Uri implements UriInterface
 {

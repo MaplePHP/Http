@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use InvalidArgumentException;
 use MaplePHP\DTO\Format;
 
 class Env

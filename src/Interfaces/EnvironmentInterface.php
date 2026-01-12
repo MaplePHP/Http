@@ -13,6 +13,15 @@ interface EnvironmentInterface
     public function get(string $key, ?string $default = ""): string;
 
     /**
+     * Set a server environment value
+     *
+     * @param string $key
+     * @param mixed $value
+     * @return $this
+     */
+    public function set(string $key, mixed $value): self;
+
+    /**
      * Check if environment data exists
      * @param  string  $key Server key
      * @return boolean

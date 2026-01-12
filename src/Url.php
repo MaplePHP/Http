@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\UrlInterface;
 use MaplePHP\Http\Interfaces\UrlHandlerInterface;
-use MaplePHP\Http\Interfaces\UriInterface;
-use MaplePHP\Http\Interfaces\RequestInterface;
+use MaplePHP\Http\Interfaces\UrlInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\UriInterface;
 
 class Url implements UrlInterface
 {
@@ -55,7 +55,7 @@ class Url implements UrlInterface
         if (is_string($type)) {
             $type = [$type];
         }
-        if (is_null($type)) {
+        if ($type === null) {
             $type = [];
         }
 
@@ -111,7 +111,7 @@ class Url implements UrlInterface
         if (is_string($arr)) {
             $arr = [$arr];
         }
-        if (is_null($inst->vars)) {
+        if ($inst->vars === null) {
             $inst->vars = $inst->getVars();
         }
         $inst->vars = array_merge($inst->vars, $arr);
@@ -125,7 +125,7 @@ class Url implements UrlInterface
      */
     public function getVars(): array
     {
-        if (is_null($this->vars)) {
+        if ($this->vars === null) {
             $this->vars = explode("/", $this->realPath);
         }
         return $this->vars;
@@ -146,7 +146,7 @@ class Url implements UrlInterface
      */
     public function getRealPath(): string
     {
-        if (is_null($this->realPath)) {
+        if ($this->realPath === null) {
             $this->realPath = str_replace(rtrim($this->getDirPath(), "/"), "", $this->uri->getPath());
         }
         if (!is_string($this->realPath)) {
@@ -161,7 +161,7 @@ class Url implements UrlInterface
      */
     public function getDirPath(): string
     {
-        if (is_null($this->dirPath)) {
+        if ($this->dirPath === null) {
             // Absolute path to the "httpdocs" directory (document root)
             $documentRoot = (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : "";
             $documentRoot = htmlspecialchars($documentRoot, ENT_QUOTES, 'UTF-8');
@@ -183,7 +183,7 @@ class Url implements UrlInterface
     public function getDirPathOLD(): string
     {
 
-        if (is_null($this->dirPath)) {
+        if ($this->dirPath === null) {
             $root = (isset($_SERVER['DOCUMENT_ROOT'])) ? $_SERVER['DOCUMENT_ROOT'] : "";
             $root = htmlspecialchars($root, ENT_QUOTES, 'UTF-8');
             $this->dirPath = str_replace($root, "", $this->request->getUri()->getDir());
@@ -225,7 +225,7 @@ class Url implements UrlInterface
      */
     public function last(): string
     {
-        if (is_null($this->vars)) {
+        if ($this->vars === null) {
             $this->vars = $this->getVars();
         }
         return end($this->vars);
@@ -237,7 +237,7 @@ class Url implements UrlInterface
      */
     public function first(): string
     {
-        if (is_null($this->vars)) {
+        if ($this->vars === null) {
             $this->vars = $this->getVars();
         }
         return reset($this->vars);
@@ -249,7 +249,7 @@ class Url implements UrlInterface
      */
     public function prev(): string
     {
-        if (is_null($this->vars)) {
+        if ($this->vars === null) {
             $this->end();
         }
         return prev($this->vars);
@@ -261,7 +261,7 @@ class Url implements UrlInterface
      */
     public function next(): string
     {
-        if (is_null($this->vars)) {
+        if ($this->vars === null) {
             $this->reset();
         }
         return next($this->vars);
@@ -303,7 +303,7 @@ class Url implements UrlInterface
     public function getRoot(string $path = "", bool $endSlash = false): string
     {
         $url = $this->getRootDir("/");
-        if (!is_null($this->handler)) {
+        if ($this->handler !== null) {
             $url .= $this->handler->getPublicDirPath();
         }
         $url = rtrim($url, '/');
@@ -346,7 +346,7 @@ class Url implements UrlInterface
      */
     public function __call($method, $args): mixed
     {
-        if (!is_null($this->handler) && method_exists($this->handler, $method)) {
+        if ($this->handler !== null && method_exists($this->handler, $method)) {
             return call_user_func_array([$this->handler, $method], $args);
         } elseif (method_exists($this->uri, $method)) {
             return call_user_func_array([$this->uri, $method], $args);

@@ -1,8 +1,8 @@
 <?php
 
+use MaplePHP\Http\ServerRequestTest;
 use MaplePHP\Http\Request;
-use MaplePHP\Http\Uri;
-use MaplePHP\Unitary\Expect;
+use MaplePHP\Http\UriTest;
 use MaplePHP\Unitary\TestCase;
 
 $unit = new MaplePHP\Unitary\Unit();
@@ -10,7 +10,7 @@ $unit = new MaplePHP\Unitary\Unit();
 // If you build your library right it will become very easy to mock, like I have below.
 
 // Begin by adding a test
-$unit->case("MaplePHP Request URI path test", function(TestCase $case) {
+$unit->case("MaplePHP Request URI path test", function(TestCase $inst) {
 
     $request = new Request(
         "POST", // The HTTP Method (GET, POST, PUT, DELETE, PATCH)
@@ -19,19 +19,19 @@ $unit->case("MaplePHP Request URI path test", function(TestCase $case) {
         ["email" => "john.doe@example.com"] // Post data
     );
 
-    $case
-        ->error("HTTP Request method is not POST")
-        ->validate($request->getMethod(), function(Expect $inst) {
-            $inst->isEqualTo("POST");
-            //assert($inst->isEqualTo("GET")->isValid(), "wdqwwdqw dwq wqdwq");
-        });
+    $inst->add($request->getMethod(), function() {
+        return $this->equal("GET");
 
-    $case->validate($request->getUri()->getPort(), function(Expect $inst) {
-        $inst->isInt();
-        $inst->min(1);
-        $inst->max(65535);
-        $inst->length(1, 5);
-    });
+    }, "HTTP Request method Type is not POST");
+    // Adding an error message is not required, but it is highly recommended
+
+    $this->add($request->getUri()->getPort(), [
+        "isInt" => [], // Has no arguments = empty array
+        "min" => [1], // Strict way is to pass each argument to array
+        "max" => 65535, // But if its only one argument then this it is acceptable
+        "length" => [1, 5]
+
+    ], "Is not a valid port number");
 
     $this->add($request->getUri()->getUserInfo(), [
         "isString" => [],
@@ -42,9 +42,7 @@ $unit->case("MaplePHP Request URI path test", function(TestCase $case) {
 
     ], "Is not a valid port number");
 
-    $this->add((string)$request->withUri(new Uri("https://example.se"))->getUri(), [
+    $this->add((string)$request->withUri(new \MaplePHP\Http\Uri("https://example.se"))->getUri(), [
         "equal" => ["https://example.se"],
     ], "GetUri expects https://example.se as result");
 });
-
-return $unit;

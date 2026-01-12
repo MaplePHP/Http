@@ -1,10 +1,10 @@
 {
   "name": "maplephp/http",
-  "version": "v1.2.3",
   "type": "library",
-  "description": "MaplePHP/Http is a powerful and easy-to-use PHP library that fully supports the PSR-7 HTTP message interfaces.",
+  "description": "MaplePHP/Http is a powerful and easy-to-use PHP library that fully supports the PSR-7 HTTP message and PSR-18: HTTP Client.",
   "keywords": [
-    "psr7",
+    "PSR-7",
+    "PSR-18",
     "http",
     "message",
     "http message",
@@ -28,16 +28,21 @@
     }
   ],
   "require": {
-    "php": ">=8.0",
-    "maplephp/dto": "^3.0"
+    "php": ">=8.2",
+    "psr/http-message": "^2.0",
+    "psr/http-client": "^1.0",
+    "maplephp/dto": "^3.1"
   },
   "require-dev": {
-    "maplephp/unitary": "^1.0"
+    "maplephp/unitary": "^2.0"
   },
   "autoload": {
     "psr-4": {
-      "MaplePHP\\Http\\": ""
+      "MaplePHP\\Http\\": "src"
     }
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "scripts": {
+    "unitary": "php vendor/bin/unitary"
+  }
 }

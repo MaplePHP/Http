@@ -2,8 +2,8 @@
 
 namespace MaplePHP\Http\Exceptions;
 
-use MaplePHP\Http\Interfaces\ClientExceptionInterface;
 use Exception;
+use Psr\Http\Client\ClientExceptionInterface;
 
 /**
  * Every HTTP client related exception MUST implement this interface.

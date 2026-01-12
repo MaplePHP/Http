@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\RequestInterface;
-use MaplePHP\Http\Interfaces\ResponseInterface;
-use MaplePHP\Http\Interfaces\ClientInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
-use MaplePHP\Http\Exceptions\ClientException;
-use MaplePHP\Http\Exceptions\RequestException;
-use MaplePHP\Http\Exceptions\NetworkException;
 use InvalidArgumentException;
+use MaplePHP\Http\Exceptions\ClientException;
+use MaplePHP\Http\Exceptions\NetworkException;
+use MaplePHP\Http\Exceptions\RequestException;
+use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 class Client implements ClientInterface
 {
@@ -126,7 +126,7 @@ class Client implements ClientInterface
         $this->setOption(CURLOPT_RETURNTRANSFER, true);
 
         // Default auth option if get user name
-        if (!$this->hasOption(CURLOPT_HTTPAUTH) && !is_null($request->getUri()->getPart("user"))) {
+        if (!$this->hasOption(CURLOPT_HTTPAUTH) && $request->getUri()->getPart("user") !== null) {
             $this->setOption(CURLOPT_HTTPAUTH, static::DEFAULT_AUTH);
         }
 

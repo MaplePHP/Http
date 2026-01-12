@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use InvalidArgumentException;
 use MaplePHP\DTO\Format;
 
 class Env
@@ -16,7 +15,7 @@ class Env
 
     public function __construct(?string $file = null)
     {
-        if (!is_null($file) && is_file($file)) {
+        if ($file !== null && is_file($file)) {
             $this->loadEnvFile($file);
         }
     }

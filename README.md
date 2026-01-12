@@ -30,9 +30,7 @@ composer require maplephp/http
 To create a server request, use the `ServerRequest` class:
 
 ```php
-use MaplePHP\Http\ServerRequest;
-use MaplePHP\Http\Uri;
-use MaplePHP\Http\Environment;
+use MaplePHP\Http\Environment;use MaplePHP\Http\ServerRequest;use MaplePHP\Http\Uri;
 
 // Create an environment instance (wraps $_SERVER)
 $env = new Environment();
@@ -93,8 +91,7 @@ $newRequest = $request->withAttribute('user_id', 123);
 Create a response using the `Response` class:
 
 ```php
-use MaplePHP\Http\Response;
-use MaplePHP\Http\Stream;
+use MaplePHP\Http\Response;use MaplePHP\Http\Stream;
 
 // Create a stream for the response body
 $body = new Stream('php://temp', 'rw');
@@ -245,8 +242,7 @@ Send HTTP requests using the built-in HTTP client.
 #### Sending a Request
 
 ```php
-use MaplePHP\Http\Client;
-use MaplePHP\Http\Request;
+
 
 // Init request client
 $client = new Client([CURLOPT_HTTPAUTH => CURLAUTH_DIGEST]); // Pass on Curl options

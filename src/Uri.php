@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\UriInterface;
 use MaplePHP\DTO\Format;
+use Psr\Http\Message\UriInterface;
 
 class Uri implements UriInterface
 {
@@ -25,14 +25,13 @@ class Uri implements UriInterface
 
     private $parts = [];
     private $scheme;
-    //private $uri;
     private $host;
     private $port;
     private $user;
     private $pass;
     private $path;
     private $query;
-    private $fragment; // Anchor/after hash
+    private $fragment;
     private $dir;
     private $rootDir;
     private $userInfo;
@@ -40,7 +39,6 @@ class Uri implements UriInterface
     private $argv;
     private $encoded;
     private $build;
-
 
     /**
      * URI in parts
@@ -94,7 +92,7 @@ class Uri implements UriInterface
 
     /**
      * Get dir
-     * @return string (ex: http/https)
+     * @return string
      */
     public function getDir(): string
     {
@@ -102,6 +100,19 @@ class Uri implements UriInterface
             $this->encoded['dir'] = $val;
         }
         return (string)$this->encoded['dir'];
+    }
+
+    /**
+     * With new DIR
+     *
+     * @param string $dir
+     * @return $this
+     */
+    public function withDir(string $dir): self
+    {
+        $inst = clone $this;
+        $inst->setPart("dir", $dir);
+        return $inst;
     }
 
     /**
@@ -122,7 +133,7 @@ class Uri implements UriInterface
      */
     public function getAuthority(): string
     {
-        if (is_null($this->authority)) {
+        if ($this->authority === null) {
             $this->authority = "";
 
             if (($host = $this->getHost()) && ($userInfo = $this->getUserInfo())) {
@@ -143,7 +154,7 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): string
     {
-        if (is_null($this->userInfo)) {
+        if ($this->userInfo === null) {
             $this->userInfo = "";
             if ($user = $this->getUniquePart("user")) {
                 $this->encoded['user'] = $user;
@@ -154,7 +165,7 @@ class Uri implements UriInterface
 
             if (is_string($user) && !empty($user)) {
                 $this->userInfo .= "{$user}";
-                if (!is_null($pass)) {
+                if ($pass !== null) {
                     $this->userInfo .= ":{$pass}";
                 }
             }
@@ -169,7 +180,7 @@ class Uri implements UriInterface
     public function getHost(): string
     {
         if ($val = $this->getUniquePart("host")) {
-            if(($pos = strpos($val, ":")) !== false) {
+            if (($pos = strpos($val, ":")) !== false) {
                 $val = substr($val, 0, $pos);
             }
             $this->encoded['host'] = Format\Str::value($val)->tolower()->get();
@@ -197,7 +208,7 @@ class Uri implements UriInterface
      */
     public function getDefaultPort(): ?int
     {
-        if (is_null($this->port) && !is_null($this->scheme)) {
+        if ($this->port === null && $this->scheme !== null) {
             $this->port = ($this::DEFAULT_PORTS[$this->getScheme()] ?? null);
         }
         if ($val = $this->getUniquePart("port")) {
@@ -217,7 +228,7 @@ class Uri implements UriInterface
                 ->normalizeUrlEncoding()
                 ->replace(['%2F'], ['/'])
                 ->get();
-            if($this->encoded['path']) {
+            if ($this->encoded['path']) {
                 $this->encoded['path'] = "/".ltrim($this->encoded['path'], "/");
             }
         }
@@ -257,7 +268,7 @@ class Uri implements UriInterface
      */
     public function getUri(): string
     {
-        if (is_null($this->build)) {
+        if ($this->build === null) {
             $this->build = "";
             if ($scheme = $this->getScheme()) {
                 $this->build .= "{$scheme}:";
@@ -393,7 +404,7 @@ class Uri implements UriInterface
      */
     private function getUniquePart(string $key): string|int|float|null
     {
-        return (!is_null($this->{$key}) && is_null($this->encoded[$key])) ? $this->{$key} : null;
+        return ($this->{$key} !== null && $this->encoded[$key] === null) ? $this->{$key} : null;
     }
 
     /**
@@ -416,7 +427,7 @@ class Uri implements UriInterface
         foreach ($vars as $key => $_valueNotUsed) {
             $this->encoded[$key] = null;
             $part = ($this->parts[$key] ?? null);
-            if (!is_null($part)) {
+            if ($part !== null) {
                 $this->{$key} = $part;
             }
         }

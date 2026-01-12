@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\DirInterface;
 use MaplePHP\Http\Interfaces\DirHandlerInterface;
+use MaplePHP\Http\Interfaces\DirInterface;
 
 class Dir implements DirInterface
 {
@@ -57,7 +57,7 @@ class Dir implements DirInterface
      */
     public function getLogs(string $path = ""): string
     {
-        if(!is_null($this->handler)) {
+        if ($this->handler !== null) {
             return $this->handler->getLogs($path);
         }
         return $this->getRoot("storage/logs/" . $path);
@@ -72,7 +72,7 @@ class Dir implements DirInterface
      */
     public function __call($method, $args): mixed
     {
-        if (!is_null($this->handler) && method_exists($this->handler, $method)) {
+        if ($this->handler !== null && method_exists($this->handler, $method)) {
             return call_user_func_array([$this->handler, $method], $args);
         } else {
             throw new \BadMethodCallException("The method ({$method}) does not exist in \"".__CLASS__."\" (DirInterface or DirHandlerInterface).", 1);

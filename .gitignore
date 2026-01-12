@@ -1,4 +1,6 @@
 ._*
 .DS_Store
 .sass-cache
+composer.lock
 vendor
+.idea/

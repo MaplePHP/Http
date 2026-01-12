@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\ResponseInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
 use MaplePHP\Http\Interfaces\HeadersInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 class Response extends Message implements ResponseInterface
 {
@@ -88,12 +88,12 @@ class Response extends Message implements ResponseInterface
     ) {
         $this->body = $body;
         $this->statusCode = $status;
-        $this->headers = is_null($headers) ? new Headers() : $headers;
-        $this->body = $body;
-        if (!is_null($version)) {
+        $this->headers = $headers === null ? new Headers() : $headers;
+        //$this->body = $body;
+        if ($version !== null) {
             $this->version = $version;
         }
-        if (!is_null($phrase)) {
+        if ($phrase !== null) {
             $this->phrase = $phrase;
         }
     }
@@ -116,7 +116,7 @@ class Response extends Message implements ResponseInterface
      * Get current response status code
      * @return int
      */
-    public function getStatusCode()
+    public function getStatusCode(): int
     {
         return $this->statusCode;
     }
@@ -125,9 +125,9 @@ class Response extends Message implements ResponseInterface
      * Get current response status phrase
      * @return string
      */
-    public function getReasonPhrase()
+    public function getReasonPhrase(): string
     {
-        if (is_null($this->phrase)) {
+        if ($this->phrase === null) {
             $this->phrase = ($this::PHRASE[$this->statusCode] ?? "");
         }
         return $this->phrase;
@@ -230,7 +230,7 @@ class Response extends Message implements ResponseInterface
      */
     public function createHeaders(): void
     {
-        if (is_null($this->hasHeadersInit)) {
+        if ($this->hasHeadersInit === null) {
             $this->hasHeadersInit = true;
             foreach ($this->getHeaders() as $key => $_unusedVal) {
                 $value = $this->getHeaderLine($key);

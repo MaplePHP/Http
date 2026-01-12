@@ -2,10 +2,10 @@
 
 namespace MaplePHP\Http;
 
-use MaplePHP\Http\Interfaces\RequestInterface;
-use MaplePHP\Http\Interfaces\UriInterface;
 use MaplePHP\Http\Interfaces\HeadersInterface;
-use MaplePHP\Http\Interfaces\StreamInterface;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\StreamInterface;
+use Psr\Http\Message\UriInterface;
 
 class Request extends Message implements RequestInterface
 {
@@ -27,6 +27,9 @@ class Request extends Message implements RequestInterface
         $this->uri = is_string($uri) ? new Uri($uri) : $uri;
         $this->headers = is_array($headers) ? new Headers($headers) : $headers;
         $this->body = $this->resolveRequestStream($body);
+        if ($this->env === null) {
+            $this->env = new Environment();
+        }
         $this->setHostHeader();
     }
 
@@ -118,11 +121,11 @@ class Request extends Message implements RequestInterface
     public function getPort(): int
     {
         $serverPort = $this->env->get("SERVER_PORT");
-        return (int)(($serverPort) ? $serverPort : $this->uri->getPort());
+        return (int)(((int)$serverPort > 0) ? $serverPort : $this->uri->getPort());
     }
 
     /**
-     * Set host header if missing or overwrite if custom is set.
+     * Set the host header if missing or overwrite if custom is set.
      * @return void
      */
     final protected function setHostHeader(): void
@@ -146,7 +149,7 @@ class Request extends Message implements RequestInterface
                 $body = http_build_query($body);
             }
             $stream = new Stream(Stream::TEMP);
-            if (!is_null($body)) {
+            if ($body !== null) {
                 $stream->write($body);
                 $stream->rewind();
             }
@@ -160,7 +163,8 @@ class Request extends Message implements RequestInterface
     */
     public function getCliKeyword(): ?string
     {
-        if (is_null($this->cliKeywords)) {
+        if ($this->cliKeywords === null) {
+
             $new = [];
             $arg = $this->getUri()->getArgv();
             foreach ($arg as $val) {
@@ -180,12 +184,25 @@ class Request extends Message implements RequestInterface
     }
 
     /**
+     * With new CLI keyword
+     *
+     * @param string $cliKeywords
+     * @return $this
+     */
+    public function withCliKeyword(string $cliKeywords): self
+    {
+        $inst = clone $this;
+        $inst->cliKeywords = trim($cliKeywords);
+        return $inst;
+    }
+
+    /**
      * Get Cli arguments
      * @return array
      */
     public function getCliArgs(): array
     {
-        if (is_null($this->cliArgs)) {
+        if ($this->cliArgs === null) {
             $args = $this->getUri()->getArgv();
             $this->cliArgs = [];
             foreach ($args as $arg) {

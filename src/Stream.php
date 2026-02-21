@@ -78,8 +78,15 @@ class Stream implements StreamInterface
      */
     public function __toString(): string
     {
-        $this->rewind();
-        return $this->getContents();
+        try {
+            if ($this->isSeekable()) {
+                $this->rewind();
+            }
+
+            return $this->getContents();
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     /**
